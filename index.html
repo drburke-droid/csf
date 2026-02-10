@@ -45,11 +45,8 @@
 <div class="cal-sn">Step 3 of 4</div><h2>Viewing Distance</h2>
 <p class="cal-sd">Use phone camera or enter manually</p>
 <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:12px;align-items:center">
-<button class="bp" id="cam-btn" onclick="showFiducials()" style="padding:16px 40px;font-size:.9rem">📷 Auto-Detect with Camera</button>
-<div style="display:flex;align-items:center;gap:8px;opacity:.3;margin:4px 0"><div style="flex:1;height:1px;background:var(--b);width:60px"></div><span style="font-family:var(--m);font-size:.45rem;letter-spacing:2px;color:var(--t3)">OR</span><div style="flex:1;height:1px;background:var(--b);width:60px"></div></div>
 <div style="display:flex;gap:8px;align-items:center"><input type="number" id="dv" placeholder="e.g. 5" style="width:80px;text-align:center"><select id="du"><option value="ft">feet</option><option value="m">meters</option><option value="cm">cm</option><option value="in">inches</option></select></div>
 <div class="cal-em" id="de"></div>
-<div id="cam-result" style="display:none;padding:10px;border-radius:12px;background:rgba(0,255,204,.06);border:1px solid rgba(0,255,204,.15);font-family:var(--m);font-size:.75rem;color:var(--a)"></div>
 <label class="ck"><input type="checkbox" id="mm">Mirror setup</label>
 </div>
 <div class="cal-fn"><button class="bb" onclick="calGo(1)">← Back</button><button class="bp" onclick="calValidate()">Review →</button></div>
@@ -84,15 +81,6 @@
 <canvas id="csf-plot"></canvas>
 <button class="restart-btn" onclick="location.reload()">Test Again</button>
 </div>
-</div>
-
-<!-- Screen: Fiducial markers -->
-<div id="scr-fid" class="screen">
-<div class="fid-marker" id="fm0"></div><div class="fid-marker" id="fm1"></div>
-<div class="fid-marker" id="fm2"></div><div class="fid-marker" id="fm3"></div>
-<div class="fid-info" id="fid-info"></div>
-<div class="fid-center"><div style="font-family:var(--m);font-size:.6rem;letter-spacing:3px;color:rgba(0,0,0,.3);text-transform:uppercase">Point phone camera at screen</div><div id="fid-status" style="margin-top:16px;font-family:var(--m);font-size:.5rem;color:rgba(0,0,0,.25);letter-spacing:2px">Waiting for phone…</div></div>
-<button class="fid-cancel" onclick="hideFiducials()">Cancel</button>
 </div>
 
 <div id="gear-btn" onclick="showScreen('scr-cal');calGo(0)">⚙</div>

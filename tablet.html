@@ -70,17 +70,6 @@ body{background:var(--c);color:var(--t1);font-family:var(--f);-webkit-font-smoot
 .res-btn.primary{background:var(--as);border-color:rgba(0,255,204,.25);color:var(--a)}
 .res-copied{font-family:var(--m);font-size:.55rem;color:var(--a);opacity:0;transition:opacity .3s}.res-copied.show{opacity:1}
 
-/* ═══ Camera ═══ */
-.cam{display:none;position:fixed;inset:0;background:#000;z-index:500;flex-direction:column}
-.cam.open{display:flex}
-.cam video{flex:1;object-fit:cover}
-.cam-hud{position:absolute;bottom:0;left:0;right:0;padding:24px;background:linear-gradient(transparent,rgba(0,0,0,.85));text-align:center}
-.cam-inst{font-family:var(--m);font-size:.7rem;font-weight:400;letter-spacing:1.5px;text-transform:uppercase;color:var(--t1);margin-bottom:14px}
-.cam-cap{width:68px;height:68px;border-radius:50%;background:#fff;border:4px solid rgba(255,255,255,.4);cursor:pointer;transition:transform .1s}
-.cam-cap:active{transform:scale(.88)}
-.cam-close{position:absolute;top:16px;right:16px;background:rgba(0,0,0,.6);border:0;color:#fff;width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:20px;z-index:1}
-.cam-guide{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:75vw;height:75vw;border:2px dashed rgba(0,255,204,.4);border-radius:12px;pointer-events:none}
-.cam-dbg{position:absolute;top:60px;left:12px;right:12px;font-family:var(--m);font-size:.55rem;color:rgba(0,255,204,.6);pointer-events:none;white-space:pre-line;line-height:1.6}
 </style></head><body>
 
 <div class="hdr"><span class="brand">BurkeCSF</span></div>
@@ -136,16 +125,6 @@ body{background:var(--c);color:var(--t1);font-family:var(--f);-webkit-font-smoot
 <div class="sbar"><div class="stt" id="stt"><span class="sd sd-wait"></span>Connecting…</div></div>
 <div id="dlog"></div>
 
-<!-- Camera -->
-<div class="cam" id="cam">
-<button class="cam-close" onclick="closeCam()">✕</button>
-<video id="cv" autoplay playsinline></video>
-<div class="cam-guide"></div>
-<div class="cam-dbg" id="cdbg"></div>
-<div class="cam-hud"><div class="cam-inst" id="cinst">Point at display markers</div><button class="cam-cap" id="ccap" onclick="capture()"></button></div>
-<canvas id="cc" style="display:none"></canvas>
-</div>
-
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <script>if(typeof Peer==='undefined'){var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.2/peerjs.min.js';document.head.appendChild(s)}</script>
 <script>
@@ -155,7 +134,7 @@ function setMode(id){document.querySelectorAll('.mode').forEach(m=>m.classList.r
 
 const P=new URLSearchParams(location.search);
 const targetID=P.get('id');
-let conn=null,isConn=false,diagMm=0;
+let conn=null,isConn=false;
 
 // ═══ Connect ═══
 if(!targetID){setSt('sd-er','No ID — scan QR on display');dlog('No id param')}
@@ -190,8 +169,6 @@ function tx(m){if(conn&&isConn)conn.send(m);else dlog('tx fail: not connected')}
 // ═══ Message router ═══
 function onMsg(d){
     if(d.type==='calStep')renderCalStep(d);
-    if(d.type==='startCam'){diagMm=d.diagMm;dlog('startCam diag='+diagMm);openCam()}
-    if(d.type==='cancelCam')closeCam();
     if(d.type==='testStart'){dlog('Test started');setMode('m-test')}
     if(d.type==='progress')updateRing(d.trial,d.maxTrials);
     if(d.type==='results')showResults(d);
@@ -216,7 +193,7 @@ function renderCalStep(d){
         nv.innerHTML='<button class="cal-btn btn-back" onclick="nav(\'back\')">← Back</button><button class="cal-btn btn-next" onclick="nav(\'next\')">Next →</button>';
     }else if(d.step===2){
         sl.textContent='STEP 3 · DISTANCE';tl.textContent='Viewing Distance';
-        bd.innerHTML='<button class="cal-btn btn-cam" onclick="requestCam()">📷  Measure with Camera</button><div class="cal-hint" style="margin-top:14px">Or enter distance on the display</div>';
+        bd.innerHTML='<div class="cal-msg" style="font-size:1rem">Enter the viewing distance<br>on the display screen.</div>';
         nv.innerHTML='<button class="cal-btn btn-back" onclick="nav(\'back\')">← Back</button><button class="cal-btn btn-next" onclick="nav(\'next\')">Review →</button>';
     }else if(d.step===3){
         sl.textContent='STEP 4 · CONFIRM';tl.textContent='Review & Start';
@@ -228,132 +205,6 @@ function renderCalStep(d){
 function onGamma(v){document.getElementById('gval').textContent=v;tx({type:'gamma',value:parseInt(v)})}
 function onCard(v){tx({type:'cardSize',value:parseFloat(v)})}
 function nav(to){tx({type:'nav',to:to})}
-function requestCam(){tx({type:'nav',to:'next'})}// display will send startCam
-
-// ═══ Camera ═══
-let camStream=null;
-function openCam(){
-    document.getElementById('cam').classList.add('open');
-    document.getElementById('ccap').style.display='';
-    document.getElementById('cdbg').textContent='';
-    document.getElementById('cinst').textContent='Point at display — capture when 4 markers visible';
-    navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1920},height:{ideal:1080}}})
-    .then(s=>{camStream=s;document.getElementById('cv').srcObject=s;dlog('Camera opened')})
-    .catch(e=>{document.getElementById('cinst').textContent='Camera denied: '+e.message;dlog('Camera err: '+e.message)});
-}
-function closeCam(){document.getElementById('cam').classList.remove('open');if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null}}
-
-function capture(){
-    const v=document.getElementById('cv'),c=document.getElementById('cc');
-    c.width=v.videoWidth;c.height=v.videoHeight;
-    const ctx=c.getContext('2d');ctx.drawImage(v,0,0);
-    const img=ctx.getImageData(0,0,c.width,c.height);
-    const markers=findMarkers(img,c.width,c.height);
-    const dbg=document.getElementById('cdbg');
-
-    if(markers.length<4){
-        dbg.textContent=`Found ${markers.length}/4 markers — reposition`;
-        document.getElementById('cinst').textContent=`${markers.length}/4 markers — try again`;
-        return;
-    }
-
-    markers.sort((a,b)=>a.y-b.y);
-    const top=markers.slice(0,2).sort((a,b)=>a.x-b.x);
-    const bot=markers.slice(2,4).sort((a,b)=>a.x-b.x);
-    const dx=bot[1].x-top[0].x,dy=bot[1].y-top[0].y;
-    const dPx=Math.sqrt(dx*dx+dy*dy);
-
-    // Get focal length in pixels — try multiple methods
-    let fPx=null,fSrc='';
-
-    // Method 1: Try to read from browser track settings (Chrome on Android may expose this)
-    try{
-        const track=camStream.getVideoTracks()[0];
-        const settings=track.getSettings();
-        dlog('Track settings: '+JSON.stringify(Object.keys(settings)));
-        if(settings.focalLength){
-            // focalLength is in mm. We need sensor width to convert.
-            // Estimate sensor width from FOV if available
-            const caps=track.getCapabilities?track.getCapabilities():{};
-            dlog('Caps keys: '+JSON.stringify(Object.keys(caps)));
-        }
-    }catch(e){}
-
-    // Method 2: Hardware GPU lookup
-    if(!fPx){
-        try{
-            const glc=document.createElement('canvas');
-            const gl=glc.getContext('webgl')||glc.getContext('experimental-webgl');
-            if(gl){
-                const ext=gl.getExtension('WEBGL_debug_renderer_info');
-                const gpu=ext?gl.getParameter(ext.UNMASKED_RENDERER_WEBGL):'';
-                dlog('GPU: '+gpu);
-                // focalLength_mm / sensorWidth_mm * imageWidth_px = focalLength_px
-                const DB={
-                    'Apple A17':[5.23,6.86],'Apple A16':[5.23,6.86],'Apple A15':[5.7,7.01],
-                    'Apple A14':[4.25,5.1],'Apple A13':[4.25,5.1],'Apple A12':[4.25,5.1],'Apple GPU':[4.25,5.1],
-                    'Adreno (TM) 750':[6.81,9.5],'Adreno (TM) 740':[6.81,9.5],
-                    'Adreno (TM) 730':[4.38,5.64],'Adreno (TM) 660':[4.38,5.64],
-                    'Adreno (TM) 620':[4.44,5.76],'Mali-G78':[5.4,7.06],'Mali-G77':[5.4,7.06]
-                };
-                for(const[k,v]of Object.entries(DB)){
-                    if(gpu.includes(k)){fPx=(v[0]/v[1])*c.width;fSrc='hw:'+k;break}
-                }
-            }
-        }catch(e){}
-    }
-
-    // Method 3: Stored calibration from previous session
-    if(!fPx){
-        const stored=localStorage.getItem('cam_focal_px_'+c.width);
-        if(stored){fPx=parseFloat(stored);fSrc='stored'}
-    }
-
-    // Method 4: Estimate from typical hFOV (70°)
-    if(!fPx){fPx=(c.width/2)/Math.tan(35*Math.PI/180);fSrc='est 70°'}
-
-    const distMm=(diagMm*fPx)/dPx;
-    const ft=(distMm/304.8).toFixed(1),m=(distMm/1000).toFixed(2);
-
-    dbg.textContent=[
-        `Frame: ${c.width}×${c.height}  Markers: ${markers.length}`,
-        `TL(${top[0].x.toFixed(0)},${top[0].y.toFixed(0)}) BR(${bot[1].x.toFixed(0)},${bot[1].y.toFixed(0)})`,
-        `Photo diagonal: ${dPx.toFixed(0)}px  Real: ${diagMm.toFixed(0)}mm`,
-        `focalPx: ${fPx.toFixed(0)} (${fSrc})`,
-        `→ Distance: ${distMm.toFixed(0)}mm = ${ft}ft = ${m}m`
-    ].join('\n');
-
-    tx({type:'camDistance',distMm:distMm});
-    document.getElementById('cinst').textContent=`✓ ${ft} ft (${m} m) — sent to display`;
-    document.getElementById('ccap').style.display='none';
-    setTimeout(()=>closeCam(),2500);
-}
-
-function findMarkers(img,w,h){
-    const THRESH=70,MIN_SIZE=40;
-    const dark=new Uint8Array(w*h);
-    for(let i=0;i<w*h;i++){
-        const o=i*4;
-        dark[i]=(img.data[o]<THRESH&&img.data[o+1]<THRESH&&img.data[o+2]<THRESH)?1:0;
-    }
-    const vis=new Uint8Array(w*h),clusters=[];
-    for(let y=0;y<h;y++)for(let x=0;x<w;x++){
-        const idx=y*w+x;if(!dark[idx]||vis[idx])continue;
-        const stk=[idx];vis[idx]=1;let sx=0,sy=0,n=0;
-        while(stk.length){
-            const ci=stk.pop(),cx=ci%w,cy=(ci-cx)/w;
-            sx+=cx;sy+=cy;n++;
-            if(cx>0&&dark[ci-1]&&!vis[ci-1]){vis[ci-1]=1;stk.push(ci-1)}
-            if(cx<w-1&&dark[ci+1]&&!vis[ci+1]){vis[ci+1]=1;stk.push(ci+1)}
-            if(cy>0&&dark[ci-w]&&!vis[ci-w]){vis[ci-w]=1;stk.push(ci-w)}
-            if(cy<h-1&&dark[ci+w]&&!vis[ci+w]){vis[ci+w]=1;stk.push(ci+w)}
-        }
-        if(n>=MIN_SIZE)clusters.push({x:sx/n,y:sy/n,size:n});
-    }
-    clusters.sort((a,b)=>b.size-a.size);
-    return clusters.slice(0,4);
-}
-
 // ═══ Test mode ═══
 function send(v){
     if(!isConn){dlog('send: not connected');return}

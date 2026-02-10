@@ -12,7 +12,6 @@ import { createHost }    from './peer-sync.js';
 
 const MAX_TRIALS = 50;
 const DEBOUNCE_MS = 250;
-const MARKER_SEP_MM = 200;
 
 // ═══ Screen management ═══
 function showScreen(id) {
@@ -22,7 +21,7 @@ function showScreen(id) {
 window.showScreen = showScreen;
 
 // ═══ PeerJS ═══
-const laneID = 'CSF-' + Math.floor(1000 + Math.random() * 9000);
+const laneID = 'CSF-' + Array.from(crypto.getRandomValues(new Uint8Array(4))).map(b=>b.toString(16).padStart(2,'0')).join('');
 let host = null;
 let phoneConnected = false;
 
@@ -33,10 +32,8 @@ function initPeer() {
         () => {
             phoneConnected = true;
             console.log('[App] Phone connected');
-            // Hide gamma local controls, show remote hint
             document.getElementById('gamma-local').style.display = 'none';
             document.getElementById('gamma-remote').style.display = 'block';
-            // Move to calibration
             showScreen('scr-cal');
             calGo(0);
         },
@@ -48,21 +45,21 @@ function initPeer() {
             console.log('[App] Phone disconnected');
             document.getElementById('gamma-local').style.display = 'block';
             document.getElementById('gamma-remote').style.display = 'none';
+        },
+        // onReady — called with actual registered ID
+        (actualID) => {
+            const dir = location.pathname.substring(0, location.pathname.lastIndexOf('/'));
+            const url = `${location.origin}${dir}/tablet.html?id=${actualID}`;
+            document.getElementById('qr-debug').textContent = `Lane: ${actualID}`;
+            const qrEl = document.getElementById('qrcode');
+            qrEl.innerHTML = ''; // clear any previous
+            if (typeof QRCode !== 'undefined') {
+                new QRCode(qrEl, { text: url, width: 180, height: 180, colorDark: '#000', colorLight: '#fff' });
+            } else {
+                qrEl.innerHTML = `<p style="font-size:.5rem;word-break:break-all;max-width:200px">${url}</p>`;
+            }
         }
     );
-
-    // Generate QR code
-    setTimeout(() => {
-        const dir = location.pathname.substring(0, location.pathname.lastIndexOf('/'));
-        const url = `${location.origin}${dir}/tablet.html?id=${laneID}`;
-        document.getElementById('qr-debug').textContent = `Lane: ${laneID}`;
-        const qrEl = document.getElementById('qrcode');
-        if (typeof QRCode !== 'undefined') {
-            new QRCode(qrEl, { text: url, width: 180, height: 180, colorDark: '#000', colorLight: '#fff' });
-        } else {
-            qrEl.innerHTML = `<p style="font-size:.5rem;word-break:break-all;max-width:200px">${url}</p>`;
-        }
-    }, 500);
 }
 
 function tx(msg) { if (host && host.connected) host.send(msg); }
@@ -78,14 +75,6 @@ function handlePhoneMessage(d) {
         }
         else if (d.to === 'back') calGo(Math.max(0, calStep - 1));
         else if (d.to === 'start') startTest();
-    }
-    if (d.type === 'camDistance' && d.distMm > 0) {
-        const ft = (d.distMm / 304.8).toFixed(1);
-        document.getElementById('dv').value = ft;
-        document.getElementById('du').value = 'ft';
-        document.getElementById('cam-result').style.display = 'block';
-        document.getElementById('cam-result').textContent = `📷 ${ft} ft (${(d.distMm/1000).toFixed(2)} m)`;
-        hideFiducials();
     }
     // Test messages
     if (d.type === 'input') handleInput(d.value);
@@ -170,41 +159,6 @@ window.calValidate = function() {
     document.getElementById('spp').textContent = ppd.toFixed(1) + ' px/°';
     document.getElementById('spp').style.color = ppd < 10 ? 'var(--e)' : 'var(--a)';
     calGo(3);
-};
-
-// ═══ Fiducials ═══
-window.showFiducials = function() {
-    const ppm = parseFloat(ss.value) / 85.6;
-    if (ppm <= 0 || isNaN(ppm)) { alert('Complete card size step first.'); return; }
-    const sepPx = MARKER_SEP_MM * ppm;
-    const diagMm = Math.sqrt(2) * MARKER_SEP_MM;
-    const mw = 60;
-
-    showScreen('scr-fid');
-    // Wait a frame for the screen to be visible, then position markers
-    requestAnimationFrame(() => {
-        const cx = window.innerWidth / 2, cy = window.innerHeight / 2, half = sepPx / 2;
-        const positions = [
-            [cx - half - mw/2, cy - half - mw/2],
-            [cx + half - mw/2, cy - half - mw/2],
-            [cx - half - mw/2, cy + half - mw/2],
-            [cx + half - mw/2, cy + half - mw/2]
-        ];
-        for (let i = 0; i < 4; i++) {
-            const el = document.getElementById('fm' + i);
-            el.style.cssText = `position:absolute;left:${positions[i][0]}px;top:${positions[i][1]}px;width:${mw}px;height:${mw}px;background:#000;border-radius:3px`;
-        }
-        document.getElementById('fid-info').textContent = `${MARKER_SEP_MM}mm apart (${sepPx.toFixed(0)}px) | Diag: ${diagMm.toFixed(0)}mm`;
-    });
-
-    // Tell phone to open camera
-    tx({ type: 'startCam', diagMm: Math.sqrt(2) * MARKER_SEP_MM, sepMm: MARKER_SEP_MM });
-};
-
-window.hideFiducials = function() {
-    showScreen('scr-cal');
-    calGo(2);
-    tx({ type: 'cancelCam' });
 };
 
 // ═══ Test ═══

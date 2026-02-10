@@ -65,12 +65,5 @@ canvas#stimCanvas{width:560px;height:560px;background:var(--bg);border-radius:16
 .restart-btn{margin-top:24px;padding:14px 44px;border-radius:100px;border:1px solid var(--b);background:0;color:var(--t3);font-family:var(--f);font-size:.8rem;cursor:pointer;align-self:center}
 .restart-btn:hover{border-color:var(--a);color:var(--a);box-shadow:0 0 24px var(--ag)}
 
-/* ── Fiducial overlay ── */
-#scr-fid{background:var(--bg);z-index:300}
-.fid-marker{position:absolute;background:#000;border-radius:3px}
-.fid-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
-.fid-info{position:absolute;top:16px;left:50%;transform:translateX(-50%);font-family:var(--m);font-size:.5rem;color:rgba(0,0,0,.25)}
-.fid-cancel{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.3);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.15);padding:10px 24px;border-radius:100px;font-family:var(--f);font-size:.8rem;cursor:pointer}
-
 /* ── Misc ── */
 #gear-btn{position:fixed;bottom:20px;right:20px;cursor:pointer;opacity:.1;font-size:22px;z-index:400;transition:opacity .3s}#gear-btn:hover{opacity:.4}
