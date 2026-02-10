@@ -1,267 +1,341 @@
 /**
- * BurkeCSF — Display Controller
- * ==============================
- * Gabor Yes/No detection paradigm.
- * Stimulus always present; user responds "I see it" or "No patch".
+ * BurkeCSF — Unified Display Controller
+ * ======================================
+ * Single page handles: QR connect → Calibration → Test → Results
+ * PeerJS connection persists throughout all phases.
  */
-
-import { isCalibrated, getCalibrationData, isCalibrationStale } from './utils.js';
 import { QCSFEngine }    from './qcsf-engine.js';
 import { createMode }    from './stimulus-modes.js';
 import { drawCSFPlot }   from './csf-plot.js';
-import { initSync }      from './peer-sync.js';
-import { initKeyboard }  from './keyboard.js';
 import { computeResult } from './results.js';
+import { createHost }    from './peer-sync.js';
 
-const MAX_TRIALS  = 50;
+const MAX_TRIALS = 50;
 const DEBOUNCE_MS = 250;
+const MARKER_SEP_MM = 200;
 
-// Default: Gabor Yes/No
-let currentModeId = 'gabor';
+// ═══ Screen management ═══
+function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+}
+window.showScreen = showScreen;
 
-// ── Calibration ──────────────────────────────────────────────────────────
+// ═══ PeerJS ═══
+const laneID = 'CSF-' + Math.floor(1000 + Math.random() * 9000);
+let host = null;
+let phoneConnected = false;
 
-if (!isCalibrated()) {
-    document.getElementById('cal-guard').style.display = 'flex';
-    throw new Error('[App] Calibration required.');
+function initPeer() {
+    if (typeof Peer === 'undefined') return;
+    host = createHost(laneID,
+        // onConnect
+        () => {
+            phoneConnected = true;
+            console.log('[App] Phone connected');
+            // Hide gamma local controls, show remote hint
+            document.getElementById('gamma-local').style.display = 'none';
+            document.getElementById('gamma-remote').style.display = 'block';
+            // Move to calibration
+            showScreen('scr-cal');
+            calGo(0);
+        },
+        // onData
+        (d) => handlePhoneMessage(d),
+        // onDisconnect
+        () => {
+            phoneConnected = false;
+            console.log('[App] Phone disconnected');
+            document.getElementById('gamma-local').style.display = 'block';
+            document.getElementById('gamma-remote').style.display = 'none';
+        }
+    );
+
+    // Generate QR code
+    setTimeout(() => {
+        const dir = location.pathname.substring(0, location.pathname.lastIndexOf('/'));
+        const url = `${location.origin}${dir}/tablet.html?id=${laneID}`;
+        document.getElementById('qr-debug').textContent = `Lane: ${laneID}`;
+        const qrEl = document.getElementById('qrcode');
+        if (typeof QRCode !== 'undefined') {
+            new QRCode(qrEl, { text: url, width: 180, height: 180, colorDark: '#000', colorLight: '#fff' });
+        } else {
+            qrEl.innerHTML = `<p style="font-size:.5rem;word-break:break-all;max-width:200px">${url}</p>`;
+        }
+    }, 500);
 }
 
-const cal = getCalibrationData();
+function tx(msg) { if (host && host.connected) host.send(msg); }
 
-if (isCalibrationStale()) {
-    const w = document.getElementById('stale-cal-warning');
-    if (w) w.style.display = 'block';
+function handlePhoneMessage(d) {
+    // Calibration messages
+    if (d.type === 'gamma') { document.getElementById('gs').value = d.value; updateGamma(); }
+    if (d.type === 'cardSize') { document.getElementById('ss').value = d.value; updateCardSize(); }
+    if (d.type === 'nav') {
+        if (d.to === 'next') {
+            if (calStep === 2) calValidate();
+            else calGo(calStep + 1);
+        }
+        else if (d.to === 'back') calGo(Math.max(0, calStep - 1));
+        else if (d.to === 'start') startTest();
+    }
+    if (d.type === 'camDistance' && d.distMm > 0) {
+        const ft = (d.distMm / 304.8).toFixed(1);
+        document.getElementById('dv').value = ft;
+        document.getElementById('du').value = 'ft';
+        document.getElementById('cam-result').style.display = 'block';
+        document.getElementById('cam-result').textContent = `📷 ${ft} ft (${(d.distMm/1000).toFixed(2)} m)`;
+        hideFiducials();
+    }
+    // Test messages
+    if (d.type === 'input') handleInput(d.value);
 }
 
-if (cal.isMirror) {
-    const mt = document.getElementById('mirror-target');
-    const rc = document.getElementById('result-content');
-    if (mt) mt.classList.add('mirror-flip');
-    if (rc) rc.classList.add('mirror-flip');
+// ═══ Skip phone ═══
+window.skipPhone = function() {
+    document.getElementById('gamma-local').style.display = 'block';
+    document.getElementById('gamma-remote').style.display = 'none';
+    showScreen('scr-cal');
+    calGo(0);
+};
+
+initPeer();
+
+// ═══ Calibration ═══
+let calStep = 0;
+const gs = document.getElementById('gs');
+const ss = document.getElementById('ss');
+const ic = document.getElementById('ic');
+const csh = document.getElementById('card-shape');
+
+function updateGamma() {
+    const v = gs.value;
+    ic.style.backgroundColor = `rgb(${v},${v},${v})`;
+    document.getElementById('gv').textContent = v;
+}
+function updateCardSize() {
+    const px = parseFloat(ss.value);
+    csh.style.width = px + 'px';
+    csh.style.height = (px / 1.585) + 'px';
+    document.getElementById('sv').textContent = px.toFixed(0);
+}
+gs.oninput = updateGamma;
+ss.oninput = updateCardSize;
+updateGamma(); updateCardSize();
+
+window.calGo = function(n) {
+    calStep = n;
+    for (let i = 0; i < 4; i++) {
+        document.getElementById('cs' + i).classList.remove('active');
+        const d = document.getElementById('d' + i);
+        d.classList.remove('done', 'cur');
+        if (i < n) d.classList.add('done');
+        else if (i === n) d.classList.add('cur');
+    }
+    document.getElementById('cs' + n).classList.add('active');
+    // Tell phone what step we're on + current values
+    tx({
+        type: 'calStep', step: n,
+        gamma: parseInt(gs.value),
+        cardPx: parseFloat(ss.value),
+        pxPerMm: parseFloat(ss.value) / 85.6
+    });
+};
+
+function distToMm() {
+    const v = parseFloat(document.getElementById('dv').value);
+    if (isNaN(v)) return NaN;
+    const u = document.getElementById('du').value;
+    return v * ({ ft: 304.8, m: 1000, cm: 10, 'in': 25.4 }[u] || NaN);
 }
 
-// ── State ────────────────────────────────────────────────────────────────
+window.calValidate = function() {
+    const de = document.getElementById('de');
+    const dv = document.getElementById('dv');
+    de.textContent = '';
+    const raw = dv.value.trim();
+    if (!raw) { de.textContent = 'Enter a distance.'; return; }
+    const val = parseFloat(raw);
+    if (isNaN(val) || val <= 0) { de.textContent = 'Invalid number.'; return; }
+    const mmVal = distToMm();
+    if (mmVal < 200) { de.textContent = 'Too close.'; return; }
+    if (mmVal > 20000) { de.textContent = 'Too far.'; return; }
+    const ppm = parseFloat(ss.value) / 85.6;
+    const ppd = mmVal * 0.017455 * ppm;
+    document.getElementById('sg').textContent = gs.value;
+    document.getElementById('sp2').textContent = ppm.toFixed(3);
+    const u = document.getElementById('du').value;
+    document.getElementById('sdi').textContent = `${val} ${u} (${(mmVal/1000).toFixed(2)} m)`;
+    document.getElementById('smi').textContent = document.getElementById('mm').checked ? 'On' : 'Off';
+    document.getElementById('spp').textContent = ppd.toFixed(1) + ' px/°';
+    document.getElementById('spp').style.color = ppd < 10 ? 'var(--e)' : 'var(--a)';
+    calGo(3);
+};
 
-let mode = null, engine = null, currentStim = null;
-let testComplete = false, testStarted = false, lastInputTime = 0;
-let sync = null;
+// ═══ Fiducials ═══
+window.showFiducials = function() {
+    const ppm = parseFloat(ss.value) / 85.6;
+    if (ppm <= 0 || isNaN(ppm)) { alert('Complete card size step first.'); return; }
+    const sepPx = MARKER_SEP_MM * ppm;
+    const diagMm = Math.sqrt(2) * MARKER_SEP_MM;
+    const mw = 60;
 
-// ── Mode Init ────────────────────────────────────────────────────────────
-
-function initMode(modeId) {
-    currentModeId = modeId;
-    mode = createMode(modeId);
-
-    const label = document.getElementById('mode-label');
-    if (label) label.textContent = mode.name;
-
-    try { mode.generate(); } catch (e) { console.error('[App] Generate failed:', e); }
-
-    engine = new QCSFEngine({
-        numAFC: mode.numAFC,
-        psychometricSlope: mode.psychometricSlope
+    showScreen('scr-fid');
+    // Wait a frame for the screen to be visible, then position markers
+    requestAnimationFrame(() => {
+        const cx = window.innerWidth / 2, cy = window.innerHeight / 2, half = sepPx / 2;
+        const positions = [
+            [cx - half - mw/2, cy - half - mw/2],
+            [cx + half - mw/2, cy - half - mw/2],
+            [cx - half - mw/2, cy + half - mw/2],
+            [cx + half - mw/2, cy + half - mw/2]
+        ];
+        for (let i = 0; i < 4; i++) {
+            const el = document.getElementById('fm' + i);
+            el.style.cssText = `position:absolute;left:${positions[i][0]}px;top:${positions[i][1]}px;width:${mw}px;height:${mw}px;background:#000;border-radius:3px`;
+        }
+        document.getElementById('fid-info').textContent = `${MARKER_SEP_MM}mm apart (${sepPx.toFixed(0)}px) | Diag: ${diagMm.toFixed(0)}mm`;
     });
 
-    testComplete = false;
-    testStarted  = false;
-    currentStim  = null;
+    // Tell phone to open camera
+    tx({ type: 'startCam', diagMm: Math.sqrt(2) * MARKER_SEP_MM, sepMm: MARKER_SEP_MM });
+};
+
+window.hideFiducials = function() {
+    showScreen('scr-cal');
+    calGo(2);
+    tx({ type: 'cancelCam' });
+};
+
+// ═══ Test ═══
+let mode = null, engine = null, currentStim = null;
+let testComplete = false, testStarted = false, lastInputTime = 0;
+
+window.startTest = function() {
+    // Save calibration
+    localStorage.setItem('user_gamma_grey', gs.value);
+    localStorage.setItem('user_px_per_mm', parseFloat(ss.value) / 85.6);
+    localStorage.setItem('user_distance_mm', distToMm());
+    localStorage.setItem('mirror_mode', document.getElementById('mm').checked);
+    localStorage.setItem('cal_timestamp', new Date().toISOString());
+
+    const cal = {
+        pxPerMm: parseFloat(ss.value) / 85.6,
+        distMm: distToMm(),
+        midPoint: parseInt(gs.value),
+        isMirror: document.getElementById('mm').checked
+    };
+
+    if (cal.isMirror) document.getElementById('mirror-target').classList.add('mirror-flip');
+
+    mode = createMode('gabor');
+    mode.generate();
+    engine = new QCSFEngine({ numAFC: mode.numAFC, psychometricSlope: mode.psychometricSlope });
+    testComplete = false; testStarted = false; currentStim = null;
     updateProgress(0);
 
-    if (sync && sync.connected) {
-        sync.sendState({
-            mode: mode.id, labels: mode.labels, keys: mode.keys,
-            responseType: mode.responseType,
-            trial: 0, maxTrials: MAX_TRIALS
-        });
-    }
-    showWaiting();
-}
+    showScreen('scr-test');
 
-function showWaiting() {
+    // Tell phone to switch to test mode
+    tx({
+        type: 'testStart',
+        labels: mode.labels, keys: mode.keys,
+        responseType: mode.responseType,
+        maxTrials: MAX_TRIALS
+    });
+
+    // Show waiting state
     const canvas = document.getElementById('stimCanvas');
-    if (!canvas) return;
     const ctx = canvas.getContext('2d');
     const mp = cal.midPoint;
     ctx.fillStyle = `rgb(${mp},${mp},${mp})`;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    const cx = canvas.width / 2, cy = canvas.height / 2;
-    ctx.beginPath();
-    ctx.arc(cx, cy, 3, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(${mp + 30},${mp + 30},${mp + 30},0.5)`;
-    ctx.fill();
-}
 
-// ── Input Handling ───────────────────────────────────────────────────────
+    // Store cal for rendering
+    window._cal = cal;
+};
 
 function handleInput(value) {
     if (testComplete) return;
-
-    // First input starts the test
-    if (!testStarted) {
-        testStarted = true;
-        nextTrial();
-        return;
-    }
-
+    if (!testStarted) { testStarted = true; nextTrial(); return; }
     if (!currentStim || !mode) return;
-
-    // Only accept valid responses
     const validKeys = new Set(mode.keys);
     if (!validKeys.has(value)) return;
-
     const now = performance.now();
     if (now - lastInputTime < DEBOUNCE_MS) return;
     lastInputTime = now;
 
-    const detected = mode.checkAnswer(value);
-
-    try { engine.update(currentStim.stimIndex, detected); }
-    catch (e) { console.error('[App] Update failed:', e); finish(); return; }
+    const correct = mode.checkAnswer(value);
+    try { engine.update(currentStim.stimIndex, correct); }
+    catch (e) { finish(); return; }
 
     updateProgress(engine.trialCount);
-    if (sync && sync.connected) sync.sendProgress(engine.trialCount, MAX_TRIALS);
+    tx({ type: 'progress', trial: engine.trialCount, maxTrials: MAX_TRIALS });
 
     if (engine.trialCount >= MAX_TRIALS) { finish(); return; }
     nextTrial();
 }
-
 window.handleInput = handleInput;
 
-// ── Keyboard fallback ────────────────────────────────────────────────────
-
-const teardownKeyboard = initKeyboard(key => {
-    if (!testComplete) {
-        // Orientation keys
-        if (key === 'up' || key === 'right' || key === 'upright' || key === 'upleft') handleInput(key);
-        // N = no target
-        else if (key === 'n') handleInput('none');
-        // Space/Y = start test
-        else if (key === 'space' || key === 'y') handleInput('_start');
-        else handleInput(key.toLowerCase());
-    }
+// Keyboard fallback
+document.addEventListener('keydown', e => {
+    if (testComplete) return;
+    const k = e.key.toLowerCase();
+    if (k === 'arrowup' || k === 'w') handleInput('up');
+    else if (k === 'arrowright' || k === 'd') handleInput('right');
+    else if (k === 'e') handleInput('upright');
+    else if (k === 'q') handleInput('upleft');
+    else if (k === 'n') handleInput('none');
+    else if (k === ' ') { e.preventDefault(); handleInput('_start'); }
 });
-
-// ── PeerJS ───────────────────────────────────────────────────────────────
-
-const laneID = 'CSF-' + Math.floor(1000 + Math.random() * 9000);
-
-function initPeerSync() {
-    if (typeof Peer === 'undefined') {
-        const so = document.getElementById('sync-overlay');
-        if (so) so.innerHTML = '<p style="font-size:0.8rem;color:rgba(255,255,255,0.3)">Tablet sync unavailable</p><button class="sync-dismiss-btn" onclick="document.getElementById(\'sync-overlay\').style.display=\'none\'">Use Keyboard</button>';
-        return;
-    }
-    try {
-        sync = initSync(laneID, {
-            onReady(tabletURL) {
-                console.log('[App] Ready:', tabletURL);
-                const dbg = document.getElementById('sync-debug');
-                if (dbg) dbg.textContent = `Lane: ${laneID}`;
-                if (typeof QRCode !== 'undefined') {
-                    new QRCode(document.getElementById('qrcode'), { text: tabletURL, width: 180, height: 180, colorDark: '#000', colorLight: '#fff' });
-                } else {
-                    const el = document.getElementById('qrcode');
-                    if (el) el.innerHTML = `<p style="font-size:0.5rem;opacity:.5;word-break:break-all">${tabletURL}</p>`;
-                }
-            },
-            onConnect() {
-                console.log('[App] Tablet connected');
-                const so = document.getElementById('sync-overlay');
-                if (so) so.style.display = 'none';
-                if (mode) {
-                    sync.sendState({
-                        mode: mode.id, labels: mode.labels, keys: mode.keys,
-                        responseType: mode.responseType,
-                        trial: engine ? engine.trialCount : 0, maxTrials: MAX_TRIALS
-                    });
-                }
-            },
-            onInput(value) { handleInput(value); },
-            onModeChange(newMode) { initMode(newMode); },
-            onCommand(action) {
-                if (action === 'restart') location.reload();
-                if (action === 'calibrate') window.location.href = 'calibration.html';
-            },
-            onDisconnect() { console.info('[App] Disconnected'); }
-        });
-    } catch (e) { console.warn('[App] PeerJS init failed:', e); }
-}
-
-initPeerSync();
-
-// ── Trial Loop ───────────────────────────────────────────────────────────
 
 function nextTrial() {
     try { currentStim = engine.selectStimulus(); }
-    catch (e) { console.error('[App] Select failed:', e); finish(); return; }
-
+    catch (e) { finish(); return; }
     if (currentStim.contrast <= 0 || currentStim.contrast > 1 || isNaN(currentStim.contrast))
         currentStim.contrast = Math.max(0.001, Math.min(1.0, currentStim.contrast || 0.5));
     if (currentStim.frequency <= 0 || isNaN(currentStim.frequency))
         currentStim.frequency = 4;
-
     const canvas = document.getElementById('stimCanvas');
-    if (!canvas) return;
-    try { mode.render(canvas, currentStim, cal); }
-    catch (e) { console.error('[App] Render failed:', e); }
+    try { mode.render(canvas, currentStim, window._cal); } catch (e) {}
 }
 
-// ── Progress ─────────────────────────────────────────────────────────────
-
-function updateProgress(trial) {
+function updateProgress(t) {
     const el = document.getElementById('live-progress');
-    if (el) el.textContent = `${trial} / ${MAX_TRIALS}`;
+    if (el) el.textContent = `${t} / ${MAX_TRIALS}`;
     const fill = document.getElementById('progress-fill');
-    if (fill) fill.style.width = `${(trial / MAX_TRIALS) * 100}%`;
+    if (fill) fill.style.width = `${(t / MAX_TRIALS) * 100}%`;
 }
-
-// ── Finish ───────────────────────────────────────────────────────────────
 
 function finish() {
     testComplete = true;
-
     let result;
     try { result = computeResult(engine); }
-    catch (e) { result = { aulcsf: 0, rank: 'ERROR', detail: 'Failed', params: engine.getExpectedEstimate(), curve: [] }; }
-    if (result.aulcsf <= 0) result.rank = 'INCONCLUSIVE';
+    catch (e) { result = { aulcsf: 0, rank: 'ERROR', detail: '', params: engine.getExpectedEstimate(), curve: [] }; }
 
-    document.getElementById('results-overlay').style.display = 'flex';
-    const setEl = (id, t) => { const e = document.getElementById(id); if (e) e.innerText = t; };
-    setEl('final-auc', result.aulcsf.toFixed(2));
-    setEl('final-rank', result.rank);
-    setEl('final-detail', result.detail);
+    showScreen('scr-results');
+    document.getElementById('final-auc').innerText = result.aulcsf.toFixed(2);
+    document.getElementById('final-rank').innerText = result.rank;
+    document.getElementById('final-detail').innerText = result.detail;
 
-    let plotDataUrl = '';
+    let plotUrl = '';
     try {
-        const plotCanvas = document.getElementById('csf-plot');
-        if (plotCanvas) plotDataUrl = drawCSFPlot(plotCanvas, engine, result.params);
-    } catch (e) { console.error('[App] Plot failed:', e); }
+        const pc = document.getElementById('csf-plot');
+        plotUrl = drawCSFPlot(pc, engine, result.params);
+    } catch (e) {}
 
-    // Send results + plot to tablet
-    if (sync && sync.connected) {
-        sync.sendResults(result.aulcsf.toFixed(2), result.rank, result.detail);
-        // Send curve data so tablet can render its own chart
-        try {
-            sync.sendState({
-                type: 'results-extended',
-                score: result.aulcsf.toFixed(2),
-                rank: result.rank,
-                detail: result.detail,
-                plotDataUrl: plotDataUrl,
-                curve: result.curve || [],
-                history: engine.history.map(h => ({
-                    stimIndex: h.stimIndex,
-                    correct: h.correct,
-                    freq: engine.stimGrid[h.stimIndex].freq,
-                    logContrast: engine.stimGrid[h.stimIndex].logContrast
-                }))
-            });
-        } catch (e) { /* curve too large, skip */ }
-    }
-
-    if (teardownKeyboard) teardownKeyboard();
+    // Send results to phone
+    tx({
+        type: 'results',
+        score: result.aulcsf.toFixed(2),
+        rank: result.rank,
+        detail: result.detail,
+        plotDataUrl: plotUrl,
+        curve: result.curve || [],
+        history: engine.history.map(h => ({
+            stimIndex: h.stimIndex, correct: h.correct,
+            freq: engine.stimGrid[h.stimIndex].freq,
+            logContrast: engine.stimGrid[h.stimIndex].logContrast
+        }))
+    });
 }
-
-// ── Start ────────────────────────────────────────────────────────────────
-
-initMode(currentModeId);

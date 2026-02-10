@@ -3,99 +3,104 @@
 <title>BurkeCSF</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
-:root{--a:#00ffcc;--ag:rgba(0,255,204,.25);--as:rgba(0,255,204,.1);--c:#0a0a0c;--b:rgba(255,255,255,.1);--t1:#fff;--t2:rgba(255,255,255,.65);--t3:rgba(255,255,255,.35);--e:#ff453a;--f:'DM Sans',-apple-system,system-ui,sans-serif;--m:'JetBrains Mono','SF Mono',monospace;--ez:cubic-bezier(.4,0,.2,1)}
+:root{--a:#00ffcc;--ag:rgba(0,255,204,.25);--as:rgba(0,255,204,.1);--c:#0a0a0c;--b:rgba(255,255,255,.12);--t1:#fff;--t2:rgba(255,255,255,.7);--t3:rgba(255,255,255,.4);--e:#ff453a;--f:'DM Sans',-apple-system,system-ui,sans-serif;--m:'JetBrains Mono','SF Mono',monospace;--ez:cubic-bezier(.4,0,.2,1)}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--c);color:var(--t1);font-family:var(--f);-webkit-font-smoothing:antialiased;height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direction:column;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+body{background:var(--c);color:var(--t1);font-family:var(--f);-webkit-font-smoothing:antialiased;height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
 
-/* ── Header ── */
-.hdr{display:flex;justify-content:space-between;align-items:center;padding:16px 20px 8px;flex-shrink:0}
-.brand{font-size:1.1rem;font-weight:300;color:var(--t2)}
+.hdr{padding:14px 20px 6px;text-align:center;flex-shrink:0}
+.brand{font-size:1rem;font-weight:300;color:var(--t2)}
+.mode{display:none;flex-direction:column;flex:1;overflow:hidden}
+.mode.active{display:flex}
 
-/* ── Progress ring ── */
-.prog{display:flex;justify-content:center;padding:6px 0 10px;flex-shrink:0}
+/* ═══ Status bar ═══ */
+.sbar{padding:8px 20px;text-align:center;flex-shrink:0}
+.stt{font-family:var(--m);font-size:.65rem;font-weight:400;letter-spacing:1.5px;color:var(--t2)}
+.sd{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.sd-ok{background:var(--a)}.sd-er{background:var(--e)}.sd-wait{background:rgba(255,255,255,.4);animation:pls 1.5s ease-in-out infinite}
+@keyframes pls{0%,100%{opacity:1}50%{opacity:.2}}
+#dlog{font-family:var(--m);font-size:.5rem;color:var(--t3);max-height:50px;overflow-y:auto;padding:0 20px;line-height:1.5}
+
+/* ═══ Calibration mode ═══ */
+.cal{padding:16px 20px;flex:1;display:flex;flex-direction:column;overflow-y:auto}
+.cal-title{font-size:1.2rem;font-weight:300;text-align:center;margin-bottom:2px}
+.cal-step-label{font-family:var(--m);font-size:.6rem;font-weight:400;letter-spacing:2px;text-transform:uppercase;color:var(--t3);text-align:center;margin-bottom:14px}
+.cal-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+.cal-val{font-family:var(--m);font-size:2.4rem;font-weight:500;color:var(--a)}
+.cal-hint{font-family:var(--f);font-size:.85rem;color:var(--t2);text-align:center;line-height:1.6}
+.cal-msg{font-family:var(--f);font-size:.9rem;color:var(--t2);text-align:center;padding:16px;line-height:1.7}
+.cal-slider{width:94%;max-width:320px}
+.cal-slider input[type=range]{-webkit-appearance:none;width:100%;height:12px;background:rgba(255,255,255,.15);border-radius:6px;outline:0}
+.cal-slider input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:40px;height:40px;border-radius:50%;background:var(--a);box-shadow:0 0 20px var(--ag);border:3px solid rgba(0,0,0,.3)}
+.cal-slider input[type=range]::-moz-range-thumb{width:40px;height:40px;border-radius:50%;background:var(--a);border:3px solid rgba(0,0,0,.3)}
+.cal-sl{display:flex;justify-content:space-between;width:94%;max-width:320px;font-family:var(--m);font-size:.6rem;font-weight:400;color:var(--t3);text-transform:uppercase;margin-top:4px}
+.cal-nav{display:flex;gap:12px;justify-content:center;padding:18px 0;flex-shrink:0}
+.cal-btn{padding:16px 36px;border-radius:100px;font-family:var(--f);font-size:.9rem;font-weight:400;cursor:pointer;border:none;transition:all .15s var(--ez)}
+.btn-back{background:0;color:var(--t2);border:2px solid var(--b)}.btn-back:active{border-color:rgba(255,255,255,.3)}
+.btn-next{background:#fff;color:#0a0a0c}.btn-next:active{background:var(--a)}
+.btn-start{background:var(--a);color:#0a0a0c;font-weight:500;font-size:1.05rem;padding:18px 52px}
+.btn-cam{padding:20px 40px;border-radius:20px;background:rgba(0,255,204,.05);border:2px solid rgba(0,255,204,.2);color:var(--t1);font-size:1rem;font-weight:400;cursor:pointer}
+.btn-cam:active{background:rgba(0,255,204,.12);border-color:var(--a)}
+
+/* ═══ Test mode ═══ */
+.test{padding:0 16px;flex:1;display:flex;flex-direction:column}
+.test-prog{display:flex;justify-content:center;padding:8px 0;flex-shrink:0}
 .ring{position:relative;width:56px;height:56px}
 .ring svg{width:56px;height:56px;transform:rotate(-90deg)}
-.ring .bg{fill:none;stroke:rgba(255,255,255,.08);stroke-width:3}.ring .fg{fill:none;stroke:var(--a);stroke-width:3;stroke-linecap:round;stroke-dasharray:131.9;stroke-dashoffset:131.9;transition:stroke-dashoffset .5s var(--ez)}
-.ring .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--m);font-size:.85rem;font-weight:500;color:var(--t1)}
-
-/* ── Response area ── */
-.resp{flex:1;display:flex;align-items:center;justify-content:center;padding:0 16px;position:relative}
-.prompt{text-align:center;font-family:var(--f);font-size:.85rem;color:var(--t3);position:absolute}
-
-/* ── Orientation + No Target buttons ── */
+.ring .bg{fill:none;stroke:rgba(255,255,255,.1);stroke-width:3}.ring .fg{fill:none;stroke:var(--a);stroke-width:3;stroke-linecap:round;stroke-dasharray:131.9;stroke-dashoffset:131.9;transition:stroke-dashoffset .5s var(--ez)}
+.ring .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--m);font-size:.9rem;font-weight:500;color:var(--t1)}
+.test-resp{flex:1;display:flex;align-items:center;justify-content:center}
 .ori-pad{display:flex;flex-direction:column;gap:12px;width:min(94vw,380px)}
 .ori-row{display:flex;gap:12px}
-.ori-btn{flex:1;padding:24px 8px;border-radius:20px;border:2px solid var(--b);background:rgba(255,255,255,.03);font-size:2rem;color:var(--t1);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .1s var(--ez);touch-action:manipulation;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px}
+.ori-btn{flex:1;padding:24px 8px;border-radius:20px;border:2px solid var(--b);background:rgba(255,255,255,.03);font-size:2.2rem;color:var(--t1);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .1s;touch-action:manipulation;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px}
 .ori-btn:active{transform:scale(.94);background:var(--as);border-color:var(--a);color:var(--a)}
-.ori-lbl{font-family:var(--m);font-size:.6rem;font-weight:400;letter-spacing:1px;text-transform:uppercase;color:var(--t2)}
-.no-btn{padding:20px;border-radius:20px;border:2px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02);font-family:var(--f);font-size:1.1rem;font-weight:400;color:var(--t2);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .1s var(--ez);touch-action:manipulation;text-align:center;letter-spacing:1px}
+.ori-lbl{font-family:var(--m);font-size:.65rem;font-weight:400;letter-spacing:1px;text-transform:uppercase;color:var(--t2)}
+.no-btn{padding:20px;border-radius:20px;border:2px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02);font-family:var(--f);font-size:1.1rem;font-weight:400;color:var(--t2);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .1s;touch-action:manipulation;text-align:center;letter-spacing:1px}
 .no-btn:active{transform:scale(.97);background:rgba(255,69,58,.08);border-color:rgba(255,69,58,.3);color:var(--e)}
-.fl{animation:fl .3s ease-out}
-@keyframes fl{0%{background:var(--as);border-color:var(--a);color:var(--a);box-shadow:0 0 20px var(--ag)}100%{background:rgba(255,255,255,.03);border-color:var(--b);color:var(--t1);box-shadow:none}}
-.hid{display:none!important}
 
-/* ── Status bar ── */
-.sbar{padding:12px 20px;text-align:center;flex-shrink:0}
-#stt{font-family:var(--m);font-size:.65rem;font-weight:400;letter-spacing:1.5px;text-transform:uppercase;color:var(--t2)}
-.sd{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:middle}
-.sd.ok{background:var(--a)}.sd.er{background:var(--e)}.sd.wait{background:rgba(255,255,255,.3);animation:pls 1.5s ease-in-out infinite}
-@keyframes pls{0%,100%{opacity:1}50%{opacity:.2}}
-.rbtn{display:none;margin-top:10px;background:0;color:var(--t2);border:1.5px solid var(--b);padding:10px 24px;border-radius:100px;cursor:pointer;font-family:var(--f);font-size:.8rem;font-weight:400}
-/* Debug log */
-#dlog{font-family:var(--m);font-size:.5rem;color:var(--t3);max-height:60px;overflow-y:auto;margin-top:6px;text-align:left;padding:0 20px;line-height:1.5}
+/* ═══ Results mode ═══ */
+.res{padding:16px 20px;flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;overflow-y:auto}
+.res-ey{font-family:var(--m);font-size:.6rem;letter-spacing:3px;text-transform:uppercase;color:var(--t3)}
+.res-sc{font-family:var(--m);font-size:3.5rem;font-weight:700;color:var(--a);line-height:1;text-shadow:0 0 60px var(--ag)}
+.res-rk{font-size:1rem;font-weight:300;letter-spacing:6px;text-transform:uppercase;color:var(--t2);margin-top:4px}
+.res-dt{font-family:var(--m);font-size:.6rem;color:var(--t3);margin-top:4px}
+.res-plot{width:100%;max-width:380px;border-radius:8px;margin:10px 0}
+.res-actions{display:flex;gap:10px;margin-top:10px}
+.res-btn{padding:12px 24px;border-radius:100px;border:1.5px solid var(--b);background:0;color:var(--t2);font-family:var(--f);font-size:.8rem;cursor:pointer;display:flex;align-items:center;gap:6px}
+.res-btn:active{background:var(--as);border-color:var(--a);color:var(--a)}
+.res-btn.primary{background:var(--as);border-color:rgba(0,255,204,.25);color:var(--a)}
+.res-copied{font-family:var(--m);font-size:.55rem;color:var(--a);opacity:0;transition:opacity .3s}.res-copied.show{opacity:1}
 
-/* ── Results ── */
-.rv{display:none;flex-direction:column;align-items:center;justify-content:flex-start;flex:1;gap:8px;padding:16px 20px;overflow-y:auto}
-.rv-ey{font-family:var(--m);font-size:.6rem;font-weight:400;letter-spacing:3px;text-transform:uppercase;color:var(--t3)}
-.rv-sc{font-family:var(--m);font-size:3.5rem;font-weight:700;color:var(--a);line-height:1;text-shadow:0 0 60px var(--ag)}
-.rv-rk{font-size:1rem;font-weight:300;letter-spacing:6px;text-transform:uppercase;color:var(--t2);margin-top:4px}
-.rv-dt{font-family:var(--m);font-size:.6rem;color:var(--t3);margin-top:4px}
-.rv-plot{width:100%;max-width:380px;border-radius:8px;margin:10px 0}
-.rv-actions{display:flex;gap:10px;margin-top:10px}
-.rv-btn{padding:12px 24px;border-radius:100px;border:1.5px solid var(--b);background:0;color:var(--t2);font-family:var(--f);font-size:.8rem;font-weight:400;cursor:pointer;display:flex;align-items:center;gap:6px}
-.rv-btn:active{background:var(--as);border-color:var(--a);color:var(--a)}
-.rv-btn.primary{background:var(--as);border-color:rgba(0,255,204,.25);color:var(--a)}
-.rv-copied{font-family:var(--m);font-size:.55rem;color:var(--a);opacity:0;transition:opacity .3s}.rv-copied.show{opacity:1}
-
-/* ── Calibration panel ── */
-.cp{display:none;flex-direction:column;flex:1;padding:16px 20px;overflow-y:auto}
-.cp.open{display:flex}
-.cp-title{font-size:1.2rem;font-weight:300;text-align:center;margin-bottom:4px;color:var(--t1)}
-.cp-step{font-family:var(--m);font-size:.6rem;font-weight:400;letter-spacing:2px;text-transform:uppercase;color:var(--t3);text-align:center;margin-bottom:16px}
-.cp-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
-.cp-val{font-family:var(--m);font-size:2.2rem;font-weight:500;color:var(--a)}
-.cp-hint{font-family:var(--f);font-size:.8rem;color:var(--t2);text-align:center;line-height:1.6}
-.cp-msg{font-family:var(--f);font-size:.85rem;color:var(--t2);text-align:center;padding:16px;line-height:1.7}
-.cp-slider{width:92%;max-width:320px}
-.cp-slider input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:10px;background:rgba(255,255,255,.12);border-radius:5px;outline:0}
-.cp-slider input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:36px;height:36px;border-radius:50%;background:var(--a);box-shadow:0 0 20px var(--ag);border:3px solid rgba(0,0,0,.3)}
-.cp-slider input[type=range]::-moz-range-thumb{width:36px;height:36px;border-radius:50%;background:var(--a);border:3px solid rgba(0,0,0,.3)}
-.cp-slider-labels{display:flex;justify-content:space-between;width:92%;max-width:320px;font-family:var(--m);font-size:.55rem;font-weight:400;color:var(--t3);text-transform:uppercase;margin-top:4px}
-.cp-nav{display:flex;gap:12px;justify-content:center;padding:18px 0;flex-shrink:0}
-.cp-btn{padding:16px 36px;border-radius:100px;font-family:var(--f);font-size:.9rem;font-weight:400;cursor:pointer;border:none;transition:all .15s var(--ez)}
-.cp-back{background:0;color:var(--t2);border:1.5px solid var(--b)}.cp-back:active{border-color:rgba(255,255,255,.3);color:var(--t1)}
-.cp-next{background:#fff;color:#0a0a0c}.cp-next:active{background:var(--a)}
-.cp-start{background:var(--a);color:#0a0a0c;font-weight:500;font-size:1rem;padding:18px 52px}
-
-/* ── Camera ── */
+/* ═══ Camera ═══ */
 .cam{display:none;position:fixed;inset:0;background:#000;z-index:500;flex-direction:column}
 .cam.open{display:flex}
 .cam video{flex:1;object-fit:cover}
-.cam .hud{position:absolute;bottom:0;left:0;right:0;padding:24px;background:linear-gradient(transparent,rgba(0,0,0,.85));text-align:center}
-.cam .inst{font-family:var(--m);font-size:.65rem;font-weight:400;letter-spacing:1.5px;text-transform:uppercase;color:var(--t1);margin-bottom:14px}
-.cam .cap{width:68px;height:68px;border-radius:50%;background:#fff;border:4px solid rgba(255,255,255,.4);cursor:pointer}
-.cam .cap:active{transform:scale(.9)}
-.cam .cx{position:absolute;top:16px;right:16px;background:rgba(0,0,0,.6);border:0;color:#fff;width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:20px;z-index:1}
-.cam .guide{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:75vw;height:75vw;border:2px dashed rgba(0,255,204,.4);border-radius:12px;pointer-events:none}
-.cam .dbg{position:absolute;top:60px;left:12px;right:12px;font-family:var(--m);font-size:.5rem;color:rgba(0,255,204,.5);pointer-events:none;white-space:pre-line}
+.cam-hud{position:absolute;bottom:0;left:0;right:0;padding:24px;background:linear-gradient(transparent,rgba(0,0,0,.85));text-align:center}
+.cam-inst{font-family:var(--m);font-size:.7rem;font-weight:400;letter-spacing:1.5px;text-transform:uppercase;color:var(--t1);margin-bottom:14px}
+.cam-cap{width:68px;height:68px;border-radius:50%;background:#fff;border:4px solid rgba(255,255,255,.4);cursor:pointer;transition:transform .1s}
+.cam-cap:active{transform:scale(.88)}
+.cam-close{position:absolute;top:16px;right:16px;background:rgba(0,0,0,.6);border:0;color:#fff;width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:20px;z-index:1}
+.cam-guide{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:75vw;height:75vw;border:2px dashed rgba(0,255,204,.4);border-radius:12px;pointer-events:none}
+.cam-dbg{position:absolute;top:60px;left:12px;right:12px;font-family:var(--m);font-size:.55rem;color:rgba(0,255,204,.6);pointer-events:none;white-space:pre-line;line-height:1.6}
 </style></head><body>
 
-<div id="ctrl">
 <div class="hdr"><span class="brand">BurkeCSF</span></div>
-<div class="prog" id="prog"><div class="ring"><svg viewBox="0 0 48 48"><circle class="bg" cx="24" cy="24" r="21"/><circle class="fg" id="rfg" cx="24" cy="24" r="21"/></svg><div class="num" id="rnum">0</div></div></div>
-<div class="resp" id="resp">
-<div class="prompt" id="prompt">Tap a response to begin</div>
-<div class="ori-pad" id="pad-ori">
+
+<!-- Calibration mode -->
+<div id="m-cal" class="mode active">
+<div class="cal">
+<div class="cal-step-label" id="csl">Connecting…</div>
+<div class="cal-title" id="ctl">Waiting for display</div>
+<div class="cal-body" id="cbd"><div class="cal-msg">Connecting to display…</div></div>
+<div class="cal-nav" id="cnv"></div>
+</div>
+</div>
+
+<!-- Test mode -->
+<div id="m-test" class="mode">
+<div class="test">
+<div class="test-prog"><div class="ring"><svg viewBox="0 0 48 48"><circle class="bg" cx="24" cy="24" r="21"/><circle class="fg" id="rfg" cx="24" cy="24" r="21"/></svg><div class="num" id="rnum">0</div></div></div>
+<div class="test-resp">
+<div class="ori-pad">
 <div class="ori-row">
 <button class="ori-btn" onclick="send('upleft')">↖<span class="ori-lbl">Left</span></button>
 <button class="ori-btn" onclick="send('up')">↑<span class="ori-lbl">Vertical</span></button>
@@ -107,215 +112,273 @@ body{background:var(--c);color:var(--t1);font-family:var(--f);-webkit-font-smoot
 <button class="no-btn" onclick="send('none')">No Target Visible</button>
 </div>
 </div>
-<div class="sbar" id="sbar">
-<div id="stt"><span class="sd wait" id="sdi"></span>Connecting…</div>
-<button class="rbtn" id="rbtn" onclick="location.reload()">Retry</button>
 </div>
+</div>
+
+<!-- Results mode -->
+<div id="m-res" class="mode">
+<div class="res">
+<div class="res-ey">Area Under Log CSF</div>
+<div class="res-sc" id="rsc">—</div>
+<div class="res-rk" id="rrk"></div>
+<div class="res-dt" id="rdt"></div>
+<img class="res-plot" id="rplot" style="display:none" alt="CSF">
+<canvas id="rcnv" style="display:none"></canvas>
+<div class="res-actions">
+<button class="res-btn primary" onclick="shareR()">↑ Share</button>
+<button class="res-btn" onclick="copyR()">⎘ Copy</button>
+</div>
+<div class="res-copied" id="rcp">Copied</div>
+</div>
+</div>
+
+<!-- Status -->
+<div class="sbar"><div class="stt" id="stt"><span class="sd sd-wait"></span>Connecting…</div></div>
 <div id="dlog"></div>
-<div class="rv" id="rv">
-<div class="rv-ey">Area Under Log CSF</div>
-<div class="rv-sc" id="rsc">—</div><div class="rv-rk" id="rrk"></div><div class="rv-dt" id="rdt"></div>
-<img class="rv-plot" id="rv-plot" style="display:none" alt="CSF">
-<canvas id="rv-canvas" style="display:none"></canvas>
-<div class="rv-actions">
-<button class="rv-btn primary" onclick="shareR()">↑ Share</button>
-<button class="rv-btn" onclick="copyR()">⎘ Copy</button>
-</div>
-<div class="rv-copied" id="rv-cp">Copied</div>
-</div>
-</div>
 
-<div class="cp" id="cp">
-<div class="cp-step" id="cp-sl">Calibration</div>
-<div class="cp-title" id="cp-tl">Linked to Display</div>
-<div class="cp-body" id="cp-bd"><div class="cp-msg">Waiting for calibration step…</div></div>
-<div class="cp-nav" id="cp-nv"></div>
-</div>
-
+<!-- Camera -->
 <div class="cam" id="cam">
-<button class="cx" onclick="closeCam()">✕</button>
+<button class="cam-close" onclick="closeCam()">✕</button>
 <video id="cv" autoplay playsinline></video>
-<div class="guide"></div>
-<div class="dbg" id="cdbg"></div>
-<div class="hud"><div class="inst" id="cinst">Point at display markers</div><button class="cap" id="ccap" onclick="capture()"></button></div>
+<div class="cam-guide"></div>
+<div class="cam-dbg" id="cdbg"></div>
+<div class="cam-hud"><div class="cam-inst" id="cinst">Point at display markers</div><button class="cam-cap" id="ccap" onclick="capture()"></button></div>
 <canvas id="cc" style="display:none"></canvas>
 </div>
 
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <script>if(typeof Peer==='undefined'){var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.2/peerjs.min.js';document.head.appendChild(s)}</script>
 <script>
-// ═══ Debug logger ═══
-function dlog(msg){const el=document.getElementById('dlog');if(el){el.textContent+=msg+'\n';el.scrollTop=el.scrollHeight}console.log('[Tab]',msg)}
+function dlog(m){const e=document.getElementById('dlog');if(e){e.textContent+=m+'\n';e.scrollTop=e.scrollHeight}console.log('[T]',m)}
+function setSt(cls,txt){document.getElementById('stt').innerHTML=`<span class="sd ${cls}"></span>${txt}`}
+function setMode(id){document.querySelectorAll('.mode').forEach(m=>m.classList.remove('active'));document.getElementById(id).classList.add('active')}
 
-const P=new URLSearchParams(location.search),laneID=P.get('id'),calID=P.get('cal'),camID=P.get('cam');
-let diagMm=parseFloat(P.get('diagMm'))||0,conn=null,isConn=false;
+const P=new URLSearchParams(location.search);
+const targetID=P.get('id');
+let conn=null,isConn=false,diagMm=0;
 
-// ═══ Camera intrinsics ═══
-const CAM_DB={'Apple A17':'4.2/6.67','Apple A16':'5.7/7.01','Apple A15':'5.7/7.01','Apple A14':'4.25/5.1','Apple A13':'4.25/5.1','Apple GPU':'4.25/5.1','Adreno (TM) 750':'6.81/9.50','Adreno (TM) 740':'6.81/9.50','Adreno (TM) 730':'4.38/5.64','Adreno (TM) 660':'4.38/5.64','Mali-G78':'5.4/7.06','Mali-G77':'5.4/7.06'};
-function getHwFocalPx(vw){try{const c=document.createElement('canvas'),gl=c.getContext('webgl')||c.getContext('experimental-webgl');if(!gl)return null;const ext=gl.getExtension('WEBGL_debug_renderer_info');const gpu=ext?gl.getParameter(ext.UNMASKED_RENDERER_WEBGL):'';dlog('GPU: '+gpu);for(const[k,v]of Object.entries(CAM_DB)){if(gpu.includes(k)){const[fm,sw]=v.split('/').map(Number);return(fm/sw)*vw}}}catch(e){}return null}
-function getStoredFpx(){const v=localStorage.getItem('cam_focal_px');return v?parseFloat(v):null}
+// ═══ Connect ═══
+if(!targetID){setSt('sd-er','No ID — scan QR on display');dlog('No id param')}
+else{
+    dlog('Target: '+targetID);
+    if(typeof Peer==='undefined'){
+        setTimeout(()=>{if(typeof Peer!=='undefined')doConnect();else{setSt('sd-er','PeerJS failed');dlog('Peer still undefined')}},2000);
+    }else doConnect();
+}
 
-// ═══ Routing ═══
-dlog('Params: id='+laneID+' cal='+calID+' cam='+camID);
-if(calID){document.getElementById('ctrl').style.display='none';document.getElementById('cp').classList.add('open');initCal(calID)}
-else if(camID){document.getElementById('ctrl').style.display='none';document.getElementById('cp').classList.add('open');initStandaloneCam(camID)}
-else if(laneID){initTest()}
-else{setSt('er','No connection ID');document.getElementById('rbtn').style.display='inline-block'}
-
-// ═══ Calibration mode ═══
-function initCal(pid){
-    cpMsg('Connecting to display…');dlog('Cal mode → '+pid);
-    if(typeof Peer==='undefined'){cpMsg('PeerJS not loaded');return}
-    const p=new Peer(undefined,{debug:2,config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]}});
+function doConnect(){
+    setSt('sd-wait','Connecting…');
+    const p=new Peer(undefined,{debug:1,config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]}});
+    const timeout=setTimeout(()=>{if(!isConn){setSt('sd-er','Timed out');dlog('Timeout')}},30000);
     p.on('open',myId=>{
-        dlog('My ID: '+myId+' → connecting to '+pid);
-        conn=p.connect(pid,{reliable:true});
-        conn.on('open',()=>{isConn=true;dlog('DATA CHANNEL OPEN');cpMsg('Connected — follow steps on display')});
-        conn.on('data',onCalMsg);
-        conn.on('close',()=>{isConn=false;dlog('Connection closed');cpMsg('Disconnected')});
-        conn.on('error',e=>{dlog('Conn error: '+e);cpMsg('Connection error')});
+        dlog('My ID: '+myId.substring(0,8)+'…');
+        conn=p.connect(targetID,{reliable:true});
+        conn.on('open',()=>{
+            clearTimeout(timeout);isConn=true;
+            dlog('CONNECTED');setSt('sd-ok','Linked');
+        });
+        conn.on('data',onMsg);
+        conn.on('close',()=>{isConn=false;dlog('Closed');setSt('sd-er','Disconnected')});
+        conn.on('error',e=>{dlog('Conn err: '+e.type);setSt('sd-er','Error: '+e.type)});
     });
-    p.on('error',e=>{dlog('Peer error: '+e.type);cpMsg('Error: '+e.type)});
-    p.on('disconnected',()=>{dlog('Broker disconnected');if(!p.destroyed)p.reconnect()});
+    p.on('error',e=>{clearTimeout(timeout);dlog('Peer err: '+e.type);setSt('sd-er',e.type==='peer-unavailable'?'Display not found':e.type)});
+    p.on('disconnected',()=>{if(!p.destroyed)p.reconnect()});
 }
 
-function onCalMsg(d){
-    dlog('Msg: '+d.type);
-    if(d.type==='calStep')renderCalStep(d.step,d);
-    if(d.type==='startCam'){diagMm=d.diagMm;dlog('startCam diagMm='+diagMm);openCam()}
+function tx(m){if(conn&&isConn)conn.send(m);else dlog('tx fail: not connected')}
+
+// ═══ Message router ═══
+function onMsg(d){
+    if(d.type==='calStep')renderCalStep(d);
+    if(d.type==='startCam'){diagMm=d.diagMm;dlog('startCam diag='+diagMm);openCam()}
     if(d.type==='cancelCam')closeCam();
-    if(d.type==='calComplete'){cpMsg('Calibration complete!<br><br>Test is loading on display.<br>Scan the new QR code to connect as controller.');document.getElementById('cp-nv').innerHTML=''}
+    if(d.type==='testStart'){dlog('Test started');setMode('m-test')}
+    if(d.type==='progress')updateRing(d.trial,d.maxTrials);
+    if(d.type==='results')showResults(d);
 }
 
-function renderCalStep(step,d){
-    const bd=document.getElementById('cp-bd'),tl=document.getElementById('cp-tl'),sl=document.getElementById('cp-sl'),nv=document.getElementById('cp-nv');
-    if(step===1){
-        sl.textContent='STEP 2 · LUMINANCE';tl.textContent='Adjust Brightness';
-        bd.innerHTML=`<div class="cp-val" id="gval">${d.gamma||128}</div><div class="cp-slider"><input type="range" id="gsl" min="60" max="220" value="${d.gamma||128}" oninput="onGamma(this.value)"></div><div class="cp-slider-labels"><span>DARKER</span><span>BRIGHTER</span></div><div class="cp-hint">Adjust until circle disappears<br>into the checkerboard on the display</div>`;
-        nv.innerHTML='<button class="cp-btn cp-back" onclick="navCal(\'back\')">← Back</button><button class="cp-btn cp-next" onclick="navCal(\'next\')">Next →</button>';
-    }else if(step===2){
-        sl.textContent='STEP 3 · SCALE';tl.textContent='Card Size';
-        bd.innerHTML=`<div class="cp-msg">Adjust the card outline on the display<br>to match a real credit card width.</div><div class="cp-slider"><input type="range" id="csl" min="150" max="750" step="0.1" value="${d.cardPx||300}" oninput="onCard(this.value)"></div><div class="cp-slider-labels"><span>SMALLER</span><span>LARGER</span></div>`;
-        nv.innerHTML='<button class="cp-btn cp-back" onclick="navCal(\'back\')">← Back</button><button class="cp-btn cp-next" onclick="navCal(\'next\')">Next →</button>';
-    }else if(step===3){
-        sl.textContent='STEP 4 · DISTANCE';tl.textContent='Viewing Distance';
-        bd.innerHTML='<button class="cp-btn cp-next" style="font-size:1.1rem;padding:22px 44px" onclick="triggerCam()">📷  Measure with Camera</button><div class="cp-hint" style="margin-top:14px">Or enter distance manually on the display</div>';
-        nv.innerHTML='<button class="cp-btn cp-back" onclick="navCal(\'back\')">← Back</button><button class="cp-btn cp-next" onclick="navCal(\'next\')">Review →</button>';
-    }else if(step===4){
-        sl.textContent='STEP 5 · CONFIRM';tl.textContent='Review Settings';
-        bd.innerHTML='<div class="cp-msg">Review the settings on the display.<br>Press Start Test when ready.</div>';
-        nv.innerHTML='<button class="cp-btn cp-back" onclick="navCal(\'back\')">← Back</button><button class="cp-btn cp-start" onclick="navCal(\'start\')">Start Test ▶</button>';
-    }else{
-        sl.textContent='CALIBRATION';tl.textContent='Connected';bd.innerHTML='<div class="cp-msg">Follow the steps on the display</div>';nv.innerHTML='';
+// ═══ Calibration UI ═══
+function renderCalStep(d){
+    const bd=document.getElementById('cbd'),tl=document.getElementById('ctl'),sl=document.getElementById('csl'),nv=document.getElementById('cnv');
+    setMode('m-cal');
+    if(d.step===0){
+        sl.textContent='STEP 1 · LUMINANCE';tl.textContent='Adjust Brightness';
+        bd.innerHTML=`<div class="cal-val" id="gval">${d.gamma||128}</div>
+<div class="cal-slider"><input type="range" id="gsl" min="60" max="220" value="${d.gamma||128}" oninput="onGamma(this.value)"></div>
+<div class="cal-sl"><span>DARKER</span><span>BRIGHTER</span></div>
+<div class="cal-hint">Adjust until circle disappears<br>into the checkerboard on the display</div>`;
+        nv.innerHTML='<button class="cal-btn btn-next" onclick="nav(\'next\')">Next →</button>';
+    }else if(d.step===1){
+        sl.textContent='STEP 2 · SCALE';tl.textContent='Card Size';
+        bd.innerHTML=`<div class="cal-msg">Match the card rectangle on the display<br>to a real credit card width.</div>
+<div class="cal-slider"><input type="range" id="csl" min="150" max="750" step="0.1" value="${d.cardPx||300}" oninput="onCard(this.value)"></div>
+<div class="cal-sl"><span>SMALLER</span><span>LARGER</span></div>`;
+        nv.innerHTML='<button class="cal-btn btn-back" onclick="nav(\'back\')">← Back</button><button class="cal-btn btn-next" onclick="nav(\'next\')">Next →</button>';
+    }else if(d.step===2){
+        sl.textContent='STEP 3 · DISTANCE';tl.textContent='Viewing Distance';
+        bd.innerHTML='<button class="cal-btn btn-cam" onclick="requestCam()">📷  Measure with Camera</button><div class="cal-hint" style="margin-top:14px">Or enter distance on the display</div>';
+        nv.innerHTML='<button class="cal-btn btn-back" onclick="nav(\'back\')">← Back</button><button class="cal-btn btn-next" onclick="nav(\'next\')">Review →</button>';
+    }else if(d.step===3){
+        sl.textContent='STEP 4 · CONFIRM';tl.textContent='Review & Start';
+        bd.innerHTML='<div class="cal-msg" style="font-size:1rem">Review settings on the display.<br>Press Start when ready.</div>';
+        nv.innerHTML='<button class="cal-btn btn-back" onclick="nav(\'back\')">← Back</button><button class="cal-btn btn-start" onclick="nav(\'start\')">Start Test ▶</button>';
     }
 }
 
 function onGamma(v){document.getElementById('gval').textContent=v;tx({type:'gamma',value:parseInt(v)})}
 function onCard(v){tx({type:'cardSize',value:parseFloat(v)})}
-function navCal(to){tx({type:'nav',to:to})}
-function triggerCam(){tx({type:'nav',to:'next'})}
-function cpMsg(m){document.getElementById('cp-bd').innerHTML=`<div class="cp-msg">${m}</div>`}
-function tx(m){if(conn&&isConn){conn.send(m)}else{dlog('tx failed: not connected')}}
-
-// ═══ Standalone camera ═══
-function initStandaloneCam(pid){
-    cpMsg('Opening camera…');dlog('Standalone cam → '+pid);
-    if(typeof Peer!=='undefined'){const p=new Peer(undefined,{config:{iceServers:[{urls:'stun:stun.l.google.com:19302'}]}});p.on('open',()=>{conn=p.connect(pid,{reliable:true});conn.on('open',()=>{isConn=true;dlog('Cam connected');openCam()})})}else openCam();
-}
+function nav(to){tx({type:'nav',to:to})}
+function requestCam(){tx({type:'nav',to:'next'})}// display will send startCam
 
 // ═══ Camera ═══
 let camStream=null;
 function openCam(){
-    document.getElementById('cam').classList.add('open');document.getElementById('ccap').style.display='';document.getElementById('cdbg').textContent='';
+    document.getElementById('cam').classList.add('open');
+    document.getElementById('ccap').style.display='';
+    document.getElementById('cdbg').textContent='';
     document.getElementById('cinst').textContent='Point at display — capture when 4 markers visible';
-    navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1920},height:{ideal:1080}}}).then(s=>{camStream=s;document.getElementById('cv').srcObject=s}).catch(e=>{document.getElementById('cinst').textContent='Camera denied: '+e.message});
+    navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1920},height:{ideal:1080}}})
+    .then(s=>{camStream=s;document.getElementById('cv').srcObject=s;dlog('Camera opened')})
+    .catch(e=>{document.getElementById('cinst').textContent='Camera denied: '+e.message;dlog('Camera err: '+e.message)});
 }
 function closeCam(){document.getElementById('cam').classList.remove('open');if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null}}
 
 function capture(){
-    const v=document.getElementById('cv'),c=document.getElementById('cc');c.width=v.videoWidth;c.height=v.videoHeight;
+    const v=document.getElementById('cv'),c=document.getElementById('cc');
+    c.width=v.videoWidth;c.height=v.videoHeight;
     const ctx=c.getContext('2d');ctx.drawImage(v,0,0);
-    const img=ctx.getImageData(0,0,c.width,c.height),markers=findMarkers(img,c.width,c.height),dbg=document.getElementById('cdbg');
-    if(markers.length>=4){
-        markers.sort((a,b)=>a.y-b.y);const top=markers.slice(0,2).sort((a,b)=>a.x-b.x),bot=markers.slice(2,4).sort((a,b)=>a.x-b.x);
-        const dx=bot[1].x-top[0].x,dy=bot[1].y-top[0].y,dPx=Math.sqrt(dx*dx+dy*dy);
-        let fPx=getHwFocalPx(c.width),fSrc='hardware';
-        if(!fPx){fPx=getStoredFpx();fSrc='stored'}
-        if(!fPx){fPx=(c.width/2)/Math.tan(35*Math.PI/180);fSrc='est 70°'}
-        const distMm=(diagMm*fPx)/dPx,ft=(distMm/304.8).toFixed(1),m=(distMm/1000).toFixed(2);
-        dbg.textContent=[`${c.width}×${c.height}  ${markers.length} markers`,`Photo diag: ${dPx.toFixed(0)}px  Real: ${diagMm.toFixed(0)}mm`,`focalPx: ${fPx.toFixed(0)} (${fSrc})`,`→ ${distMm.toFixed(0)}mm = ${ft}ft = ${m}m`].join('\n');
-        tx({type:'camDistance',distMm:distMm});
-        document.getElementById('cinst').textContent=`✓ ${ft} ft (${m} m)`;document.getElementById('ccap').style.display='none';
-        setTimeout(()=>closeCam(),2500);
-    }else{
-        dbg.textContent=`Found ${markers.length}/4 markers`;document.getElementById('cinst').textContent=`${markers.length}/4 markers — reposition and retry`;
+    const img=ctx.getImageData(0,0,c.width,c.height);
+    const markers=findMarkers(img,c.width,c.height);
+    const dbg=document.getElementById('cdbg');
+
+    if(markers.length<4){
+        dbg.textContent=`Found ${markers.length}/4 markers — reposition`;
+        document.getElementById('cinst').textContent=`${markers.length}/4 markers — try again`;
+        return;
     }
+
+    markers.sort((a,b)=>a.y-b.y);
+    const top=markers.slice(0,2).sort((a,b)=>a.x-b.x);
+    const bot=markers.slice(2,4).sort((a,b)=>a.x-b.x);
+    const dx=bot[1].x-top[0].x,dy=bot[1].y-top[0].y;
+    const dPx=Math.sqrt(dx*dx+dy*dy);
+
+    // Get focal length in pixels — try multiple methods
+    let fPx=null,fSrc='';
+
+    // Method 1: Try to read from browser track settings (Chrome on Android may expose this)
+    try{
+        const track=camStream.getVideoTracks()[0];
+        const settings=track.getSettings();
+        dlog('Track settings: '+JSON.stringify(Object.keys(settings)));
+        if(settings.focalLength){
+            // focalLength is in mm. We need sensor width to convert.
+            // Estimate sensor width from FOV if available
+            const caps=track.getCapabilities?track.getCapabilities():{};
+            dlog('Caps keys: '+JSON.stringify(Object.keys(caps)));
+        }
+    }catch(e){}
+
+    // Method 2: Hardware GPU lookup
+    if(!fPx){
+        try{
+            const glc=document.createElement('canvas');
+            const gl=glc.getContext('webgl')||glc.getContext('experimental-webgl');
+            if(gl){
+                const ext=gl.getExtension('WEBGL_debug_renderer_info');
+                const gpu=ext?gl.getParameter(ext.UNMASKED_RENDERER_WEBGL):'';
+                dlog('GPU: '+gpu);
+                // focalLength_mm / sensorWidth_mm * imageWidth_px = focalLength_px
+                const DB={
+                    'Apple A17':[5.23,6.86],'Apple A16':[5.23,6.86],'Apple A15':[5.7,7.01],
+                    'Apple A14':[4.25,5.1],'Apple A13':[4.25,5.1],'Apple A12':[4.25,5.1],'Apple GPU':[4.25,5.1],
+                    'Adreno (TM) 750':[6.81,9.5],'Adreno (TM) 740':[6.81,9.5],
+                    'Adreno (TM) 730':[4.38,5.64],'Adreno (TM) 660':[4.38,5.64],
+                    'Adreno (TM) 620':[4.44,5.76],'Mali-G78':[5.4,7.06],'Mali-G77':[5.4,7.06]
+                };
+                for(const[k,v]of Object.entries(DB)){
+                    if(gpu.includes(k)){fPx=(v[0]/v[1])*c.width;fSrc='hw:'+k;break}
+                }
+            }
+        }catch(e){}
+    }
+
+    // Method 3: Stored calibration from previous session
+    if(!fPx){
+        const stored=localStorage.getItem('cam_focal_px_'+c.width);
+        if(stored){fPx=parseFloat(stored);fSrc='stored'}
+    }
+
+    // Method 4: Estimate from typical hFOV (70°)
+    if(!fPx){fPx=(c.width/2)/Math.tan(35*Math.PI/180);fSrc='est 70°'}
+
+    const distMm=(diagMm*fPx)/dPx;
+    const ft=(distMm/304.8).toFixed(1),m=(distMm/1000).toFixed(2);
+
+    dbg.textContent=[
+        `Frame: ${c.width}×${c.height}  Markers: ${markers.length}`,
+        `TL(${top[0].x.toFixed(0)},${top[0].y.toFixed(0)}) BR(${bot[1].x.toFixed(0)},${bot[1].y.toFixed(0)})`,
+        `Photo diagonal: ${dPx.toFixed(0)}px  Real: ${diagMm.toFixed(0)}mm`,
+        `focalPx: ${fPx.toFixed(0)} (${fSrc})`,
+        `→ Distance: ${distMm.toFixed(0)}mm = ${ft}ft = ${m}m`
+    ].join('\n');
+
+    tx({type:'camDistance',distMm:distMm});
+    document.getElementById('cinst').textContent=`✓ ${ft} ft (${m} m) — sent to display`;
+    document.getElementById('ccap').style.display='none';
+    setTimeout(()=>closeCam(),2500);
 }
 
 function findMarkers(img,w,h){
-    const DK=70,MIN=40,dark=new Uint8Array(w*h);
-    for(let i=0;i<w*h;i++){const r=img.data[i*4],g=img.data[i*4+1],b=img.data[i*4+2];dark[i]=(r<DK&&g<DK&&b<DK)?1:0}
-    const vis=new Uint8Array(w*h),cls=[];
-    for(let y=0;y<h;y++)for(let x=0;x<w;x++){const idx=y*w+x;if(!dark[idx]||vis[idx])continue;
+    const THRESH=70,MIN_SIZE=40;
+    const dark=new Uint8Array(w*h);
+    for(let i=0;i<w*h;i++){
+        const o=i*4;
+        dark[i]=(img.data[o]<THRESH&&img.data[o+1]<THRESH&&img.data[o+2]<THRESH)?1:0;
+    }
+    const vis=new Uint8Array(w*h),clusters=[];
+    for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+        const idx=y*w+x;if(!dark[idx]||vis[idx])continue;
         const stk=[idx];vis[idx]=1;let sx=0,sy=0,n=0;
-        while(stk.length){const ci=stk.pop(),cx=ci%w,cy=(ci-cx)/w;sx+=cx;sy+=cy;n++;
-            for(const[dx2,dy2] of[[1,0],[-1,0],[0,1],[0,-1]]){const nx=cx+dx2,ny=cy+dy2;if(nx>=0&&nx<w&&ny>=0&&ny<h){const ni=ny*w+nx;if(dark[ni]&&!vis[ni]){vis[ni]=1;stk.push(ni)}}}}
-        if(n>=MIN)cls.push({x:sx/n,y:sy/n,size:n})}
-    cls.sort((a,b)=>b.size-a.size);return cls.slice(0,4);
+        while(stk.length){
+            const ci=stk.pop(),cx=ci%w,cy=(ci-cx)/w;
+            sx+=cx;sy+=cy;n++;
+            if(cx>0&&dark[ci-1]&&!vis[ci-1]){vis[ci-1]=1;stk.push(ci-1)}
+            if(cx<w-1&&dark[ci+1]&&!vis[ci+1]){vis[ci+1]=1;stk.push(ci+1)}
+            if(cy>0&&dark[ci-w]&&!vis[ci-w]){vis[ci-w]=1;stk.push(ci-w)}
+            if(cy<h-1&&dark[ci+w]&&!vis[ci+w]){vis[ci+w]=1;stk.push(ci+w)}
+        }
+        if(n>=MIN_SIZE)clusters.push({x:sx/n,y:sy/n,size:n});
+    }
+    clusters.sort((a,b)=>b.size-a.size);
+    return clusters.slice(0,4);
 }
 
-// ═══ Test controller ═══
-let cto=null,resultData=null;
-function initTest(){
-    dlog('Test mode → '+laneID);
-    if(typeof Peer==='undefined'){setSt('er','PeerJS not loaded');dlog('Peer undefined');return}
-    const p=new Peer(undefined,{debug:2,config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]}});
-    p.on('open',myId=>{
-        dlog('My ID: '+myId);
-        setSt('wait','Syncing to '+laneID);
-        conn=p.connect(laneID,{reliable:true});
-        conn.on('open',()=>{
-            clearTimeout(cto);isConn=true;
-            dlog('DATA CHANNEL OPEN — linked!');
-            setSt('ok','Linked');
-            document.getElementById('rbtn').style.display='none';
-        });
-        conn.on('data',onTestMsg);
-        conn.on('close',()=>{if(isConn){isConn=false;dlog('Closed');setSt('er','Disconnected')}});
-        conn.on('error',e=>{dlog('Conn error: '+e.type);setSt('er','Error: '+e.type)});
-    });
-    cto=setTimeout(()=>{
-        if(!isConn){dlog('Timeout — retrying…');setSt('er','Timed out — tap Retry');document.getElementById('rbtn').style.display='inline-block'}
-    },30000);
-    p.on('error',e=>{clearTimeout(cto);dlog('Peer error: '+e.type);setSt('er',e.type==='peer-unavailable'?'Display not found — check QR':e.type)});
-    p.on('disconnected',()=>{dlog('Broker disconnect');if(!p.destroyed)p.reconnect()});
+// ═══ Test mode ═══
+function send(v){
+    if(!isConn){dlog('send: not connected');return}
+    tx({type:'input',value:v});
+    if(navigator.vibrate)navigator.vibrate(20);
+}
+function updateRing(t,mx){
+    document.getElementById('rfg').style.strokeDashoffset=2*Math.PI*21*(1-t/mx);
+    document.getElementById('rnum').textContent=t;
 }
 
-function onTestMsg(d){
-    if(d.type==='progress')updateRing(d.trial,d.maxTrials);
-    if(d.type==='results')showResults(d.score,d.rank,d.detail);
-    if(d.type==='results-extended')showExtResults(d);
+// ═══ Results ═══
+let resultData=null;
+function showResults(d){
+    resultData={score:d.score||'—',rank:d.rank||'',detail:d.detail||'',date:new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}),time:new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})};
+    setMode('m-res');
+    document.getElementById('rsc').textContent=resultData.score;
+    document.getElementById('rrk').textContent=resultData.rank;
+    document.getElementById('rdt').textContent=resultData.detail;
+    if(d.plotDataUrl){const img=document.getElementById('rplot');img.src=d.plotDataUrl;img.style.display='block'}
+    else if(d.curve&&d.curve.length>0)renderPlot(d.curve,d.history);
 }
 
-function send(v){if(!conn||!isConn){dlog('send failed: not connected');return}conn.send({type:'input',value:v});if(navigator.vibrate)navigator.vibrate(25);document.getElementById('prompt').classList.add('hid')}
-
-function updateRing(t,mx){document.getElementById('rfg').style.strokeDashoffset=2*Math.PI*21*(1-t/mx);document.getElementById('rnum').textContent=t}
-
-function showResults(sc,rk,dt){
-    resultData={score:sc||'—',rank:rk||'',detail:dt||'',date:new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}),time:new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})};
-    document.getElementById('resp').style.display='none';document.getElementById('prog').style.display='none';document.getElementById('sbar').style.display='none';document.getElementById('dlog').style.display='none';
-    const rv=document.getElementById('rv');rv.style.display='flex';
-    document.getElementById('rsc').textContent=resultData.score;document.getElementById('rrk').textContent=resultData.rank;document.getElementById('rdt').textContent=resultData.detail;
-}
-
-function showExtResults(d){
-    if(d.plotDataUrl){const img=document.getElementById('rv-plot');img.src=d.plotDataUrl;img.style.display='block'}
-    else if(d.curve&&d.curve.length>0)renderTabletPlot(d.curve,d.history);
-    if(d.score)resultData={...resultData,score:d.score,rank:d.rank,detail:d.detail};
-}
-
-function renderTabletPlot(curve,history){
-    const c=document.getElementById('rv-canvas'),ctx=c.getContext('2d');
+function renderPlot(curve,history){
+    const c=document.getElementById('rcnv'),ctx=c.getContext('2d');
     c.style.display='block';c.style.width='100%';c.style.maxWidth='380px';c.style.borderRadius='8px';
     const W=560,H=340;c.width=W;c.height=H;
     const pad={top:20,right:24,bottom:50,left:60},pW=W-pad.left-pad.right,pH=H-pad.top-pad.bottom;
@@ -331,16 +394,12 @@ function renderTabletPlot(curve,history){
     ctx.fillStyle='rgba(255,255,255,.3)';ctx.font='9px JetBrains Mono,monospace';ctx.textAlign='center';
     [.5,1,2,4,8,16,32].forEach(f=>{const x=tX(Math.log10(f));if(x>=pad.left&&x<=pad.left+pW)ctx.fillText(String(f),x,pad.top+pH+14)});
     ctx.fillText('Spatial Frequency (cpd)',W/2,pad.top+pH+28);
-    ctx.fillStyle='rgba(255,255,255,.15)';ctx.font='8px -apple-system,sans-serif';ctx.fillText('Level of Detail',W/2,pad.top+pH+40);
-    ctx.textAlign='right';ctx.fillStyle='rgba(255,255,255,.3)';ctx.font='9px JetBrains Mono,monospace';
+    ctx.textAlign='right';
     [1,3,10,30,100,300].forEach(s=>{const y=tY(Math.log10(s));if(y>=pad.top&&y<=pad.top+pH)ctx.fillText(String(s),pad.left-8,y+3)});
     ctx.save();ctx.translate(13,H/2-10);ctx.rotate(-Math.PI/2);ctx.textAlign='center';ctx.fillText('Sensitivity',0,0);ctx.restore();
-    ctx.strokeStyle='rgba(255,255,255,.08)';ctx.strokeRect(pad.left,pad.top,pW,pH);
 }
 
-function getRText(){if(!resultData)return '';return`BurkeCSF Results\n══════════════════\nAULCSF:  ${resultData.score}\nRating:  ${resultData.rank}\nDetail:  ${resultData.detail}\nDate:    ${resultData.date} ${resultData.time}\n\n— BurkeCSF`}
-function shareR(){if(!resultData)return;const t=getRText(),s='BurkeCSF: AULCSF '+resultData.score;if(navigator.share)navigator.share({title:s,text:t}).catch(()=>{});else copyR()}
-function copyR(){if(!resultData)return;navigator.clipboard.writeText(getRText()).then(fc).catch(()=>{const a=document.createElement('textarea');a.value=getRText();a.style.cssText='position:fixed;opacity:0';document.body.appendChild(a);a.select();document.execCommand('copy');document.body.removeChild(a);fc()})}
-function fc(){const e=document.getElementById('rv-cp');e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2000)}
-function setSt(c,t){const el=document.getElementById('stt');const dot=c==='ok'?'<span class="sd ok"></span>':c==='er'?'<span class="sd er"></span>':'<span class="sd wait"></span>';el.innerHTML=dot+t}
+function getRText(){if(!resultData)return '';return`BurkeCSF Results\nAULCSF: ${resultData.score}\nRating: ${resultData.rank}\nDetail: ${resultData.detail}\nDate: ${resultData.date} ${resultData.time}`}
+function shareR(){if(!resultData)return;if(navigator.share)navigator.share({title:'BurkeCSF',text:getRText()}).catch(()=>{});else copyR()}
+function copyR(){if(!resultData)return;navigator.clipboard.writeText(getRText()).then(()=>{const e=document.getElementById('rcp');e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2000)}).catch(()=>{})}
 </script></body></html>
