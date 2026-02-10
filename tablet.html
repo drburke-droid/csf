@@ -1,256 +1,116 @@
-<!DOCTYPE html><html lang="en"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>BurkeCSF</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
-<style>
-:root{--a:#00ffcc;--ag:rgba(0,255,204,.25);--as:rgba(0,255,204,.1);--c:#0a0a0c;--b:rgba(255,255,255,.12);--t1:#fff;--t2:rgba(255,255,255,.7);--t3:rgba(255,255,255,.4);--e:#ff453a;--f:'DM Sans',-apple-system,system-ui,sans-serif;--m:'JetBrains Mono','SF Mono',monospace;--ez:cubic-bezier(.4,0,.2,1)}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--c);color:var(--t1);font-family:var(--f);-webkit-font-smoothing:antialiased;height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
-
-.hdr{padding:14px 20px 6px;text-align:center;flex-shrink:0}
-.brand{font-size:1rem;font-weight:300;color:var(--t2)}
-.mode{display:none;flex-direction:column;flex:1;overflow:hidden}
-.mode.active{display:flex}
-
-/* ═══ Status bar ═══ */
-.sbar{padding:8px 20px;text-align:center;flex-shrink:0}
-.stt{font-family:var(--m);font-size:.65rem;font-weight:400;letter-spacing:1.5px;color:var(--t2)}
-.sd{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
-.sd-ok{background:var(--a)}.sd-er{background:var(--e)}.sd-wait{background:rgba(255,255,255,.4);animation:pls 1.5s ease-in-out infinite}
-@keyframes pls{0%,100%{opacity:1}50%{opacity:.2}}
-#dlog{font-family:var(--m);font-size:.5rem;color:var(--t3);max-height:50px;overflow-y:auto;padding:0 20px;line-height:1.5}
-
-/* ═══ Calibration mode ═══ */
-.cal{padding:16px 20px;flex:1;display:flex;flex-direction:column;overflow-y:auto}
-.cal-title{font-size:1.2rem;font-weight:300;text-align:center;margin-bottom:2px}
-.cal-step-label{font-family:var(--m);font-size:.6rem;font-weight:400;letter-spacing:2px;text-transform:uppercase;color:var(--t3);text-align:center;margin-bottom:14px}
-.cal-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
-.cal-val{font-family:var(--m);font-size:2.4rem;font-weight:500;color:var(--a)}
-.cal-hint{font-family:var(--f);font-size:.85rem;color:var(--t2);text-align:center;line-height:1.6}
-.cal-msg{font-family:var(--f);font-size:.9rem;color:var(--t2);text-align:center;padding:16px;line-height:1.7}
-.cal-slider{width:94%;max-width:320px}
-.cal-slider input[type=range]{-webkit-appearance:none;width:100%;height:12px;background:rgba(255,255,255,.15);border-radius:6px;outline:0}
-.cal-slider input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:40px;height:40px;border-radius:50%;background:var(--a);box-shadow:0 0 20px var(--ag);border:3px solid rgba(0,0,0,.3)}
-.cal-slider input[type=range]::-moz-range-thumb{width:40px;height:40px;border-radius:50%;background:var(--a);border:3px solid rgba(0,0,0,.3)}
-.cal-sl{display:flex;justify-content:space-between;width:94%;max-width:320px;font-family:var(--m);font-size:.6rem;font-weight:400;color:var(--t3);text-transform:uppercase;margin-top:4px}
-.cal-nav{display:flex;gap:12px;justify-content:center;padding:18px 0;flex-shrink:0}
-.cal-btn{padding:16px 36px;border-radius:100px;font-family:var(--f);font-size:.9rem;font-weight:400;cursor:pointer;border:none;transition:all .15s var(--ez)}
-.btn-back{background:0;color:var(--t2);border:2px solid var(--b)}.btn-back:active{border-color:rgba(255,255,255,.3)}
-.btn-next{background:#fff;color:#0a0a0c}.btn-next:active{background:var(--a)}
-.btn-start{background:var(--a);color:#0a0a0c;font-weight:500;font-size:1.05rem;padding:18px 52px}
-.btn-cam{padding:20px 40px;border-radius:20px;background:rgba(0,255,204,.05);border:2px solid rgba(0,255,204,.2);color:var(--t1);font-size:1rem;font-weight:400;cursor:pointer}
-.btn-cam:active{background:rgba(0,255,204,.12);border-color:var(--a)}
-
-/* ═══ Test mode ═══ */
-.test{padding:0 16px;flex:1;display:flex;flex-direction:column}
-.test-prog{display:flex;justify-content:center;padding:8px 0;flex-shrink:0}
-.ring{position:relative;width:56px;height:56px}
-.ring svg{width:56px;height:56px;transform:rotate(-90deg)}
-.ring .bg{fill:none;stroke:rgba(255,255,255,.1);stroke-width:3}.ring .fg{fill:none;stroke:var(--a);stroke-width:3;stroke-linecap:round;stroke-dasharray:131.9;stroke-dashoffset:131.9;transition:stroke-dashoffset .5s var(--ez)}
-.ring .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--m);font-size:.9rem;font-weight:500;color:var(--t1)}
-.test-resp{flex:1;display:flex;align-items:center;justify-content:center}
-.ori-pad{display:flex;flex-direction:column;gap:12px;width:min(94vw,380px)}
-.ori-row{display:flex;gap:12px}
-.ori-btn{flex:1;padding:24px 8px;border-radius:20px;border:2px solid var(--b);background:rgba(255,255,255,.03);font-size:2.2rem;color:var(--t1);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .1s;touch-action:manipulation;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px}
-.ori-btn:active{transform:scale(.94);background:var(--as);border-color:var(--a);color:var(--a)}
-.ori-lbl{font-family:var(--m);font-size:.65rem;font-weight:400;letter-spacing:1px;text-transform:uppercase;color:var(--t2)}
-.no-btn{padding:20px;border-radius:20px;border:2px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02);font-family:var(--f);font-size:1.1rem;font-weight:400;color:var(--t2);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .1s;touch-action:manipulation;text-align:center;letter-spacing:1px}
-.no-btn:active{transform:scale(.97);background:rgba(255,69,58,.08);border-color:rgba(255,69,58,.3);color:var(--e)}
-
-/* ═══ Results mode ═══ */
-.res{padding:16px 20px;flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;overflow-y:auto}
-.res-ey{font-family:var(--m);font-size:.6rem;letter-spacing:3px;text-transform:uppercase;color:var(--t3)}
-.res-sc{font-family:var(--m);font-size:3.5rem;font-weight:700;color:var(--a);line-height:1;text-shadow:0 0 60px var(--ag)}
-.res-rk{font-size:1rem;font-weight:300;letter-spacing:6px;text-transform:uppercase;color:var(--t2);margin-top:4px}
-.res-dt{font-family:var(--m);font-size:.6rem;color:var(--t3);margin-top:4px}
-.res-plot{width:100%;max-width:380px;border-radius:8px;margin:10px 0}
-.res-actions{display:flex;gap:10px;margin-top:10px}
-.res-btn{padding:12px 24px;border-radius:100px;border:1.5px solid var(--b);background:0;color:var(--t2);font-family:var(--f);font-size:.8rem;cursor:pointer;display:flex;align-items:center;gap:6px}
-.res-btn:active{background:var(--as);border-color:var(--a);color:var(--a)}
-.res-btn.primary{background:var(--as);border-color:rgba(0,255,204,.25);color:var(--a)}
-.res-copied{font-family:var(--m);font-size:.55rem;color:var(--a);opacity:0;transition:opacity .3s}.res-copied.show{opacity:1}
-
-</style></head><body>
-
-<div class="hdr"><span class="brand">BurkeCSF</span></div>
-
-<!-- Calibration mode -->
-<div id="m-cal" class="mode active">
-<div class="cal">
-<div class="cal-step-label" id="csl">Connecting…</div>
-<div class="cal-title" id="ctl">Waiting for display</div>
-<div class="cal-body" id="cbd"><div class="cal-msg">Connecting to display…</div></div>
-<div class="cal-nav" id="cnv"></div>
-</div>
-</div>
-
-<!-- Test mode -->
-<div id="m-test" class="mode">
-<div class="test">
-<div class="test-prog"><div class="ring"><svg viewBox="0 0 48 48"><circle class="bg" cx="24" cy="24" r="21"/><circle class="fg" id="rfg" cx="24" cy="24" r="21"/></svg><div class="num" id="rnum">0</div></div></div>
-<div class="test-resp">
-<div class="ori-pad">
-<div class="ori-row">
-<button class="ori-btn" onclick="send('upleft')">↖<span class="ori-lbl">Left</span></button>
-<button class="ori-btn" onclick="send('up')">↑<span class="ori-lbl">Vertical</span></button>
-<button class="ori-btn" onclick="send('upright')">↗<span class="ori-lbl">Right</span></button>
-</div>
-<div class="ori-row">
-<button class="ori-btn" onclick="send('right')" style="max-width:45%;margin:0 auto">→<span class="ori-lbl">Horizontal</span></button>
-</div>
-<button class="no-btn" onclick="send('none')">No Target Visible</button>
-</div>
-</div>
-</div>
-</div>
-
-<!-- Results mode -->
-<div id="m-res" class="mode">
-<div class="res">
-<div class="res-ey">Area Under Log CSF</div>
-<div class="res-sc" id="rsc">—</div>
-<div class="res-rk" id="rrk"></div>
-<div class="res-dt" id="rdt"></div>
-<img class="res-plot" id="rplot" style="display:none" alt="CSF">
-<canvas id="rcnv" style="display:none"></canvas>
-<div class="res-actions">
-<button class="res-btn primary" onclick="shareR()">↑ Share</button>
-<button class="res-btn" onclick="copyR()">⎘ Copy</button>
-</div>
-<div class="res-copied" id="rcp">Copied</div>
-</div>
-</div>
-
-<!-- Status -->
-<div class="sbar"><div class="stt" id="stt"><span class="sd sd-wait"></span>Connecting…</div></div>
-<div id="dlog"></div>
-
-<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-<script>if(typeof Peer==='undefined'){var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.2/peerjs.min.js';document.head.appendChild(s)}</script>
-<script>
-function dlog(m){const e=document.getElementById('dlog');if(e){e.textContent+=m+'\n';e.scrollTop=e.scrollHeight}console.log('[T]',m)}
-function setSt(cls,txt){document.getElementById('stt').innerHTML=`<span class="sd ${cls}"></span>${txt}`}
-function setMode(id){document.querySelectorAll('.mode').forEach(m=>m.classList.remove('active'));document.getElementById(id).classList.add('active')}
-
-const P=new URLSearchParams(location.search);
-const targetID=P.get('id');
-let conn=null,isConn=false;
-
-// ═══ Connect ═══
-if(!targetID){setSt('sd-er','No ID — scan QR on display');dlog('No id param')}
-else{
-    dlog('Target: '+targetID);
-    if(typeof Peer==='undefined'){
-        setTimeout(()=>{if(typeof Peer!=='undefined')doConnect();else{setSt('sd-er','PeerJS failed');dlog('Peer still undefined')}},2000);
-    }else doConnect();
-}
-
-function doConnect(){
-    setSt('sd-wait','Connecting…');
-    const p=new Peer(undefined,{debug:1,config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]}});
-    const timeout=setTimeout(()=>{if(!isConn){setSt('sd-er','Timed out');dlog('Timeout')}},30000);
-    p.on('open',myId=>{
-        dlog('My ID: '+myId.substring(0,8)+'…');
-        conn=p.connect(targetID,{reliable:true});
-        conn.on('open',()=>{
-            clearTimeout(timeout);isConn=true;
-            dlog('CONNECTED');setSt('sd-ok','Linked');
-        });
-        conn.on('data',onMsg);
-        conn.on('close',()=>{isConn=false;dlog('Closed');setSt('sd-er','Disconnected')});
-        conn.on('error',e=>{dlog('Conn err: '+e.type);setSt('sd-er','Error: '+e.type)});
-    });
-    p.on('error',e=>{clearTimeout(timeout);dlog('Peer err: '+e.type);setSt('sd-er',e.type==='peer-unavailable'?'Display not found':e.type)});
-    p.on('disconnected',()=>{if(!p.destroyed)p.reconnect()});
-}
-
-function tx(m){if(conn&&isConn)conn.send(m);else dlog('tx fail: not connected')}
-
-// ═══ Message router ═══
-function onMsg(d){
-    if(d.type==='calStep')renderCalStep(d);
-    if(d.type==='testStart'){dlog('Test started');setMode('m-test')}
-    if(d.type==='progress')updateRing(d.trial,d.maxTrials);
-    if(d.type==='results')showResults(d);
-}
-
-// ═══ Calibration UI ═══
-function renderCalStep(d){
-    const bd=document.getElementById('cbd'),tl=document.getElementById('ctl'),sl=document.getElementById('csl'),nv=document.getElementById('cnv');
-    setMode('m-cal');
-    if(d.step===0){
-        sl.textContent='STEP 1 · LUMINANCE';tl.textContent='Adjust Brightness';
-        bd.innerHTML=`<div class="cal-val" id="gval">${d.gamma||128}</div>
-<div class="cal-slider"><input type="range" id="gsl" min="60" max="220" value="${d.gamma||128}" oninput="onGamma(this.value)"></div>
-<div class="cal-sl"><span>DARKER</span><span>BRIGHTER</span></div>
-<div class="cal-hint">Adjust until circle disappears<br>into the checkerboard on the display</div>`;
-        nv.innerHTML='<button class="cal-btn btn-next" onclick="nav(\'next\')">Next →</button>';
-    }else if(d.step===1){
-        sl.textContent='STEP 2 · SCALE';tl.textContent='Card Size';
-        bd.innerHTML=`<div class="cal-msg">Match the card rectangle on the display<br>to a real credit card width.</div>
-<div class="cal-slider"><input type="range" id="csl" min="150" max="750" step="0.1" value="${d.cardPx||300}" oninput="onCard(this.value)"></div>
-<div class="cal-sl"><span>SMALLER</span><span>LARGER</span></div>`;
-        nv.innerHTML='<button class="cal-btn btn-back" onclick="nav(\'back\')">← Back</button><button class="cal-btn btn-next" onclick="nav(\'next\')">Next →</button>';
-    }else if(d.step===2){
-        sl.textContent='STEP 3 · DISTANCE';tl.textContent='Viewing Distance';
-        bd.innerHTML='<div class="cal-msg" style="font-size:1rem">Enter the viewing distance<br>on the display screen.</div>';
-        nv.innerHTML='<button class="cal-btn btn-back" onclick="nav(\'back\')">← Back</button><button class="cal-btn btn-next" onclick="nav(\'next\')">Review →</button>';
-    }else if(d.step===3){
-        sl.textContent='STEP 4 · CONFIRM';tl.textContent='Review & Start';
-        bd.innerHTML='<div class="cal-msg" style="font-size:1rem">Review settings on the display.<br>Press Start when ready.</div>';
-        nv.innerHTML='<button class="cal-btn btn-back" onclick="nav(\'back\')">← Back</button><button class="cal-btn btn-start" onclick="nav(\'start\')">Start Test ▶</button>';
-    }
-}
-
-function onGamma(v){document.getElementById('gval').textContent=v;tx({type:'gamma',value:parseInt(v)})}
-function onCard(v){tx({type:'cardSize',value:parseFloat(v)})}
-function nav(to){tx({type:'nav',to:to})}
-// ═══ Test mode ═══
-function send(v){
-    if(!isConn){dlog('send: not connected');return}
-    tx({type:'input',value:v});
-    if(navigator.vibrate)navigator.vibrate(20);
-}
-function updateRing(t,mx){
-    document.getElementById('rfg').style.strokeDashoffset=2*Math.PI*21*(1-t/mx);
-    document.getElementById('rnum').textContent=t;
-}
-
-// ═══ Results ═══
-let resultData=null;
-function showResults(d){
-    resultData={score:d.score||'—',rank:d.rank||'',detail:d.detail||'',date:new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}),time:new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})};
-    setMode('m-res');
-    document.getElementById('rsc').textContent=resultData.score;
-    document.getElementById('rrk').textContent=resultData.rank;
-    document.getElementById('rdt').textContent=resultData.detail;
-    if(d.plotDataUrl){const img=document.getElementById('rplot');img.src=d.plotDataUrl;img.style.display='block'}
-    else if(d.curve&&d.curve.length>0)renderPlot(d.curve,d.history);
-}
-
-function renderPlot(curve,history){
-    const c=document.getElementById('rcnv'),ctx=c.getContext('2d');
-    c.style.display='block';c.style.width='100%';c.style.maxWidth='380px';c.style.borderRadius='8px';
-    const W=560,H=340;c.width=W;c.height=H;
-    const pad={top:20,right:24,bottom:50,left:60},pW=W-pad.left-pad.right,pH=H-pad.top-pad.bottom;
-    const lfMin=-.3,lfMax=1.7,lsMin=-.3,lsMax=2.5;
-    const tX=lf=>pad.left+(lf-lfMin)/(lfMax-lfMin)*pW,tY=ls=>pad.top+pH-(ls-lsMin)/(lsMax-lsMin)*pH;
-    ctx.fillStyle='#0a0a0c';ctx.fillRect(0,0,W,H);
-    ctx.strokeStyle='rgba(255,255,255,.06)';ctx.lineWidth=1;
-    [.5,1,2,4,8,16,32].forEach(f=>{const x=tX(Math.log10(f));if(x>=pad.left&&x<=pad.left+pW){ctx.beginPath();ctx.moveTo(x,pad.top);ctx.lineTo(x,pad.top+pH);ctx.stroke()}});
-    [1,3,10,30,100,300].forEach(s=>{const y=tY(Math.log10(s));if(y>=pad.top&&y<=pad.top+pH){ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+pW,y);ctx.stroke()}});
-    ctx.strokeStyle='#00ffcc';ctx.lineWidth=2.5;ctx.beginPath();let st=false;
-    curve.forEach(pt=>{if(pt.logS<lsMin)return;const x=tX(Math.log10(pt.freq)),y=tY(Math.min(pt.logS,lsMax));if(!st){ctx.moveTo(x,y);st=true}else ctx.lineTo(x,y)});ctx.stroke();
-    if(history)history.forEach(h=>{const x=tX(Math.log10(h.freq)),y=tY(-h.logContrast);if(y<pad.top||y>pad.top+pH)return;ctx.beginPath();ctx.arc(x,y,h.correct?3:2,0,Math.PI*2);ctx.fillStyle=h.correct?'rgba(0,255,150,.45)':'rgba(255,80,80,.4)';ctx.fill()});
-    ctx.fillStyle='rgba(255,255,255,.3)';ctx.font='9px JetBrains Mono,monospace';ctx.textAlign='center';
-    [.5,1,2,4,8,16,32].forEach(f=>{const x=tX(Math.log10(f));if(x>=pad.left&&x<=pad.left+pW)ctx.fillText(String(f),x,pad.top+pH+14)});
-    ctx.fillText('Spatial Frequency (cpd)',W/2,pad.top+pH+28);
-    ctx.textAlign='right';
-    [1,3,10,30,100,300].forEach(s=>{const y=tY(Math.log10(s));if(y>=pad.top&&y<=pad.top+pH)ctx.fillText(String(s),pad.left-8,y+3)});
-    ctx.save();ctx.translate(13,H/2-10);ctx.rotate(-Math.PI/2);ctx.textAlign='center';ctx.fillText('Sensitivity',0,0);ctx.restore();
-}
-
-function getRText(){if(!resultData)return '';return`BurkeCSF Results\nAULCSF: ${resultData.score}\nRating: ${resultData.rank}\nDetail: ${resultData.detail}\nDate: ${resultData.date} ${resultData.time}`}
-function shareR(){if(!resultData)return;if(navigator.share)navigator.share({title:'BurkeCSF',text:getRText()}).catch(()=>{});else copyR()}
-function copyR(){if(!resultData)return;navigator.clipboard.writeText(getRText()).then(()=>{const e=document.getElementById('rcp');e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2000)}).catch(()=>{})}
-</script></body></html>
+ (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
+diff --git a/tablet.html b/tablet.html
+index 631437bfaf63de04266ea2045af62360661872ed..92c573a04e8f9ca87aeb4d656cba9e873082e199 100644
+--- a/tablet.html
++++ b/tablet.html
+@@ -113,79 +113,105 @@ body{background:var(--c);color:var(--t1);font-family:var(--f);-webkit-font-smoot
+ <div class="res-dt" id="rdt"></div>
+ <img class="res-plot" id="rplot" style="display:none" alt="CSF">
+ <canvas id="rcnv" style="display:none"></canvas>
+ <div class="res-actions">
+ <button class="res-btn primary" onclick="shareR()">↑ Share</button>
+ <button class="res-btn" onclick="copyR()">⎘ Copy</button>
+ </div>
+ <div class="res-copied" id="rcp">Copied</div>
+ </div>
+ </div>
+ 
+ <!-- Status -->
+ <div class="sbar"><div class="stt" id="stt"><span class="sd sd-wait"></span>Connecting…</div></div>
+ <div id="dlog"></div>
+ 
+ <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+ <script>if(typeof Peer==='undefined'){var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.2/peerjs.min.js';document.head.appendChild(s)}</script>
+ <script>
+ function dlog(m){const e=document.getElementById('dlog');if(e){e.textContent+=m+'\n';e.scrollTop=e.scrollHeight}console.log('[T]',m)}
+ function setSt(cls,txt){document.getElementById('stt').innerHTML=`<span class="sd ${cls}"></span>${txt}`}
+ function setMode(id){document.querySelectorAll('.mode').forEach(m=>m.classList.remove('active'));document.getElementById(id).classList.add('active')}
+ 
+ const P=new URLSearchParams(location.search);
+ const targetID=P.get('id');
+ let conn=null,isConn=false;
++let attempts=0;
++const MAX_ATTEMPTS=6;
+ 
+ // ═══ Connect ═══
+ if(!targetID){setSt('sd-er','No ID — scan QR on display');dlog('No id param')}
+ else{
+     dlog('Target: '+targetID);
+     if(typeof Peer==='undefined'){
+         setTimeout(()=>{if(typeof Peer!=='undefined')doConnect();else{setSt('sd-er','PeerJS failed');dlog('Peer still undefined')}},2000);
+     }else doConnect();
+ }
+ 
+ function doConnect(){
++    attempts++;
+     setSt('sd-wait','Connecting…');
++    dlog(`Connect attempt ${attempts}/${MAX_ATTEMPTS}`);
+     const p=new Peer(undefined,{debug:1,config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]}});
+-    const timeout=setTimeout(()=>{if(!isConn){setSt('sd-er','Timed out');dlog('Timeout')}},30000);
++    const timeout=setTimeout(()=>{
++        if(!isConn){
++            dlog('Timeout');
++            p.destroy();
++            retryConnect('Timed out');
++        }
++    },15000);
+     p.on('open',myId=>{
+         dlog('My ID: '+myId.substring(0,8)+'…');
+         conn=p.connect(targetID,{reliable:true});
+         conn.on('open',()=>{
+             clearTimeout(timeout);isConn=true;
+             dlog('CONNECTED');setSt('sd-ok','Linked');
+         });
+         conn.on('data',onMsg);
+         conn.on('close',()=>{isConn=false;dlog('Closed');setSt('sd-er','Disconnected')});
+         conn.on('error',e=>{dlog('Conn err: '+e.type);setSt('sd-er','Error: '+e.type)});
+     });
+-    p.on('error',e=>{clearTimeout(timeout);dlog('Peer err: '+e.type);setSt('sd-er',e.type==='peer-unavailable'?'Display not found':e.type)});
++    p.on('error',e=>{
++        clearTimeout(timeout);
++        dlog('Peer err: '+e.type);
++        p.destroy();
++        retryConnect(e.type==='peer-unavailable'?'Display not found':e.type);
++    });
+     p.on('disconnected',()=>{if(!p.destroyed)p.reconnect()});
+ }
+ 
++function retryConnect(reason){
++    if(isConn)return;
++    if(attempts>=MAX_ATTEMPTS){
++        setSt('sd-er',reason);
++        dlog('Giving up after max retries');
++        return;
++    }
++    setSt('sd-wait',`${reason}. Retrying…`);
++    setTimeout(doConnect,1500);
++}
++
+ function tx(m){if(conn&&isConn)conn.send(m);else dlog('tx fail: not connected')}
+ 
+ // ═══ Message router ═══
+ function onMsg(d){
+     if(d.type==='calStep')renderCalStep(d);
+     if(d.type==='testStart'){dlog('Test started');setMode('m-test')}
+     if(d.type==='progress')updateRing(d.trial,d.maxTrials);
+     if(d.type==='results')showResults(d);
+ }
+ 
+ // ═══ Calibration UI ═══
+ function renderCalStep(d){
+     const bd=document.getElementById('cbd'),tl=document.getElementById('ctl'),sl=document.getElementById('csl'),nv=document.getElementById('cnv');
+     setMode('m-cal');
+     if(d.step===0){
+         sl.textContent='STEP 1 · LUMINANCE';tl.textContent='Adjust Brightness';
+         bd.innerHTML=`<div class="cal-val" id="gval">${d.gamma||128}</div>
+ <div class="cal-slider"><input type="range" id="gsl" min="60" max="220" value="${d.gamma||128}" oninput="onGamma(this.value)"></div>
+ <div class="cal-sl"><span>DARKER</span><span>BRIGHTER</span></div>
+ <div class="cal-hint">Adjust until circle disappears<br>into the checkerboard on the display</div>`;
+         nv.innerHTML='<button class="cal-btn btn-next" onclick="nav(\'next\')">Next →</button>';
+     }else if(d.step===1){
+         sl.textContent='STEP 2 · SCALE';tl.textContent='Card Size';
+         bd.innerHTML=`<div class="cal-msg">Match the card rectangle on the display<br>to a real credit card width.</div>
+ <div class="cal-slider"><input type="range" id="csl" min="150" max="750" step="0.1" value="${d.cardPx||300}" oninput="onCard(this.value)"></div>
+ 
+EOF
+)
