@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manifold</title>
+    <title>BurkeCSF</title>
     <link rel="stylesheet" href="main.css">
 </head>
 <body>
@@ -11,13 +11,13 @@
     <!-- Calibration Guard -->
     <div id="cal-guard" style="display:none;">
         <h2>Calibration Required</h2>
-        <p>Display calibration is needed for accurate measurement. Connect your phone to begin setup.</p>
+        <p>Display calibration is needed for accurate measurement. Connect your phone to begin.</p>
         <button onclick="window.location.href='calibration.html'">Begin Calibration</button>
     </div>
 
     <!-- QR Sync Overlay -->
     <div id="sync-overlay">
-        <div class="sync-title">Manifold</div>
+        <div class="sync-title">BurkeCSF</div>
         <div class="sync-subtitle">Contrast Sensitivity Function</div>
         <div id="qrcode"></div>
         <div class="sync-subtitle">Scan with your phone to connect</div>
@@ -37,24 +37,14 @@
         </div>
     </div>
 
-    <!-- Distance Target (displayed when tablet requests camera calibration) -->
-    <div id="dist-target">
-        <div class="dist-marker" id="dm-tl"></div>
-        <div class="dist-marker" id="dm-tr"></div>
-        <div class="dist-marker" id="dm-bl"></div>
-        <div class="dist-marker" id="dm-br"></div>
-        <div class="dist-label">Distance Calibration</div>
-        <div class="dist-sublabel" id="dist-info">Point phone camera at this screen</div>
-    </div>
-
-    <!-- Results -->
+    <!-- Results — all children centered via flexbox -->
     <div id="results-overlay">
         <div id="result-content">
             <div class="result-eyebrow">Area Under Log CSF</div>
             <div class="auc-value" id="final-auc">0.00</div>
             <div class="rank-label" id="final-rank">—</div>
             <div class="result-detail" id="final-detail"></div>
-            <canvas id="csf-plot" width="520" height="280"></canvas>
+            <canvas id="csf-plot"></canvas>
             <button class="restart-btn" onclick="location.reload()">Test Again</button>
         </div>
     </div>
@@ -67,17 +57,8 @@
 
     <!-- Dependencies -->
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-    <script>
-        if (typeof Peer === 'undefined') {
-            // Fallback CDN
-            var s = document.createElement('script');
-            s.src = 'https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.2/peerjs.min.js';
-            document.head.appendChild(s);
-        }
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
-            onerror="console.warn('QRCode failed.')"></script>
-
+    <script>if(typeof Peer==='undefined'){var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.2/peerjs.min.js';document.head.appendChild(s)}</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" onerror=""></script>
     <script type="module" src="app.js"></script>
 </body>
 </html>

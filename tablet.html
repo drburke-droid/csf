@@ -1,516 +1,358 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Manifold</title>
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>BurkeCSF</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,200;9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@200;300;400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{--a:#00ffcc;--ag:rgba(0,255,204,.2);--as:rgba(0,255,204,.08);--c:#0a0a0c;--s:rgba(255,255,255,.03);--s2:rgba(255,255,255,.06);--b:rgba(255,255,255,.06);--t1:rgba(255,255,255,.88);--t2:rgba(255,255,255,.4);--t3:rgba(255,255,255,.18);--e:#ff453a;--f:'DM Sans',-apple-system,system-ui,sans-serif;--m:'JetBrains Mono','SF Mono',monospace;--ez:cubic-bezier(.4,0,.2,1)}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--c);color:var(--t1);font-family:var(--f);-webkit-font-smoothing:antialiased;height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direction:column;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
 .hdr{display:flex;justify-content:space-between;align-items:center;padding:14px 20px 6px;flex-shrink:0}
-.brand{font-size:.9rem;font-weight:200;letter-spacing:-.3px;color:var(--t2)}
-.gear{width:30px;height:30px;border-radius:50%;background:var(--s);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t3);font-size:13px}
-.tabs{display:flex;gap:3px;padding:0 20px;margin-bottom:10px;flex-shrink:0}
-.tab{flex:1;padding:7px 0;border-radius:9px;background:0;border:1px solid transparent;font-family:var(--m);font-size:.5rem;font-weight:300;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);cursor:pointer;text-align:center;transition:all .2s var(--ez)}
-.tab.on{background:var(--s2);border-color:var(--b);color:var(--a)}
-.prog{display:flex;justify-content:center;padding:2px 0 6px;flex-shrink:0}
-.ring{position:relative;width:48px;height:48px}
-.ring svg{width:48px;height:48px;transform:rotate(-90deg)}
-.ring .bg{fill:none;stroke:var(--s2);stroke-width:2.5}
-.ring .fg{fill:none;stroke:var(--a);stroke-width:2.5;stroke-linecap:round;stroke-dasharray:131.9;stroke-dashoffset:131.9;transition:stroke-dashoffset .5s var(--ez)}
-.ring .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--m);font-size:.6rem;font-weight:400;color:var(--t2)}
-.resp{flex:1;display:flex;align-items:center;justify-content:center;padding:0 14px;overflow:hidden;position:relative}
-.prompt{text-align:center;font-family:var(--m);font-size:.5rem;font-weight:300;letter-spacing:2px;text-transform:uppercase;color:var(--t3);animation:breathe 3s ease-in-out infinite;position:absolute}
-@keyframes breathe{0%,100%{opacity:.3}50%{opacity:.7}}
-.lpad{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;width:min(88vw,340px)}
-.lb{aspect-ratio:1;border-radius:13px;background:var(--s);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .12s var(--ez);touch-action:manipulation;font-family:var(--m);font-size:1.15rem;font-weight:400;color:var(--t2)}
-.lb:active{transform:scale(.92);background:var(--as);border-color:var(--a);color:var(--a)}
-.dpad{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:7px;width:min(68vw,240px);height:min(68vw,240px)}
-.db{border-radius:14px;background:var(--s);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .12s var(--ez);touch-action:manipulation;font-size:1.4rem;color:var(--t2)}
-.db:active{transform:scale(.92);background:var(--as);border-color:var(--a);color:var(--a)}
-.db[data-p="t"]{grid-column:2;grid-row:1}.db[data-p="l"]{grid-column:1;grid-row:2}
-.db[data-p="r"]{grid-column:3;grid-row:2}.db[data-p="b"]{grid-column:2;grid-row:3}
-.db[data-p="c"]{grid-column:2;grid-row:2;pointer-events:none;opacity:.08;font-size:.5rem;color:var(--t3)}
+.brand{font-size:1rem;font-weight:200;letter-spacing:-.3px;color:var(--t2)}
+.prog{display:flex;justify-content:center;padding:4px 0 8px;flex-shrink:0}
+.ring{position:relative;width:52px;height:52px}
+.ring svg{width:52px;height:52px;transform:rotate(-90deg)}
+.ring .bg{fill:none;stroke:var(--s2);stroke-width:2.5}.ring .fg{fill:none;stroke:var(--a);stroke-width:2.5;stroke-linecap:round;stroke-dasharray:131.9;stroke-dashoffset:131.9;transition:stroke-dashoffset .5s var(--ez)}
+.ring .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--m);font-size:.7rem;color:var(--t2)}
+/* ── Response area ── */
+.resp{flex:1;display:flex;align-items:center;justify-content:center;padding:0 16px;overflow:hidden;position:relative}
+.prompt{text-align:center;font-family:var(--m);font-size:.6rem;font-weight:300;letter-spacing:2px;text-transform:uppercase;color:var(--t3);animation:br 3s ease-in-out infinite;position:absolute}
+@keyframes br{0%,100%{opacity:.3}50%{opacity:.7}}
+/* Orientation + No Target buttons */
+.ori-pad{display:flex;flex-direction:column;gap:10px;width:min(92vw,360px)}
+.ori-row{display:flex;gap:10px}
+.ori-btn{flex:1;padding:22px 10px;border-radius:18px;border:1.5px solid var(--b);background:var(--s);font-family:var(--f);font-size:1.4rem;color:var(--t1);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .12s var(--ez);touch-action:manipulation;text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px}
+.ori-btn:active{transform:scale(.95);background:var(--as);border-color:var(--a);color:var(--a)}
+.ori-lbl{font-family:var(--m);font-size:.45rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);margin-top:2px}
+.no-btn{padding:18px 20px;border-radius:18px;border:1.5px solid rgba(255,255,255,.04);background:rgba(255,255,255,.015);font-family:var(--f);font-size:1rem;color:var(--t2);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .12s var(--ez);touch-action:manipulation;text-align:center;letter-spacing:.5px}
+.no-btn:active{transform:scale(.97);background:rgba(255,69,58,.06);border-color:rgba(255,69,58,.2);color:var(--e)}
 .fl{animation:fl .3s ease-out}
-@keyframes fl{0%{background:var(--as);border-color:var(--a);color:var(--a);box-shadow:0 0 14px var(--ag)}100%{background:var(--s);border-color:var(--b);color:var(--t2);box-shadow:none}}
+@keyframes fl{0%{background:var(--as);border-color:var(--a);color:var(--a);box-shadow:0 0 14px var(--ag)}100%{background:var(--s);border-color:var(--b);color:var(--t1);box-shadow:none}}
 .hid{display:none!important}
 .sbar{padding:10px 20px;text-align:center;flex-shrink:0}
-#st{font-family:var(--m);font-size:.45rem;font-weight:300;letter-spacing:2px;text-transform:uppercase;color:var(--t3)}
+#stt{font-family:var(--m);font-size:.5rem;font-weight:300;letter-spacing:2px;text-transform:uppercase;color:var(--t3)}
 .sd{display:inline-block;width:5px;height:5px;border-radius:50%;margin-right:5px;vertical-align:middle}
 .sd.ok{background:var(--a);animation:pls 2s ease-in-out infinite}.sd.er{background:var(--e)}
 @keyframes pls{0%,100%{opacity:1}50%{opacity:.3}}
-.rbtn{display:none;margin-top:10px;background:0;color:var(--t3);border:1px solid var(--b);padding:7px 18px;border-radius:100px;cursor:pointer;font-family:var(--f);font-size:.7rem}
-/* Results */
-.rv{display:none;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:6px;padding:20px}
-.rv-ey{font-family:var(--m);font-size:.45rem;letter-spacing:4px;text-transform:uppercase;color:var(--t3)}
-.rv-sc{font-family:var(--m);font-size:3.8rem;font-weight:700;color:var(--a);line-height:1;text-shadow:0 0 50px var(--ag)}
-.rv-rk{font-family:var(--f);font-size:.75rem;font-weight:200;letter-spacing:6px;text-transform:uppercase;color:var(--t2);margin-top:2px}
-.rv-dt{font-family:var(--m);font-size:.45rem;color:var(--t3);margin-top:4px}
-.rv-ts{font-family:var(--m);font-size:.4rem;color:var(--t3);margin-top:8px;opacity:.5}
-.rv-divider{width:60px;height:1px;background:var(--b);margin:14px 0}
-.rv-actions{display:flex;gap:8px;margin-top:12px}
-.rv-btn{padding:10px 22px;border-radius:100px;border:1px solid var(--b);background:0;color:var(--t2);font-family:var(--f);font-size:.75rem;font-weight:400;cursor:pointer;transition:all .2s var(--ez);display:flex;align-items:center;gap:6px}
+.rbtn{display:none;margin-top:10px;background:0;color:var(--t3);border:1px solid var(--b);padding:7px 18px;border-radius:100px;cursor:pointer;font-family:var(--f);font-size:.75rem}
+/* ── Results ── */
+.rv{display:none;flex-direction:column;align-items:center;justify-content:flex-start;flex:1;gap:6px;padding:16px 20px;overflow-y:auto}
+.rv-ey{font-family:var(--m);font-size:.5rem;letter-spacing:4px;text-transform:uppercase;color:var(--t3)}
+.rv-sc{font-family:var(--m);font-size:3.2rem;font-weight:700;color:var(--a);line-height:1;text-shadow:0 0 50px var(--ag)}
+.rv-rk{font-size:.85rem;font-weight:200;letter-spacing:6px;text-transform:uppercase;color:var(--t2);margin-top:2px}
+.rv-dt{font-family:var(--m);font-size:.5rem;color:var(--t3);margin-top:4px}
+.rv-plot{width:100%;max-width:360px;border-radius:8px;margin:8px 0}
+.rv-actions{display:flex;gap:8px;margin-top:8px}
+.rv-btn{padding:10px 22px;border-radius:100px;border:1px solid var(--b);background:0;color:var(--t2);font-family:var(--f);font-size:.75rem;cursor:pointer;display:flex;align-items:center;gap:6px}
 .rv-btn:active{background:var(--as);border-color:var(--a);color:var(--a)}
 .rv-btn.primary{background:var(--as);border-color:rgba(0,255,204,.2);color:var(--a)}
-.rv-copied{font-family:var(--m);font-size:.45rem;color:var(--a);letter-spacing:1px;opacity:0;transition:opacity .3s}
-.rv-copied.show{opacity:1}
-/* Settings */
-.sp{display:none;position:fixed;inset:0;background:var(--c);z-index:200;flex-direction:column;padding:20px;overflow-y:auto;animation:su .3s var(--ez)}
-.sp.open{display:flex}
-@keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.sp .sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-.sp .st{font-size:1rem;font-weight:200}.sp .sc2{background:0;border:0;color:var(--a);font-size:.8rem;cursor:pointer;font-family:var(--f)}
-.sr{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--b)}
-.sr .sl{font-size:.8rem;color:var(--t2)}.sr .sv{font-family:var(--m);font-size:.7rem;color:var(--a)}
-.cbtn{width:100%;padding:13px;border-radius:13px;background:var(--s2);border:1px solid var(--b);color:var(--t1);font-family:var(--f);font-size:.8rem;cursor:pointer;margin-top:10px;text-align:center}
-/* Calibration assistant panel */
-.cal-panel{display:none;flex-direction:column;flex:1;padding:20px}
-.cal-panel.open{display:flex}
-.cal-title{font-size:1rem;font-weight:200;text-align:center;margin-bottom:4px}
-.cal-step{font-family:var(--m);font-size:.45rem;letter-spacing:2px;text-transform:uppercase;color:var(--t3);text-align:center;margin-bottom:16px}
-.cal-section{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
-.cal-slider{width:90%;max-width:300px}
-.cal-slider input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:rgba(255,255,255,.1);border-radius:3px;outline:0}
-.cal-slider input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:var(--a);box-shadow:0 0 16px var(--ag);border:2px solid rgba(0,0,0,.2)}
-.cal-slider input[type=range]::-moz-range-thumb{width:28px;height:28px;border-radius:50%;background:var(--a);border:2px solid rgba(0,0,0,.2)}
-.cal-val{font-family:var(--m);font-size:1.2rem;font-weight:400;color:var(--a)}
-.cal-hint{font-family:var(--m);font-size:.45rem;letter-spacing:1px;color:var(--t3);text-align:center}
-.cal-msg{font-family:var(--m);font-size:.5rem;color:var(--t2);text-align:center;padding:12px}
-/* Camera fullscreen */
-.cam-fs{display:none;position:fixed;inset:0;background:#000;z-index:500;flex-direction:column}
-.cam-fs.open{display:flex}
-.cam-fs video{flex:1;object-fit:cover}
-.cam-fs .hud{position:absolute;bottom:0;left:0;right:0;padding:20px;background:linear-gradient(transparent,rgba(0,0,0,.8));text-align:center}
-.cam-fs .inst{font-family:var(--m);font-size:.5rem;letter-spacing:2px;text-transform:uppercase;color:var(--t2);margin-bottom:12px}
-.cam-fs .cap{width:60px;height:60px;border-radius:50%;background:#fff;border:3px solid rgba(255,255,255,.3);cursor:pointer}
-.cam-fs .cap:active{transform:scale(.9)}
-.cam-fs .cx{position:absolute;top:14px;right:14px;background:rgba(0,0,0,.5);border:0;color:#fff;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:16px;z-index:1}
-.cam-fs .guide{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:75vw;height:75vw;border:2px dashed rgba(0,255,204,.3);border-radius:10px;pointer-events:none}
-.cam-fs .guide-label{position:absolute;top:50%;left:50%;transform:translate(-50%,calc(-50% - 40vw));font-family:var(--m);font-size:.45rem;letter-spacing:2px;text-transform:uppercase;color:var(--a);opacity:.5}
-.cam-fs .dbg{position:absolute;top:50px;left:10px;right:10px;font-family:var(--m);font-size:.4rem;color:rgba(0,255,204,.4);pointer-events:none;white-space:pre-line}
-</style>
-</head>
-<body>
+.rv-copied{font-family:var(--m);font-size:.45rem;color:var(--a);opacity:0;transition:opacity .3s}.rv-copied.show{opacity:1}
+/* ── Calibration panel ── */
+.cp{display:none;flex-direction:column;flex:1;padding:16px 20px;overflow-y:auto}
+.cp.open{display:flex}
+.cp-title{font-size:1.1rem;font-weight:200;text-align:center;margin-bottom:2px}
+.cp-step{font-family:var(--m);font-size:.5rem;letter-spacing:2px;text-transform:uppercase;color:var(--t3);text-align:center;margin-bottom:14px}
+.cp-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+.cp-val{font-family:var(--m);font-size:1.8rem;font-weight:400;color:var(--a)}
+.cp-hint{font-family:var(--m);font-size:.5rem;letter-spacing:1px;color:var(--t3);text-align:center;line-height:1.6}
+.cp-msg{font-family:var(--m);font-size:.6rem;color:var(--t2);text-align:center;padding:16px;line-height:1.6}
+.cp-slider{width:90%;max-width:300px}
+.cp-slider input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:8px;background:rgba(255,255,255,.1);border-radius:4px;outline:0}
+.cp-slider input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:32px;height:32px;border-radius:50%;background:var(--a);box-shadow:0 0 16px var(--ag);border:2px solid rgba(0,0,0,.2)}
+.cp-nav{display:flex;gap:10px;justify-content:center;padding:16px 0;flex-shrink:0}
+.cp-btn{padding:14px 32px;border-radius:100px;font-family:var(--f);font-size:.85rem;cursor:pointer;border:none;transition:all .2s var(--ez)}
+.cp-back{background:0;color:var(--t2);border:1px solid var(--b)}.cp-back:active{border-color:rgba(255,255,255,.2);color:var(--t1)}
+.cp-next{background:#fff;color:#0a0a0c}.cp-next:active{background:var(--a)}
+.cp-start{background:var(--a);color:#0a0a0c;font-weight:500;font-size:.95rem;padding:16px 48px}
+/* ── Camera ── */
+.cam{display:none;position:fixed;inset:0;background:#000;z-index:500;flex-direction:column}
+.cam.open{display:flex}
+.cam video{flex:1;object-fit:cover}
+.cam .hud{position:absolute;bottom:0;left:0;right:0;padding:20px;background:linear-gradient(transparent,rgba(0,0,0,.8));text-align:center}
+.cam .inst{font-family:var(--m);font-size:.55rem;letter-spacing:2px;text-transform:uppercase;color:var(--t2);margin-bottom:12px}
+.cam .cap{width:64px;height:64px;border-radius:50%;background:#fff;border:3px solid rgba(255,255,255,.3);cursor:pointer}
+.cam .cap:active{transform:scale(.9)}
+.cam .cx{position:absolute;top:14px;right:14px;background:rgba(0,0,0,.5);border:0;color:#fff;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px;z-index:1}
+.cam .guide{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:75vw;height:75vw;border:2px dashed rgba(0,255,204,.3);border-radius:10px;pointer-events:none}
+.cam .dbg{position:absolute;top:50px;left:10px;right:10px;font-family:var(--m);font-size:.4rem;color:rgba(0,255,204,.4);pointer-events:none;white-space:pre-line}
+</style></head><body>
 
-<!-- ═══════════ CONTROLLER UI ═══════════ -->
-<div id="controller-ui">
-<div class="hdr"><span class="brand">Manifold</span><div class="gear" onclick="toggleSettings()">⚙</div></div>
-<div class="tabs" id="tabs">
-<button class="tab on" data-m="sloan" onclick="setMode('sloan')">Sloan</button>
-<button class="tab" data-m="tumblingE" onclick="setMode('tumblingE')">Tumbling E</button>
-<button class="tab" data-m="gabor" onclick="setMode('gabor')">Gabor</button>
-</div>
+<div id="ctrl">
+<div class="hdr"><span class="brand">BurkeCSF</span></div>
 <div class="prog" id="prog"><div class="ring"><svg viewBox="0 0 48 48"><circle class="bg" cx="24" cy="24" r="21"/><circle class="fg" id="rfg" cx="24" cy="24" r="21"/></svg><div class="num" id="rnum">0</div></div></div>
 <div class="resp" id="resp">
-<div class="prompt" id="prompt">Tap any response to begin</div>
-<div class="lpad" id="pad-s">
-<button class="lb" onclick="send('c')">C</button><button class="lb" onclick="send('d')">D</button>
-<button class="lb" onclick="send('h')">H</button><button class="lb" onclick="send('k')">K</button>
-<button class="lb" onclick="send('n')">N</button><button class="lb" onclick="send('o')">O</button>
-<button class="lb" onclick="send('r')">R</button><button class="lb" onclick="send('s')">S</button>
-<button class="lb" onclick="send('v')">V</button><button class="lb" onclick="send('z')">Z</button>
+<div class="prompt" id="prompt">Tap a response to begin</div>
+<div class="ori-pad" id="pad-ori">
+<div class="ori-row">
+<button class="ori-btn" onclick="send('upleft')">↖<span class="ori-lbl">Left</span></button>
+<button class="ori-btn" onclick="send('up')">↑<span class="ori-lbl">Vertical</span></button>
+<button class="ori-btn" onclick="send('upright')">↗<span class="ori-lbl">Right</span></button>
 </div>
-<div class="dpad hid" id="pad-d">
-<button class="db" data-p="t" onclick="send('up')">↑</button>
-<button class="db" data-p="l" onclick="send('left')">←</button>
-<button class="db" data-p="c">+</button>
-<button class="db" data-p="r" onclick="send('right')">→</button>
-<button class="db" data-p="b" onclick="send('down')">↓</button>
+<div class="ori-row">
+<button class="ori-btn" onclick="send('right')" style="max-width:40%;margin:0 auto">→<span class="ori-lbl">Horizontal</span></button>
+</div>
+<button class="no-btn" onclick="send('none')">No Target</button>
 </div>
 </div>
-<div class="sbar" id="sbar"><div id="st"><span class="sd" id="sd"></span>Connecting</div><button class="rbtn" id="rbtn" onclick="location.reload()">Retry</button></div>
+<div class="sbar" id="sbar"><div id="stt"><span class="sd" id="sdi"></span>Connecting</div><button class="rbtn" id="rbtn" onclick="location.reload()">Retry</button></div>
 <div class="rv" id="rv">
-    <div class="rv-ey">Area Under Log CSF</div>
-    <div class="rv-sc" id="rsc">—</div><div class="rv-rk" id="rrk"></div><div class="rv-dt" id="rdt"></div>
-    <div class="rv-ts" id="rts"></div><div class="rv-divider"></div>
-    <div class="rv-actions">
-        <button class="rv-btn primary" onclick="shareResults()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> Share</button>
-        <button class="rv-btn" onclick="copyResults()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy</button>
-    </div>
-    <div class="rv-copied" id="rv-copied">Copied to clipboard</div>
+<div class="rv-ey">Area Under Log CSF</div>
+<div class="rv-sc" id="rsc">—</div><div class="rv-rk" id="rrk"></div><div class="rv-dt" id="rdt"></div>
+<img class="rv-plot" id="rv-plot" style="display:none" alt="CSF curve">
+<canvas id="rv-canvas" style="display:none" width="560" height="340"></canvas>
+<div class="rv-actions">
+<button class="rv-btn primary" onclick="shareR()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> Share</button>
+<button class="rv-btn" onclick="copyR()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy</button>
+</div>
+<div class="rv-copied" id="rv-cp">Copied</div>
 </div>
 </div>
 
-<!-- ═══════════ CALIBRATION PANEL ═══════════ -->
-<div class="cal-panel" id="cal-panel">
-<div class="cal-step" id="cal-step-label">Calibration</div>
-<div class="cal-title" id="cal-title">Linked to Display</div>
-<div class="cal-section" id="cal-body">
-    <div class="cal-msg">Waiting for calibration step…</div>
-</div>
+<div class="cp" id="cp">
+<div class="cp-step" id="cp-sl">Calibration</div>
+<div class="cp-title" id="cp-tl">Linked to Display</div>
+<div class="cp-body" id="cp-bd"><div class="cp-msg">Waiting for calibration step…</div></div>
+<div class="cp-nav" id="cp-nv"></div>
 </div>
 
-<!-- ═══════════ SETTINGS ═══════════ -->
-<div class="sp" id="sp">
-<div class="sh"><span class="st">Settings</span><button class="sc2" onclick="toggleSettings()">Done</button></div>
-<div class="sr"><span class="sl">Mode</span><span class="sv" id="sm">Sloan</span></div>
-<div class="sr"><span class="sl">Trials</span><span class="sv">50</span></div>
-<button class="cbtn" onclick="sendCmd('calibrate')">Calibration Wizard</button>
-<button class="cbtn" style="color:var(--e);border-color:rgba(255,69,58,.15)" onclick="sendCmd('restart')">Restart Test</button>
-</div>
-
-<!-- ═══════════ CAMERA FULLSCREEN ═══════════ -->
-<div class="cam-fs" id="cam-fs">
+<div class="cam" id="cam">
 <button class="cx" onclick="closeCam()">✕</button>
-<video id="cam-video" autoplay playsinline></video>
+<video id="cv" autoplay playsinline></video>
 <div class="guide"></div>
-<div class="guide-label">Frame all 4 corner markers</div>
-<div class="dbg" id="cam-dbg"></div>
-<div class="hud">
-    <div class="inst" id="cam-inst">Point camera at display markers — capture when visible</div>
-    <button class="cap" id="cam-cap-btn" onclick="captureFrame()"></button>
-</div>
-<canvas id="cam-canvas" style="display:none"></canvas>
+<div class="dbg" id="cdbg"></div>
+<div class="hud"><div class="inst" id="cinst">Point at display markers</div><button class="cap" id="ccap" onclick="capture()"></button></div>
+<canvas id="cc" style="display:none"></canvas>
 </div>
 
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <script>if(typeof Peer==='undefined'){var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.2/peerjs.min.js';document.head.appendChild(s)}</script>
 <script>
-// ═══════════════════════════════════════════════════════════════
-// Routing
-// ═══════════════════════════════════════════════════════════════
-const params = new URLSearchParams(location.search);
-const laneID = params.get('id');     // test controller mode
-const calID  = params.get('cal');    // calibration assistant mode
-const camID  = params.get('cam');    // standalone camera-only mode
-let   activeDiagMm = parseFloat(params.get('diagMm')) || 0;
+const P=new URLSearchParams(location.search),laneID=P.get('id'),calID=P.get('cal'),camID=P.get('cam');
+let diagMm=parseFloat(P.get('diagMm'))||0,conn=null,isConn=false;
 
-if (calID) {
-    document.getElementById('controller-ui').style.display = 'none';
-    document.getElementById('cal-panel').classList.add('open');
-    initCalMode(calID);
-} else if (camID) {
-    document.getElementById('controller-ui').style.display = 'none';
-    activeDiagMm = parseFloat(params.get('diagMm')) || 0;
-    initStandaloneCam(camID);
-} else if (laneID) {
-    initControllerMode();
-} else {
-    showErr('No connection ID');
-    document.getElementById('rbtn').textContent = 'Back';
-    document.getElementById('rbtn').onclick = () => history.back();
-}
+// ═══ Hardware camera intrinsics lookup ═══
+// Focal length in mm and sensor width in mm for common devices
+const CAM_DB={
+    // iPhone wide cameras
+    'Apple A17':'4.2/6.67','Apple A16':'5.7/7.01','Apple A15':'5.7/7.01','Apple A14':'4.25/5.1',
+    'Apple A13':'4.25/5.1','Apple A12':'4.25/5.1','Apple GPU':'4.25/5.1',
+    // Pixel phones
+    'Adreno (TM) 750':'6.81/9.50','Adreno (TM) 740':'6.81/9.50','Adreno (TM) 730':'4.38/5.64',
+    'Adreno (TM) 660':'4.38/5.64','Adreno (TM) 620':'4.44/5.76',
+    // Samsung
+    'Mali-G78':'5.4/7.06','Mali-G77':'5.4/7.06',
+};
 
-// ═══════════════════════════════════════════════════════════════
-// Calibration Assistant Mode (?cal=)
-// ═══════════════════════════════════════════════════════════════
-let calConn = null;
-
-function initCalMode(peerId) {
-    if (typeof Peer === 'undefined') { showCalMsg('PeerJS unavailable'); return; }
-    showCalMsg('Connecting to display…');
-    const p = new Peer(undefined, {
-        debug: 1,
-        config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
-    });
-    p.on('open', () => {
-        calConn = p.connect(peerId, { reliable: true });
-        calConn.on('open', () => {
-            console.log('[Cal] Connected to display');
-            showCalMsg('Connected — follow steps on display');
-        });
-        calConn.on('data', onCalMsg);
-        calConn.on('close', () => showCalMsg('Disconnected'));
-        calConn.on('error', e => showCalMsg('Error: ' + e));
-    });
-    p.on('error', e => showCalMsg('Peer error: ' + e.type));
-}
-
-function onCalMsg(d) {
-    console.log('[Cal] Received:', d.type, d);
-    if (d.type === 'calStep') {
-        updateCalUI(d.step);
-    }
-    if (d.type === 'startCamCapture') {
-        activeDiagMm = d.diagMm;
-        console.log('[Cal] Start cam capture, diagMm =', activeDiagMm);
-        openCamCapture();
-    }
-    if (d.type === 'cancelCamCapture') {
-        closeCam();
-    }
-}
-
-function updateCalUI(step) {
-    const body = document.getElementById('cal-body');
-    const title = document.getElementById('cal-title');
-    const label = document.getElementById('cal-step-label');
-
-    if (step === 1) {
-        // Gamma — show big slider
-        label.textContent = 'STEP 2 OF 5 · LUMINANCE';
-        title.textContent = 'Adjust Brightness';
-        body.innerHTML = `
-            <div class="cal-val" id="gamma-val">128</div>
-            <div class="cal-slider">
-                <input type="range" id="gamma-range" min="60" max="220" value="128" oninput="onGammaSlide(this.value)">
-            </div>
-            <div style="display:flex;justify-content:space-between;width:90%;max-width:300px;font-family:var(--m);font-size:.45rem;color:var(--t3)"><span>DARKER</span><span>BRIGHTER</span></div>
-            <div class="cal-hint">Adjust until the circle disappears<br>into the pattern on the display</div>`;
-    } else if (step === 2) {
-        label.textContent = 'STEP 3 OF 5 · SCALE';
-        title.textContent = 'Card Size';
-        body.innerHTML = '<div class="cal-msg">Adjust on the display —<br>hold a credit card to the screen</div>';
-    } else if (step === 3) {
-        label.textContent = 'STEP 4 OF 5 · DISTANCE';
-        title.textContent = 'Viewing Distance';
-        body.innerHTML = '<div class="cal-msg">Use camera or enter manually on display</div>';
-    } else if (step === 4) {
-        label.textContent = 'STEP 5 OF 5 · CONFIRM';
-        title.textContent = 'Review Settings';
-        body.innerHTML = '<div class="cal-msg">Confirm and start on display</div>';
-    } else {
-        label.textContent = 'CALIBRATION';
-        title.textContent = 'Connected';
-        body.innerHTML = '<div class="cal-msg">Follow steps on display</div>';
-    }
-}
-
-function onGammaSlide(v) {
-    document.getElementById('gamma-val').textContent = v;
-    if (calConn && calConn.open) calConn.send({ type: 'gamma', value: parseInt(v) });
-}
-
-function showCalMsg(msg) {
-    document.getElementById('cal-body').innerHTML = `<div class="cal-msg">${msg}</div>`;
-}
-
-// ═══════════════════════════════════════════════════════════════
-// Standalone Camera Mode (?cam=)
-// ═══════════════════════════════════════════════════════════════
-function initStandaloneCam(peerId) {
-    document.getElementById('cal-panel').classList.add('open');
-    showCalMsg('Opening camera…');
-    // Connect to display
-    if (typeof Peer !== 'undefined') {
-        const p = new Peer(undefined, { config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] } });
-        p.on('open', () => {
-            calConn = p.connect(peerId, { reliable: true });
-            calConn.on('open', () => { console.log('[Cam] Connected'); openCamCapture(); });
-        });
-    } else {
-        openCamCapture();
-    }
-}
-
-// ═══════════════════════════════════════════════════════════════
-// Camera Capture (shared by cal and standalone modes)
-// ═══════════════════════════════════════════════════════════════
-let camStream = null;
-
-function openCamCapture() {
-    document.getElementById('cam-fs').classList.add('open');
-    document.getElementById('cam-cap-btn').style.display = '';
-    document.getElementById('cam-dbg').textContent = '';
-    document.getElementById('cam-inst').textContent = 'Point camera at display — capture when 4 markers visible';
-
-    navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } }
-    })
-    .then(stream => {
-        camStream = stream;
-        document.getElementById('cam-video').srcObject = stream;
-    })
-    .catch(err => {
-        document.getElementById('cam-inst').textContent = 'Camera denied: ' + err.message;
-    });
-}
-
-function closeCam() {
-    document.getElementById('cam-fs').classList.remove('open');
-    if (camStream) { camStream.getTracks().forEach(t => t.stop()); camStream = null; }
-}
-
-function captureFrame() {
-    const video = document.getElementById('cam-video');
-    const canvas = document.getElementById('cam-canvas');
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(video, 0, 0);
-
-    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const markers = findDarkMarkers(imgData, canvas.width, canvas.height);
-    const dbg = document.getElementById('cam-dbg');
-
-    if (markers.length >= 4) {
-        // Sort: top 2, bottom 2
-        markers.sort((a, b) => a.y - b.y);
-        const top = markers.slice(0, 2).sort((a, b) => a.x - b.x);
-        const bot = markers.slice(2, 4).sort((a, b) => a.x - b.x);
-
-        // Diagonal pixel span in photo: TL center → BR center
-        const dx = bot[1].x - top[0].x;
-        const dy = bot[1].y - top[0].y;
-        const diagCamPx = Math.sqrt(dx * dx + dy * dy);
-
-        // Pinhole camera model: distance = (realSize * focalLength) / imageSize
-        // focalLength in px = (imageWidth / 2) / tan(hFOV / 2)
-        // Typical phone wide camera hFOV ≈ 67-75°
-        // We use 70° as a reasonable default
-        const hFovDeg = 70;
-        const focalPx = (canvas.width / 2) / Math.tan((hFovDeg / 2) * Math.PI / 180);
-        const distMm = (activeDiagMm * focalPx) / diagCamPx;
-
-        const distFt = (distMm / 304.8).toFixed(1);
-        const distM = (distMm / 1000).toFixed(2);
-
-        // Debug info
-        dbg.textContent = [
-            `Frame: ${canvas.width}×${canvas.height}`,
-            `Markers found: ${markers.length}`,
-            `Diag in photo: ${diagCamPx.toFixed(0)}px`,
-            `Real diag: ${activeDiagMm.toFixed(0)}mm`,
-            `hFOV: ${hFovDeg}°  focalPx: ${focalPx.toFixed(0)}`,
-            `Distance: ${distMm.toFixed(0)}mm = ${distFt}ft = ${distM}m`,
-            `TL(${top[0].x.toFixed(0)},${top[0].y.toFixed(0)}) TR(${top[1].x.toFixed(0)},${top[1].y.toFixed(0)})`,
-            `BL(${bot[0].x.toFixed(0)},${bot[0].y.toFixed(0)}) BR(${bot[1].x.toFixed(0)},${bot[1].y.toFixed(0)})`
-        ].join('\n');
-
-        // Send to display
-        if (calConn && calConn.open) {
-            calConn.send({ type: 'camDistance', distMm });
-        }
-
-        document.getElementById('cam-inst').textContent = `✓ ${distFt} ft (${distM} m) — sent`;
-        document.getElementById('cam-cap-btn').style.display = 'none';
-
-        setTimeout(() => closeCam(), 3000);
-    } else {
-        dbg.textContent = `Found ${markers.length}/4 markers\nClusters: ${markers.map(m=>`(${m.x.toFixed(0)},${m.y.toFixed(0)} sz:${m.size})`).join(' ')}`;
-        document.getElementById('cam-inst').textContent = `${markers.length}/4 markers found — reposition and try again`;
-    }
-}
-
-function findDarkMarkers(imgData, w, h) {
-    const DARK = 70, MIN_SIZE = 40;
-    const dark = new Uint8Array(w * h);
-    for (let i = 0; i < w * h; i++) {
-        const r = imgData.data[i*4], g = imgData.data[i*4+1], b = imgData.data[i*4+2];
-        dark[i] = (r < DARK && g < DARK && b < DARK) ? 1 : 0;
-    }
-    const visited = new Uint8Array(w * h);
-    const clusters = [];
-    for (let y = 0; y < h; y++) {
-        for (let x = 0; x < w; x++) {
-            const idx = y * w + x;
-            if (!dark[idx] || visited[idx]) continue;
-            const stack = [idx]; visited[idx] = 1;
-            let sx = 0, sy = 0, cnt = 0;
-            while (stack.length) {
-                const ci = stack.pop();
-                const cx = ci % w, cy = (ci - cx) / w;
-                sx += cx; sy += cy; cnt++;
-                for (const [dx2, dy2] of [[1,0],[-1,0],[0,1],[0,-1]]) {
-                    const nx = cx+dx2, ny = cy+dy2;
-                    if (nx >= 0 && nx < w && ny >= 0 && ny < h) {
-                        const ni = ny * w + nx;
-                        if (dark[ni] && !visited[ni]) { visited[ni] = 1; stack.push(ni); }
-                    }
-                }
+function getHardwareFocalPx(videoW){
+    try{
+        const c=document.createElement('canvas'),gl=c.getContext('webgl')||c.getContext('experimental-webgl');
+        if(!gl)return null;
+        const ext=gl.getExtension('WEBGL_debug_renderer_info');
+        const gpu=ext?gl.getParameter(ext.UNMASKED_RENDERER_WEBGL):'';
+        console.log('[Cam] GPU:',gpu);
+        for(const[key,val]of Object.entries(CAM_DB)){
+            if(gpu.includes(key)){
+                const[fmm,sw]=val.split('/').map(Number);
+                const fpx=(fmm/sw)*videoW;
+                console.log('[Cam] Hardware match:',key,'focalPx=',fpx.toFixed(0));
+                return fpx;
             }
-            if (cnt >= MIN_SIZE) clusters.push({ x: sx/cnt, y: sy/cnt, size: cnt });
         }
+    }catch(e){}
+    return null;
+}
+
+// Geometric calibration stored focal px
+function getStoredFocalPx(){const v=localStorage.getItem('cam_focal_px');return v?parseFloat(v):null}
+function storeFocalPx(f){localStorage.setItem('cam_focal_px',f.toString())}
+
+// ═══ Routing ═══
+if(calID){document.getElementById('ctrl').style.display='none';document.getElementById('cp').classList.add('open');initCal(calID)}
+else if(camID){document.getElementById('ctrl').style.display='none';document.getElementById('cp').classList.add('open');initStandaloneCam(camID)}
+else if(laneID){initTest()}
+else{setSt('er','No ID');document.getElementById('rbtn').style.display='inline-block'}
+
+// ═══ Calibration mode ═══
+function initCal(pid){
+    cpMsg('Connecting to display…');
+    if(typeof Peer==='undefined'){cpMsg('PeerJS unavailable');return}
+    const p=new Peer(undefined,{debug:1,config:{iceServers:[{urls:'stun:stun.l.google.com:19302'}]}});
+    p.on('open',()=>{
+        conn=p.connect(pid,{reliable:true});
+        conn.on('open',()=>{isConn=true;cpMsg('Connected — follow steps on display')});
+        conn.on('data',onCalMsg);
+        conn.on('close',()=>{isConn=false;cpMsg('Disconnected')});
+    });
+    p.on('error',e=>cpMsg('Error: '+e.type));
+}
+
+function onCalMsg(d){
+    if(d.type==='calStep')renderCalStep(d.step,d);
+    if(d.type==='startCam'){diagMm=d.diagMm;openCam()}
+    if(d.type==='cancelCam')closeCam();
+    if(d.type==='calComplete'){
+        // Transition to test — redirect this tab to connect as test controller
+        // The display will reload to index.html and create a new PeerJS ID.
+        // Show a "connecting to test" message, then user re-scans QR on test page.
+        cpMsg('Calibration complete!<br><br>The test is loading on the display.<br>Scan the new QR code to connect as controller.');
+        document.getElementById('cp-nv').innerHTML='';
     }
-    clusters.sort((a, b) => b.size - a.size);
-    return clusters.slice(0, 4);
 }
 
-// ═══════════════════════════════════════════════════════════════
-// Normal Controller Mode (?id=)
-// ═══════════════════════════════════════════════════════════════
-let conn = null, isConn = false, cto = null, curMode = 'sloan', resultData = null;
+function renderCalStep(step,d){
+    const bd=document.getElementById('cp-bd'),tl=document.getElementById('cp-tl'),sl=document.getElementById('cp-sl'),nv=document.getElementById('cp-nv');
+    if(step===1){
+        sl.textContent='STEP 2 · LUMINANCE';tl.textContent='Adjust Brightness';
+        bd.innerHTML=`<div class="cp-val" id="gval">128</div><div class="cp-slider"><input type="range" id="gsl" min="60" max="220" value="${d.gamma||128}" oninput="onGamma(this.value)"></div><div style="display:flex;justify-content:space-between;width:90%;max-width:300px;font-family:var(--m);font-size:.5rem;color:var(--t3)"><span>DARKER</span><span>BRIGHTER</span></div><div class="cp-hint">Adjust until the circle disappears<br>into the pattern on the display</div>`;
+        nv.innerHTML='<button class="cp-btn cp-back" onclick="navCal(\'back\')">← Back</button><button class="cp-btn cp-next" onclick="navCal(\'next\')">Next →</button>';
+    }else if(step===2){
+        sl.textContent='STEP 3 · SCALE';tl.textContent='Card Size';
+        bd.innerHTML=`<div class="cp-msg">Adjust the card outline on the display<br>to match a real credit card width.</div><div class="cp-slider"><input type="range" id="csl" min="150" max="750" step="0.1" value="${d.cardPx||300}" oninput="onCard(this.value)"></div><div style="display:flex;justify-content:space-between;width:90%;max-width:300px;font-family:var(--m);font-size:.5rem;color:var(--t3)"><span>SMALLER</span><span>LARGER</span></div>`;
+        nv.innerHTML='<button class="cp-btn cp-back" onclick="navCal(\'back\')">← Back</button><button class="cp-btn cp-next" onclick="navCal(\'next\')">Next →</button>';
+    }else if(step===3){
+        sl.textContent='STEP 4 · DISTANCE';tl.textContent='Viewing Distance';
+        bd.innerHTML='<button class="cp-btn cp-next" style="font-size:1rem;padding:20px 40px" onclick="triggerCam()">📷  Measure with Camera</button><div class="cp-hint" style="margin-top:12px">Or enter distance manually on display</div>';
+        nv.innerHTML='<button class="cp-btn cp-back" onclick="navCal(\'back\')">← Back</button><button class="cp-btn cp-next" onclick="navCal(\'next\')">Review →</button>';
+    }else if(step===4){
+        sl.textContent='STEP 5 · CONFIRM';tl.textContent='Review Settings';
+        bd.innerHTML='<div class="cp-msg">Review the settings on display.<br>Press Start when ready.</div>';
+        nv.innerHTML='<button class="cp-btn cp-back" onclick="navCal(\'back\')">← Back</button><button class="cp-btn cp-start" onclick="navCal(\'start\')">Start Test ▶</button>';
+    }else{
+        sl.textContent='CALIBRATION';tl.textContent='Connected';bd.innerHTML='<div class="cp-msg">Follow steps on display</div>';nv.innerHTML='';
+    }
+}
 
-function initControllerMode() {
-    if (typeof Peer === 'undefined') { showErr('Lib failed'); return; }
-    const p = new Peer(undefined, {
-        debug: 1,
-        config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] }
+function onGamma(v){document.getElementById('gval').textContent=v;tx({type:'gamma',value:parseInt(v)})}
+function onCard(v){tx({type:'cardSize',value:parseFloat(v)})}
+function navCal(to){tx({type:'nav',to:to})}
+function triggerCam(){tx({type:'nav',to:'next'});/* display will send startCam */}
+function cpMsg(m){document.getElementById('cp-bd').innerHTML=`<div class="cp-msg">${m}</div>`}
+function tx(m){if(conn&&isConn)conn.send(m)}
+
+// ═══ Standalone camera ═══
+function initStandaloneCam(pid){
+    cpMsg('Opening camera…');
+    if(typeof Peer!=='undefined'){const p=new Peer(undefined,{config:{iceServers:[{urls:'stun:stun.l.google.com:19302'}]}});p.on('open',()=>{conn=p.connect(pid,{reliable:true});conn.on('open',()=>{isConn=true;openCam()})})}else openCam();
+}
+
+// ═══ Camera ═══
+let camStream=null;
+function openCam(){
+    document.getElementById('cam').classList.add('open');document.getElementById('ccap').style.display='';document.getElementById('cdbg').textContent='';
+    document.getElementById('cinst').textContent='Point at display markers — capture when visible';
+    navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1920},height:{ideal:1080}}}).then(s=>{camStream=s;document.getElementById('cv').srcObject=s}).catch(e=>document.getElementById('cinst').textContent='Camera denied: '+e.message);
+}
+function closeCam(){document.getElementById('cam').classList.remove('open');if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null}}
+
+function capture(){
+    const v=document.getElementById('cv'),c=document.getElementById('cc');c.width=v.videoWidth;c.height=v.videoHeight;
+    const ctx=c.getContext('2d');ctx.drawImage(v,0,0);
+    const img=ctx.getImageData(0,0,c.width,c.height),markers=findMarkers(img,c.width,c.height),dbg=document.getElementById('cdbg');
+    if(markers.length>=4){
+        markers.sort((a,b)=>a.y-b.y);const top=markers.slice(0,2).sort((a,b)=>a.x-b.x),bot=markers.slice(2,4).sort((a,b)=>a.x-b.x);
+        const dx=bot[1].x-top[0].x,dy=bot[1].y-top[0].y,dPx=Math.sqrt(dx*dx+dy*dy);
+        // Get focal length: hardware → stored → default estimate
+        let fPx=getHardwareFocalPx(c.width);
+        let fSrc='hardware';
+        if(!fPx){fPx=getStoredFocalPx();fSrc='stored'}
+        if(!fPx){const hfov=70;fPx=(c.width/2)/Math.tan((hfov/2)*Math.PI/180);fSrc='default (70° hFOV)'}
+        const distMm=(diagMm*fPx)/dPx;
+        const ft=(distMm/304.8).toFixed(1),m=(distMm/1000).toFixed(2);
+        dbg.textContent=[`Frame: ${c.width}×${c.height}`,`Markers: ${markers.length}`,`Diag photo: ${dPx.toFixed(0)}px`,`Real diag: ${diagMm.toFixed(0)}mm`,`focalPx: ${fPx.toFixed(0)} (${fSrc})`,`Distance: ${distMm.toFixed(0)}mm = ${ft}ft = ${m}m`,`TL(${top[0].x.toFixed(0)},${top[0].y.toFixed(0)}) BR(${bot[1].x.toFixed(0)},${bot[1].y.toFixed(0)})`].join('\n');
+        tx({type:'camDistance',distMm:distMm});
+        document.getElementById('cinst').textContent=`✓ ${ft} ft (${m} m) — sent`;document.getElementById('ccap').style.display='none';
+        setTimeout(()=>closeCam(),2500);
+    }else{
+        dbg.textContent=`Found ${markers.length}/4 markers`;document.getElementById('cinst').textContent=`${markers.length}/4 markers — reposition`;
+    }
+}
+
+function findMarkers(img,w,h){
+    const DK=70,MIN=40,dark=new Uint8Array(w*h);
+    for(let i=0;i<w*h;i++){const r=img.data[i*4],g=img.data[i*4+1],b=img.data[i*4+2];dark[i]=(r<DK&&g<DK&&b<DK)?1:0}
+    const vis=new Uint8Array(w*h),cls=[];
+    for(let y=0;y<h;y++)for(let x=0;x<w;x++){const idx=y*w+x;if(!dark[idx]||vis[idx])continue;
+        const stk=[idx];vis[idx]=1;let sx=0,sy=0,n=0;
+        while(stk.length){const ci=stk.pop(),cx2=ci%w,cy2=(ci-cx2)/w;sx+=cx2;sy+=cy2;n++;
+            for(const[dx,dy] of[[1,0],[-1,0],[0,1],[0,-1]]){const nx=cx2+dx,ny=cy2+dy;if(nx>=0&&nx<w&&ny>=0&&ny<h){const ni=ny*w+nx;if(dark[ni]&&!vis[ni]){vis[ni]=1;stk.push(ni)}}}}
+        if(n>=MIN)cls.push({x:sx/n,y:sy/n,size:n})}
+    cls.sort((a,b)=>b.size-a.size);return cls.slice(0,4);
+}
+
+// ═══ Test controller mode ═══
+let cto=null,curMode='gabor',resultData=null;
+function initTest(){
+    if(typeof Peer==='undefined'){setSt('er','Lib failed');return}
+    const p=new Peer(undefined,{debug:1,config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]}});
+    cto=setTimeout(()=>{if(!isConn)setSt('er','Timed out')},15000);
+    p.on('open',myId=>{setSt('','Syncing');conn=p.connect(laneID,{reliable:true});
+        conn.on('open',()=>{clearTimeout(cto);isConn=true;setSt('ok','Linked');document.getElementById('rbtn').style.display='none'});
+        conn.on('data',onTestMsg);conn.on('close',()=>{if(isConn){isConn=false;setSt('er','Disconnected')}});
+        conn.on('error',e=>setSt('er',e.type));
     });
-    cto = setTimeout(() => { if (!isConn) showErr('Timed out — try reloading'); }, 15000);
-    p.on('open', myId => {
-        console.log('[Tablet] My ID:', myId, '→', laneID);
-        setSt('', 'Syncing');
-        conn = p.connect(laneID, { reliable: true });
-        conn.on('open', () => { clearTimeout(cto); isConn = true; setSt('ok', 'Linked'); document.getElementById('rbtn').style.display = 'none'; });
-        conn.on('data', onMsg);
-        conn.on('close', () => { if (isConn) { isConn = false; showErr('Disconnected'); } });
-        conn.on('error', e => { console.error('[Tablet]', e); showErr('Connection error'); });
-    });
-    p.on('error', e => { clearTimeout(cto); showErr(e.type === 'peer-unavailable' ? 'Display not found' : e.type); });
-    p.on('disconnected', () => { if (!p.destroyed) p.reconnect(); });
+    p.on('error',e=>{clearTimeout(cto);setSt('er',e.type==='peer-unavailable'?'Display not found':e.type)});
+    p.on('disconnected',()=>{if(!p.destroyed)p.reconnect()});
 }
 
-function onMsg(d) {
-    if (d.type === 'state') switchPad(d.mode);
-    if (d.type === 'progress') updateRing(d.trial, d.maxTrials);
-    if (d.type === 'results') showResults(d.score, d.rank, d.detail);
+function onTestMsg(d){
+    if(d.type==='state'){}// mode switching — only gabor now
+    if(d.type==='progress')updateRing(d.trial,d.maxTrials);
+    if(d.type==='results')showResults(d.score,d.rank,d.detail);
+    if(d.type==='results-extended')showExtResults(d);
 }
 
-function send(v) {
-    if (!conn || !isConn) return;
-    conn.send({ type: 'input', value: v });
-    if (navigator.vibrate) navigator.vibrate(25);
-    document.getElementById('prompt').classList.add('hid');
-    const all = [...document.querySelectorAll('.lb,.db')];
-    const map = { '↑':'up','↓':'down','←':'left','→':'right','↗':'upright','↖':'upleft' };
-    all.forEach(b => { const bv = map[b.textContent.trim()] || b.textContent.trim().toLowerCase(); if (bv === v) { b.classList.remove('fl'); void b.offsetWidth; b.classList.add('fl'); } });
+function send(v){if(!conn||!isConn)return;conn.send({type:'input',value:v});if(navigator.vibrate)navigator.vibrate(25);document.getElementById('prompt').classList.add('hid');
+    document.querySelectorAll('.ori-btn,.no-btn').forEach(b=>{b.classList.remove('fl');void b.offsetWidth;
+        const bv=b.onclick?b.onclick.toString():'';if(bv.includes("'"+v+"'"))b.classList.add('fl')})}
+
+function updateRing(t,mx){document.getElementById('rfg').style.strokeDashoffset=2*Math.PI*21*(1-t/mx);document.getElementById('rnum').textContent=t}
+
+function showResults(sc,rk,dt){
+    resultData={score:sc||'—',rank:rk||'',detail:dt||'',date:new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}),time:new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})};
+    document.getElementById('resp').style.display='none';document.getElementById('prog').style.display='none';document.getElementById('sbar').style.display='none';
+    const rv=document.getElementById('rv');rv.style.display='flex';
+    document.getElementById('rsc').textContent=resultData.score;document.getElementById('rrk').textContent=resultData.rank;document.getElementById('rdt').textContent=resultData.detail;
 }
 
-function setMode(m) {
-    curMode = m;
-    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.m === m));
-    document.getElementById('sm').textContent = { sloan:'Sloan', tumblingE:'Tumbling E', gabor:'Gabor' }[m];
-    switchPad(m);
-    if (conn && isConn) conn.send({ type: 'setMode', mode: m });
+function showExtResults(d){
+    // Show plot image if available
+    if(d.plotDataUrl){const img=document.getElementById('rv-plot');img.src=d.plotDataUrl;img.style.display='block'}
+    // Or render from curve data
+    else if(d.curve&&d.curve.length>0)renderTabletPlot(d.curve,d.history);
+    if(d.score)resultData={...resultData,score:d.score,rank:d.rank,detail:d.detail};
 }
 
-function switchPad(m) {
-    const isDir = m === 'gabor' || m === 'tumblingE';
-    document.getElementById('pad-s').classList.toggle('hid', isDir);
-    document.getElementById('pad-d').classList.toggle('hid', !isDir);
-    document.querySelectorAll('.db[data-p]').forEach(b => {
-        if (m === 'gabor') {
-            if (b.dataset.p === 't') { b.textContent = '↑'; b.onclick = () => send('up'); }
-            if (b.dataset.p === 'r') { b.textContent = '↗'; b.onclick = () => send('upright'); }
-            if (b.dataset.p === 'l') { b.textContent = '→'; b.onclick = () => send('right'); }
-            if (b.dataset.p === 'b') { b.textContent = '↖'; b.onclick = () => send('upleft'); }
-        } else {
-            if (b.dataset.p === 't') { b.textContent = '↑'; b.onclick = () => send('up'); }
-            if (b.dataset.p === 'r') { b.textContent = '→'; b.onclick = () => send('right'); }
-            if (b.dataset.p === 'l') { b.textContent = '←'; b.onclick = () => send('left'); }
-            if (b.dataset.p === 'b') { b.textContent = '↓'; b.onclick = () => send('down'); }
-        }
-    });
+function renderTabletPlot(curve,history){
+    const c=document.getElementById('rv-canvas'),ctx=c.getContext('2d');
+    c.style.display='block';c.style.width='100%';c.style.maxWidth='360px';c.style.borderRadius='8px';
+    const W=560,H=340;c.width=W;c.height=H;
+    const pad={top:20,right:24,bottom:50,left:60},pW=W-pad.left-pad.right,pH=H-pad.top-pad.bottom;
+    const lfMin=-.3,lfMax=1.7,lsMin=-.3,lsMax=2.5;
+    const tX=lf=>pad.left+(lf-lfMin)/(lfMax-lfMin)*pW;const tY=ls=>pad.top+pH-(ls-lsMin)/(lsMax-lsMin)*pH;
+    ctx.fillStyle='#0a0a0c';ctx.fillRect(0,0,W,H);
+    ctx.strokeStyle='rgba(255,255,255,.06)';ctx.lineWidth=1;
+    [0.5,1,2,4,8,16,32].forEach(f=>{const x=tX(Math.log10(f));if(x>=pad.left&&x<=pad.left+pW){ctx.beginPath();ctx.moveTo(x,pad.top);ctx.lineTo(x,pad.top+pH);ctx.stroke()}});
+    [1,3,10,30,100,300].forEach(s=>{const y=tY(Math.log10(s));if(y>=pad.top&&y<=pad.top+pH){ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+pW,y);ctx.stroke()}});
+    // Curve
+    ctx.strokeStyle='#00ffcc';ctx.lineWidth=2.5;ctx.beginPath();let st=false;
+    curve.forEach(pt=>{if(pt.logS<lsMin)return;const x=tX(Math.log10(pt.freq)),y=tY(Math.min(pt.logS,lsMax));if(!st){ctx.moveTo(x,y);st=true}else ctx.lineTo(x,y)});ctx.stroke();
+    // History
+    if(history)history.forEach(h=>{const x=tX(Math.log10(h.freq)),y=tY(-h.logContrast);if(y<pad.top||y>pad.top+pH)return;ctx.beginPath();ctx.arc(x,y,h.correct?3:2,0,Math.PI*2);ctx.fillStyle=h.correct?'rgba(0,255,150,.45)':'rgba(255,80,80,.4)';ctx.fill()});
+    // Labels
+    ctx.fillStyle='rgba(255,255,255,.3)';ctx.font='9px JetBrains Mono,monospace';ctx.textAlign='center';
+    [0.5,1,2,4,8,16,32].forEach(f=>{const x=tX(Math.log10(f));if(x>=pad.left&&x<=pad.left+pW)ctx.fillText(String(f),x,pad.top+pH+14)});
+    ctx.fillText('Spatial Frequency (cpd)',W/2,pad.top+pH+28);
+    ctx.fillStyle='rgba(255,255,255,.15)';ctx.font='8px -apple-system,sans-serif';
+    ctx.fillText('Level of Detail',W/2,pad.top+pH+40);
+    ctx.font='7px JetBrains Mono,monospace';ctx.fillStyle='rgba(255,255,255,.12)';ctx.textAlign='left';ctx.fillText('← Coarse',pad.left,pad.top+pH+50);ctx.textAlign='right';ctx.fillText('Fine →',pad.left+pW,pad.top+pH+50);
+    ctx.textAlign='right';ctx.fillStyle='rgba(255,255,255,.3)';ctx.font='9px JetBrains Mono,monospace';
+    [1,3,10,30,100,300].forEach(s=>{const y=tY(Math.log10(s));if(y>=pad.top&&y<=pad.top+pH)ctx.fillText(String(s),pad.left-8,y+3)});
+    ctx.save();ctx.translate(13,H/2-10);ctx.rotate(-Math.PI/2);ctx.textAlign='center';ctx.fillText('Sensitivity',0,0);ctx.restore();
+    ctx.strokeStyle='rgba(255,255,255,.08)';ctx.strokeRect(pad.left,pad.top,pW,pH);
 }
 
-function updateRing(t, mx) { document.getElementById('rfg').style.strokeDashoffset = 2 * Math.PI * 21 * (1 - t / mx); document.getElementById('rnum').textContent = t; }
-
-function showResults(score, rank, detail) {
-    const now = new Date();
-    resultData = { score:score||'—', rank:rank||'', detail:detail||'',
-        mode:{sloan:'Sloan Letters',tumblingE:'Tumbling E',gabor:'Gabor Grating'}[curMode]||curMode,
-        date:now.toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}),
-        time:now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}) };
-    document.getElementById('resp').style.display='none'; document.getElementById('tabs').style.display='none';
-    document.getElementById('prog').style.display='none'; document.getElementById('sbar').style.display='none';
-    const rv=document.getElementById('rv'); rv.style.display='flex';
-    document.getElementById('rsc').textContent=resultData.score; document.getElementById('rrk').textContent=resultData.rank;
-    document.getElementById('rdt').textContent=resultData.detail;
-    document.getElementById('rts').textContent=`${resultData.mode}  ·  ${resultData.date}  ${resultData.time}`;
-}
-
-function getResultsText(){if(!resultData)return '';return `Manifold qCSF Results\n═══════════════════════\n\nAULCSF:  ${resultData.score}\nRating:  ${resultData.rank}\nDetail:  ${resultData.detail}\n\nMode:    ${resultData.mode}\nDate:    ${resultData.date} ${resultData.time}\n\n— Manifold Contrast Sensitivity Function`}
-function shareResults(){if(!resultData)return;const t=getResultsText(),s=`qCSF: AULCSF ${resultData.score}`;if(navigator.share)navigator.share({title:s,text:t}).catch(()=>{location.href=`mailto:?subject=${encodeURIComponent(s)}&body=${encodeURIComponent(t)}`});else location.href=`mailto:?subject=${encodeURIComponent(s)}&body=${encodeURIComponent(t)}`}
-function copyResults(){if(!resultData)return;navigator.clipboard.writeText(getResultsText()).then(fc).catch(()=>{const a=document.createElement('textarea');a.value=getResultsText();a.style.cssText='position:fixed;opacity:0';document.body.appendChild(a);a.select();document.execCommand('copy');document.body.removeChild(a);fc()})}
-function fc(){const e=document.getElementById('rv-copied');e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2000)}
-
-function setSt(c,t){document.getElementById('st').innerHTML=(c==='ok'?'<span class="sd ok"></span>':c==='er'?'<span class="sd er"></span>':'<span class="sd"></span>')+t}
-function showErr(m){setSt('er',m);document.getElementById('rbtn').style.display='inline-block'}
-function toggleSettings(){document.getElementById('sp').classList.toggle('open')}
-function sendCmd(a){if(conn&&isConn)conn.send({type:'command',action:a});toggleSettings()}
-</script>
-</body>
-</html>
+function getRText(){if(!resultData)return '';return `BurkeCSF Results\n══════════════════\nAULCSF:  ${resultData.score}\nRating:  ${resultData.rank}\nDetail:  ${resultData.detail}\nDate:    ${resultData.date} ${resultData.time}\n\n— BurkeCSF`}
+function shareR(){if(!resultData)return;const t=getRText(),s=`qCSF: AULCSF ${resultData.score}`;if(navigator.share)navigator.share({title:s,text:t}).catch(()=>{location.href=`mailto:?subject=${encodeURIComponent(s)}&body=${encodeURIComponent(t)}`});else location.href=`mailto:?subject=${encodeURIComponent(s)}&body=${encodeURIComponent(t)}`}
+function copyR(){if(!resultData)return;navigator.clipboard.writeText(getRText()).then(fc).catch(()=>{const a=document.createElement('textarea');a.value=getRText();a.style.cssText='position:fixed;opacity:0';document.body.appendChild(a);a.select();document.execCommand('copy');document.body.removeChild(a);fc()})}
+function fc(){const e=document.getElementById('rv-cp');e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2000)}
+function setSt(c,t){document.getElementById('stt').innerHTML=(c==='ok'?'<span class="sd ok"></span>':c==='er'?'<span class="sd er"></span>':'<span class="sd"></span>')+t;if(c==='er')document.getElementById('rbtn').style.display='inline-block'}
+</script></body></html>

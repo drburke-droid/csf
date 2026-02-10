@@ -36,10 +36,17 @@ export function initKeyboard(onInput) {
             return;
         }
 
-        // Space → generic start/advance
+        // Y/N for Yes/No detection mode
+        if (key === 'y' || key === 'n') {
+            e.preventDefault();
+            onInput(key);
+            return;
+        }
+
+        // Space → "yes" (detection) or start
         if (key === ' ') {
             e.preventDefault();
-            onInput('_start');
+            onInput('space');
         }
     }
 

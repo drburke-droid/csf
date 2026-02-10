@@ -1,10 +1,8 @@
 /**
- * Manifold qCSF — Display Controller
- * ====================================
- * The desktop display is stimulus-only. All interaction
- * happens on the connected tablet/phone controller.
- *
- * Modes: gabor | tumblingE | sloan
+ * BurkeCSF — Display Controller
+ * ==============================
+ * Gabor Yes/No detection paradigm.
+ * Stimulus always present; user responds "I see it" or "No patch".
  */
 
 import { isCalibrated, getCalibrationData, isCalibrationStale } from './utils.js';
@@ -15,21 +13,13 @@ import { initSync }      from './peer-sync.js';
 import { initKeyboard }  from './keyboard.js';
 import { computeResult } from './results.js';
 
-
-// ═════════════════════════════════════════════════════════════════════════════
-// Configuration
-// ═════════════════════════════════════════════════════════════════════════════
-
 const MAX_TRIALS  = 50;
 const DEBOUNCE_MS = 250;
 
-// Default mode (can be changed from tablet before test starts)
-let currentModeId = localStorage.getItem('qcsf_mode') || 'sloan';
+// Default: Gabor Yes/No
+let currentModeId = 'gabor';
 
-
-// ═════════════════════════════════════════════════════════════════════════════
-// Calibration
-// ═════════════════════════════════════════════════════════════════════════════
+// ── Calibration ──────────────────────────────────────────────────────────
 
 if (!isCalibrated()) {
     document.getElementById('cal-guard').style.display = 'flex';
@@ -50,42 +40,23 @@ if (cal.isMirror) {
     if (rc) rc.classList.add('mirror-flip');
 }
 
+// ── State ────────────────────────────────────────────────────────────────
 
-// ═════════════════════════════════════════════════════════════════════════════
-// State
-// ═════════════════════════════════════════════════════════════════════════════
+let mode = null, engine = null, currentStim = null;
+let testComplete = false, testStarted = false, lastInputTime = 0;
+let sync = null;
 
-let mode         = null;   // active stimulus mode controller
-let engine       = null;   // Bayesian engine
-let currentStim  = null;   // current stimulus selection
-let testComplete = false;
-let testStarted  = false;
-let lastInputTime = 0;
-let sync         = null;
-
-
-// ═════════════════════════════════════════════════════════════════════════════
-// Mode Initialization
-// ═════════════════════════════════════════════════════════════════════════════
+// ── Mode Init ────────────────────────────────────────────────────────────
 
 function initMode(modeId) {
     currentModeId = modeId;
-    localStorage.setItem('qcsf_mode', modeId);
-
     mode = createMode(modeId);
 
-    // Show loading state
     const label = document.getElementById('mode-label');
     if (label) label.textContent = mode.name;
 
-    // Generate templates (may take a moment for filtered modes)
-    try {
-        mode.generate();
-    } catch (e) {
-        console.error('[App] Template generation failed:', e);
-    }
+    try { mode.generate(); } catch (e) { console.error('[App] Generate failed:', e); }
 
-    // Create engine with mode-specific parameters
     engine = new QCSFEngine({
         numAFC: mode.numAFC,
         psychometricSlope: mode.psychometricSlope
@@ -94,23 +65,15 @@ function initMode(modeId) {
     testComplete = false;
     testStarted  = false;
     currentStim  = null;
-
-    // Update progress
     updateProgress(0);
 
-    // Send state to tablet
     if (sync && sync.connected) {
         sync.sendState({
-            mode:         mode.id,
-            labels:       mode.labels,
-            keys:         mode.keys,
+            mode: mode.id, labels: mode.labels, keys: mode.keys,
             responseType: mode.responseType,
-            trial:        0,
-            maxTrials:    MAX_TRIALS
+            trial: 0, maxTrials: MAX_TRIALS
         });
     }
-
-    // Show waiting state on canvas
     showWaiting();
 }
 
@@ -121,8 +84,6 @@ function showWaiting() {
     const mp = cal.midPoint;
     ctx.fillStyle = `rgb(${mp},${mp},${mp})`;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Subtle center indicator
     const cx = canvas.width / 2, cy = canvas.height / 2;
     ctx.beginPath();
     ctx.arc(cx, cy, 3, 0, Math.PI * 2);
@@ -130,10 +91,7 @@ function showWaiting() {
     ctx.fill();
 }
 
-
-// ═════════════════════════════════════════════════════════════════════════════
-// Input Handling
-// ═════════════════════════════════════════════════════════════════════════════
+// ── Input Handling ───────────────────────────────────────────────────────
 
 function handleInput(value) {
     if (testComplete) return;
@@ -147,255 +105,163 @@ function handleInput(value) {
 
     if (!currentStim || !mode) return;
 
-    // Debounce
+    // Only accept valid responses
+    const validKeys = new Set(mode.keys);
+    if (!validKeys.has(value)) return;
+
     const now = performance.now();
     if (now - lastInputTime < DEBOUNCE_MS) return;
     lastInputTime = now;
 
-    const correct = mode.checkAnswer(value);
+    const detected = mode.checkAnswer(value);
 
-    try {
-        engine.update(currentStim.stimIndex, correct);
-    } catch (e) {
-        console.error('[App] Engine update failed:', e);
-        finish();
-        return;
-    }
+    try { engine.update(currentStim.stimIndex, detected); }
+    catch (e) { console.error('[App] Update failed:', e); finish(); return; }
 
-    // Update progress
     updateProgress(engine.trialCount);
+    if (sync && sync.connected) sync.sendProgress(engine.trialCount, MAX_TRIALS);
 
-    if (sync && sync.connected) {
-        sync.sendProgress(engine.trialCount, MAX_TRIALS);
-    }
-
-    if (engine.trialCount >= MAX_TRIALS) {
-        finish();
-        return;
-    }
-
+    if (engine.trialCount >= MAX_TRIALS) { finish(); return; }
     nextTrial();
 }
 
 window.handleInput = handleInput;
 
+// ── Keyboard fallback ────────────────────────────────────────────────────
 
-// ═════════════════════════════════════════════════════════════════════════════
-// Keyboard fallback (for testing without tablet)
-// ═════════════════════════════════════════════════════════════════════════════
-
-const teardownKeyboard = initKeyboard(letter => {
-    if (!testComplete) handleInput(letter.toLowerCase());
+const teardownKeyboard = initKeyboard(key => {
+    if (!testComplete) {
+        // Orientation keys
+        if (key === 'up' || key === 'right' || key === 'upright' || key === 'upleft') handleInput(key);
+        // N = no target
+        else if (key === 'n') handleInput('none');
+        // Space/Y = start test
+        else if (key === 'space' || key === 'y') handleInput('_start');
+        else handleInput(key.toLowerCase());
+    }
 });
 
-
-// ═════════════════════════════════════════════════════════════════════════════
-// PeerJS
-// ═════════════════════════════════════════════════════════════════════════════
+// ── PeerJS ───────────────────────────────────────────────────────────────
 
 const laneID = 'CSF-' + Math.floor(1000 + Math.random() * 9000);
 
 function initPeerSync() {
     if (typeof Peer === 'undefined') {
-        console.warn('[App] PeerJS unavailable.');
         const so = document.getElementById('sync-overlay');
-        if (so) {
-            so.innerHTML = `
-                <p class="sync-fallback">Tablet sync unavailable</p>
-                <button onclick="document.getElementById('sync-overlay').style.display='none'"
-                        class="sync-dismiss-btn">Use Keyboard</button>`;
-        }
+        if (so) so.innerHTML = '<p style="font-size:0.8rem;color:rgba(255,255,255,0.3)">Tablet sync unavailable</p><button class="sync-dismiss-btn" onclick="document.getElementById(\'sync-overlay\').style.display=\'none\'">Use Keyboard</button>';
         return;
     }
-
     try {
         sync = initSync(laneID, {
             onReady(tabletURL) {
-                console.log('[App] Peer ready. URL:', tabletURL);
+                console.log('[App] Ready:', tabletURL);
                 const dbg = document.getElementById('sync-debug');
                 if (dbg) dbg.textContent = `Lane: ${laneID}`;
-
                 if (typeof QRCode !== 'undefined') {
-                    new QRCode(document.getElementById('qrcode'), {
-                        text: tabletURL, width: 180, height: 180,
-                        colorDark: '#000', colorLight: '#fff'
-                    });
+                    new QRCode(document.getElementById('qrcode'), { text: tabletURL, width: 180, height: 180, colorDark: '#000', colorLight: '#fff' });
                 } else {
-                    const qrEl = document.getElementById('qrcode');
-                    if (qrEl) qrEl.innerHTML = `<p style="font-size:0.65rem; opacity:0.5; word-break:break-all;">${tabletURL}</p>`;
+                    const el = document.getElementById('qrcode');
+                    if (el) el.innerHTML = `<p style="font-size:0.5rem;opacity:.5;word-break:break-all">${tabletURL}</p>`;
                 }
             },
-
             onConnect() {
-                console.log('[App] Tablet connected!');
+                console.log('[App] Tablet connected');
                 const so = document.getElementById('sync-overlay');
                 if (so) so.style.display = 'none';
-
-                // Send current state to newly connected tablet
                 if (mode) {
                     sync.sendState({
-                        mode: mode.id, labels: mode.labels,
-                        keys: mode.keys, responseType: mode.responseType,
-                        trial: engine ? engine.trialCount : 0,
-                        maxTrials: MAX_TRIALS
+                        mode: mode.id, labels: mode.labels, keys: mode.keys,
+                        responseType: mode.responseType,
+                        trial: engine ? engine.trialCount : 0, maxTrials: MAX_TRIALS
                     });
                 }
             },
-
-            onInput(value) {
-                handleInput(value);
-            },
-
-            onModeChange(newMode) {
-                initMode(newMode);
-            },
-
+            onInput(value) { handleInput(value); },
+            onModeChange(newMode) { initMode(newMode); },
             onCommand(action) {
                 if (action === 'restart') location.reload();
                 if (action === 'calibrate') window.location.href = 'calibration.html';
-                if (action === 'show-target') {
-                    // Show distance calibration target with 4 corner markers
-                    const dt = document.getElementById('dist-target');
-                    if (dt) {
-                        dt.style.display = 'block';
-                        // Compute physical marker separation using calibrated px/mm
-                        const hSepPx = window.innerWidth - 80 - 80 - 80; // left_margin + marker_w + right_margin
-                        const vSepPx = window.innerHeight - 80 - 80 - 80;
-                        const hSepMm = hSepPx / cal.pxPerMm;
-                        const vSepMm = vSepPx / cal.pxPerMm;
-                        // Send the physical marker geometry to the tablet
-                        if (sync && sync.connected) {
-                            sync.sendState({
-                                type: 'target-geometry',
-                                hSepMm, vSepMm,
-                                markerSizeMm: 80 / cal.pxPerMm,
-                                screenWidthPx: window.innerWidth,
-                                screenHeightPx: window.innerHeight
-                            });
-                        }
-                    }
-                }
-                if (action === 'hide-target') {
-                    const dt = document.getElementById('dist-target');
-                    if (dt) dt.style.display = 'none';
-                }
             },
-
-            onDisconnect() {
-                console.info('[App] Tablet disconnected.');
-            }
+            onDisconnect() { console.info('[App] Disconnected'); }
         });
-    } catch (e) {
-        console.warn('[App] PeerJS init failed:', e);
-    }
+    } catch (e) { console.warn('[App] PeerJS init failed:', e); }
 }
 
 initPeerSync();
 
-
-// ═════════════════════════════════════════════════════════════════════════════
-// Trial Loop
-// ═════════════════════════════════════════════════════════════════════════════
+// ── Trial Loop ───────────────────────────────────────────────────────────
 
 function nextTrial() {
-    try {
-        currentStim = engine.selectStimulus();
-    } catch (e) {
-        console.error('[App] Stimulus selection failed:', e);
-        finish();
-        return;
-    }
+    try { currentStim = engine.selectStimulus(); }
+    catch (e) { console.error('[App] Select failed:', e); finish(); return; }
 
-    // Clamp
-    if (currentStim.contrast <= 0 || currentStim.contrast > 1 || isNaN(currentStim.contrast)) {
+    if (currentStim.contrast <= 0 || currentStim.contrast > 1 || isNaN(currentStim.contrast))
         currentStim.contrast = Math.max(0.001, Math.min(1.0, currentStim.contrast || 0.5));
-    }
-    if (currentStim.frequency <= 0 || isNaN(currentStim.frequency)) {
+    if (currentStim.frequency <= 0 || isNaN(currentStim.frequency))
         currentStim.frequency = 4;
-    }
 
     const canvas = document.getElementById('stimCanvas');
     if (!canvas) return;
-
-    try {
-        mode.render(canvas, currentStim, cal);
-    } catch (e) {
-        console.error('[App] Render failed:', e);
-    }
+    try { mode.render(canvas, currentStim, cal); }
+    catch (e) { console.error('[App] Render failed:', e); }
 }
 
-
-// ═════════════════════════════════════════════════════════════════════════════
-// Progress
-// ═════════════════════════════════════════════════════════════════════════════
+// ── Progress ─────────────────────────────────────────────────────────────
 
 function updateProgress(trial) {
     const el = document.getElementById('live-progress');
     if (el) el.textContent = `${trial} / ${MAX_TRIALS}`;
-
     const fill = document.getElementById('progress-fill');
     if (fill) fill.style.width = `${(trial / MAX_TRIALS) * 100}%`;
 }
 
-
-// ═════════════════════════════════════════════════════════════════════════════
-// Finish
-// ═════════════════════════════════════════════════════════════════════════════
+// ── Finish ───────────────────────────────────────────────────────────────
 
 function finish() {
     testComplete = true;
 
     let result;
-    try {
-        result = computeResult(engine);
-    } catch (e) {
-        result = { aulcsf: 0, rank: 'ERROR', detail: 'Failed', params: engine.getExpectedEstimate() };
-    }
+    try { result = computeResult(engine); }
+    catch (e) { result = { aulcsf: 0, rank: 'ERROR', detail: 'Failed', params: engine.getExpectedEstimate(), curve: [] }; }
+    if (result.aulcsf <= 0) result.rank = 'INCONCLUSIVE';
 
-    if (result.aulcsf <= 0) {
-        result.rank = 'INCONCLUSIVE';
-    }
-
-    // Update display
     document.getElementById('results-overlay').style.display = 'flex';
     const setEl = (id, t) => { const e = document.getElementById(id); if (e) e.innerText = t; };
     setEl('final-auc', result.aulcsf.toFixed(2));
     setEl('final-rank', result.rank);
     setEl('final-detail', result.detail);
 
+    let plotDataUrl = '';
     try {
         const plotCanvas = document.getElementById('csf-plot');
-        if (plotCanvas) drawCSFPlot(plotCanvas, engine, result.params);
-    } catch (e) { /* ignore */ }
+        if (plotCanvas) plotDataUrl = drawCSFPlot(plotCanvas, engine, result.params);
+    } catch (e) { console.error('[App] Plot failed:', e); }
 
-    // Send to tablet
+    // Send results + plot to tablet
     if (sync && sync.connected) {
-        sync.sendResults(
-            result.aulcsf.toFixed(2),
-            result.rank,
-            result.detail
-        );
-        // Also send extended data for the share feature
-        sync.sendState({
-            type: 'results-extended',
-            score: result.aulcsf.toFixed(2),
-            rank: result.rank,
-            detail: result.detail,
-            mode: mode ? mode.name : '—',
-            date: new Date().toISOString(),
-            peakSens: result.params ? Math.pow(10, result.params.peakGain).toFixed(0) : '—',
-            peakFreq: result.params ? result.params.peakFreq.toFixed(1) : '—',
-            bandwidth: result.params ? result.params.bandwidth.toFixed(1) : '—',
-            trials: engine ? engine.trialCount : MAX_TRIALS
-        });
+        sync.sendResults(result.aulcsf.toFixed(2), result.rank, result.detail);
+        // Send curve data so tablet can render its own chart
+        try {
+            sync.sendState({
+                type: 'results-extended',
+                score: result.aulcsf.toFixed(2),
+                rank: result.rank,
+                detail: result.detail,
+                plotDataUrl: plotDataUrl,
+                curve: result.curve || [],
+                history: engine.history.map(h => ({
+                    stimIndex: h.stimIndex,
+                    correct: h.correct,
+                    freq: engine.stimGrid[h.stimIndex].freq,
+                    logContrast: engine.stimGrid[h.stimIndex].logContrast
+                }))
+            });
+        } catch (e) { /* curve too large, skip */ }
     }
 
     if (teardownKeyboard) teardownKeyboard();
 }
 
-
-// ═════════════════════════════════════════════════════════════════════════════
-// Start
-// ═════════════════════════════════════════════════════════════════════════════
+// ── Start ────────────────────────────────────────────────────────────────
 
 initMode(currentModeId);
