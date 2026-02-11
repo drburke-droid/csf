@@ -18,25 +18,32 @@
 
 import { linspace } from './utils.js';
 
+// Empirical upper bound for high-contrast human acuity (100% contrast cutoff).
+// 60 cpd is a commonly cited ceiling for healthy foveal vision under ideal conditions.
+export const MAX_HUMAN_CUTOFF_CPD = 60;
+
 /**
-  * Smooth monotonic CSF approximation.
+   * Smooth band-pass CSF approximation.
  *
- * Literature basis:
- * - qCSF commonly uses a truncated log-parabola (Lesmes et al., 2010), but low-frequency
- *   truncation can visually create flat plateaus in sparse/noisy runs.
- * - For stable clinical display and AULCSF integration we use a smooth low-pass form:
- *     logS(f) = g - b * log10(1 + (f / f0)^d)
- *   where g is low-frequency gain, f0 is the knee frequency, b is roll-off depth,
- *   and d controls curvature steepness.
+ * The curve intentionally rises from low spatial frequencies, reaches a peak,
+ * then falls at high frequencies (classic human CSF shape):
  *
- * This model is always curved and strictly non-increasing for f > 0, avoiding
- * flat segments and reversals.
+*   logS(f) = g - b * (log10(f) - log10(f0))^2 - d * max(0, log10(f)-log10(f0))^4
+ *
+  * where:
+ *   g  = peak log-sensitivity,
+ *   f0 = peak frequency,
+ *   b  = overall curvature,
+ *   d  = extra high-frequency steepening.
  */
 export function logParabolaCSF(freq, g, f, b, d) {
     const safeFreq = Math.max(0.05, freq);
-    const ratio = safeFreq / Math.max(0.2, f);
-    const shaped = Math.pow(ratio, Math.max(0.8, d));
-    return g - b * Math.log10(1 + shaped);
+    const logF = Math.log10(safeFreq);
+    const logPeak = Math.log10(Math.max(0.2, f));
+    const delta = logF - logPeak;
+    const baseDrop = Math.max(0.2, b) * delta * delta;
+    const highFreqDrop = (delta > 0) ? Math.max(0.2, d) * Math.pow(delta, 4) : 0;
+    return g - baseDrop - highFreqDrop;
 }
 
 const DEFAULTS = {
@@ -48,7 +55,7 @@ const DEFAULTS = {
     peakFreqValues:     [0.8, 1.2, 1.8, 2.5, 3.5, 5, 7, 10, 14, 18],
     bandwidthValues:    [0.8, 1.05, 1.3, 1.6, 1.95],
     truncationValues:   [1.0, 1.4, 1.8, 2.2, 2.6],
-    stimFreqs:          [0.5, 1, 1.5, 2, 3, 4, 6, 8, 12, 16, 24],
+    stimFreqs:          [0.5, 1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 12, 16, 24],
     stimLogContrasts:   linspace(-3.0, 0.0, 30),
     robustLikelihoodMix: 0.03,
 };
@@ -69,8 +76,10 @@ export class QCSFEngine {
         for (const g of cfg.peakGainValues)
             for (const f of cfg.peakFreqValues)
                 for (const b of cfg.bandwidthValues)
-                    for (const d of cfg.truncationValues)
-                        this.paramGrid.push({ g, f, b, d });
+                   for (const d of cfg.truncationValues) {
+                        const highCutoffLogSens = logParabolaCSF(MAX_HUMAN_CUTOFF_CPD, g, f, b, d);
+                        if (highCutoffLogSens <= 0) this.paramGrid.push({ g, f, b, d });
+                    }
         this.nParams = this.paramGrid.length;
 
         // Stimulus grid

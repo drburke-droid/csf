@@ -1,3 +1,5 @@
+import { MAX_HUMAN_CUTOFF_CPD } from './qcsf-engine.js';
+
 /**
  * Burke Vision Lab — CSF Plot (v7 — AAA Quality)
  * 
@@ -249,7 +251,9 @@ export function drawCSFPlot(canvas, engine, params) {
         }
     }
 
-    if (!isNaN(cutoffCpd) && cutoffCpd > 0.5 && cutoffCpd < 60) {
+    if (!isNaN(cutoffCpd)) cutoffCpd = Math.min(cutoffCpd, MAX_HUMAN_CUTOFF_CPD);
+
+    if (!isNaN(cutoffCpd) && cutoffCpd > 0.5 && cutoffCpd <= MAX_HUMAN_CUTOFF_CPD) {
         const snellenDenom = Math.round(20 * 30 / cutoffCpd);
         const cx = tX(Math.log10(cutoffCpd));
         const cy = tY(0);

@@ -2,7 +2,7 @@
   * Burke Vision Lab — Display Controller (v7)
  * Card -> Mirror -> Luminance -> Distance -> Confirm -> Tutorial -> Test -> Results
  */
-import { QCSFEngine }    from './qcsf-engine.js';
+import { MAX_HUMAN_CUTOFF_CPD, QCSFEngine } from './qcsf-engine.js';
 import { createMode }    from './stimulus-modes.js';
 import { drawGabor }     from './gabor.js';
 import { drawCSFPlot }   from './csf-plot.js';
@@ -345,7 +345,7 @@ function finish() {
         if (curveData[i - 1].logS >= 0 && curveData[i].logS < 0) {
             const f1 = Math.log10(curveData[i - 1].freq), f2 = Math.log10(curveData[i].freq);
             const s1 = curveData[i - 1].logS, s2 = curveData[i].logS;
-            const cutoff = Math.pow(10, f1 + (0 - s1) / (s2 - s1) * (f2 - f1));
+            const cutoff = Math.min(MAX_HUMAN_CUTOFF_CPD, Math.pow(10, f1 + (0 - s1) / (s2 - s1) * (f2 - f1)));
             snellenStr = '20/' + Math.round(20 * 30 / cutoff);
             break;
         }
