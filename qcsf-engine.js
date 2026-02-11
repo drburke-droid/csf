@@ -200,8 +200,8 @@ export class QCSFEngine {
     getCSFCurve(params) {
         const p = params || this.getExpectedEstimate();
         const curve = [];
-        for (let i = 0; i < 100; i++) {
-            const f = Math.pow(10, -0.3 + i * 2.0 / 99);
+        for (let i = 0; i < 200; i++) {
+            const f = Math.pow(10, -0.3 + i * 2.0 / 199);
             curve.push({ freq: f, logS: this.evaluateCSF(f, p) });
         }
         return curve;

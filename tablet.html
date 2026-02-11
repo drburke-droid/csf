@@ -13,34 +13,32 @@ body{background:var(--c);color:var(--t1);font-family:var(--f);-webkit-font-smoot
 .sd{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
 .sd-ok{background:var(--a)}.sd-er{background:var(--e)}.sd-wait{background:rgba(255,255,255,.4);animation:pls 1.5s ease-in-out infinite}
 @keyframes pls{0%,100%{opacity:1}50%{opacity:.2}}
-#dlog{font-family:var(--m);font-size:.5rem;color:var(--t3);max-height:40px;overflow-y:auto;padding:0 20px;line-height:1.5}
-.cal{padding:16px 20px;flex:1;display:flex;flex-direction:column;overflow-y:auto}
-.cal-title{font-size:1.2rem;font-weight:300;text-align:center;margin-bottom:2px}
-.cal-step-label{font-family:var(--m);font-size:.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--t3);text-align:center;margin-bottom:14px}
-.cal-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+#dlog{font-family:var(--m);font-size:.45rem;color:var(--t3);max-height:36px;overflow-y:auto;padding:0 20px;line-height:1.4}
+.cal{padding:14px 20px;flex:1;display:flex;flex-direction:column;overflow-y:auto}
+.cal-title{font-size:1.15rem;font-weight:300;text-align:center;margin-bottom:2px}
+.cal-step-label{font-family:var(--m);font-size:.58rem;letter-spacing:2px;text-transform:uppercase;color:var(--t3);text-align:center;margin-bottom:12px}
+.cal-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
 .cal-val{font-family:var(--m);font-size:2.4rem;font-weight:500;color:var(--a)}
-.cal-hint{font-size:.85rem;color:var(--t2);text-align:center;line-height:1.6}
-.cal-msg{font-size:.9rem;color:var(--t2);text-align:center;padding:12px;line-height:1.7}
+.cal-hint{font-size:.82rem;color:var(--t2);text-align:center;line-height:1.6}
+.cal-msg{font-size:.88rem;color:var(--t2);text-align:center;padding:12px;line-height:1.7}
 .cal-slider{width:94%;max-width:320px}
 .cal-slider input[type=range]{-webkit-appearance:none;width:100%;height:12px;background:rgba(255,255,255,.15);border-radius:6px;outline:0}
 .cal-slider input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:40px;height:40px;border-radius:50%;background:var(--a);box-shadow:0 0 20px var(--ag);border:3px solid rgba(0,0,0,.3)}
 .cal-slider input[type=range]::-moz-range-thumb{width:40px;height:40px;border-radius:50%;background:var(--a);border:3px solid rgba(0,0,0,.3)}
-.cal-sl{display:flex;justify-content:space-between;width:94%;max-width:320px;font-family:var(--m);font-size:.6rem;color:var(--t3);text-transform:uppercase;margin-top:4px}
-.cal-nav{display:flex;gap:12px;justify-content:center;padding:16px 0;flex-shrink:0}
-.cal-btn{padding:16px 36px;border-radius:100px;font-family:var(--f);font-size:.9rem;cursor:pointer;border:none;transition:all .15s var(--ez)}
-.btn-back{background:0;color:var(--t2);border:2px solid var(--b)}.btn-next{background:#fff;color:#0a0a0c}.btn-next:active{background:var(--a)}.btn-start{background:var(--a);color:#0a0a0c;font-weight:500;font-size:1.05rem;padding:18px 52px}
-.btn-mirror{padding:16px 28px;border-radius:18px;font-size:1.05rem;font-weight:500;cursor:pointer;border:2px solid var(--b);background:rgba(255,255,255,.03);color:var(--t1)}.btn-mirror:active{border-color:var(--a);background:var(--as);color:var(--a)}
+.cal-sl{display:flex;justify-content:space-between;width:94%;max-width:320px;font-family:var(--m);font-size:.58rem;color:var(--t3);text-transform:uppercase;margin-top:3px}
+.cal-nav{display:flex;gap:12px;justify-content:center;padding:14px 0;flex-shrink:0}
+.cal-btn{padding:15px 34px;border-radius:100px;font-family:var(--f);font-size:.88rem;cursor:pointer;border:none;transition:all .15s var(--ez)}
+.btn-back{background:0;color:var(--t2);border:2px solid var(--b)}.btn-next{background:#fff;color:#0a0a0c}.btn-next:active{background:var(--a)}.btn-start{background:var(--a);color:#0a0a0c;font-weight:500;font-size:1.02rem;padding:18px 50px}
+.btn-mirror{padding:15px 28px;border-radius:18px;font-size:1.02rem;font-weight:500;cursor:pointer;border:2px solid var(--b);background:rgba(255,255,255,.03);color:var(--t1)}.btn-mirror:active{border-color:var(--a);background:var(--as);color:var(--a)}
 .ph-dist-input{padding:14px 20px;border-radius:14px;border:2px solid var(--b);background:rgba(0,0,0,.3);color:var(--t1);font-family:var(--m);font-size:1.4rem;width:100px;text-align:center;outline:0}.ph-dist-input:focus{border-color:var(--a)}
-.ph-dist-select{padding:14px;border-radius:14px;border:2px solid var(--b);background:rgba(0,0,0,.3);color:var(--t1);font-family:var(--m);font-size:1rem;outline:0;cursor:pointer}.ph-dist-select option{background:#222;color:#fff}
-
-/* Tutorial */
+.ph-dist-select{padding:14px;border-radius:14px;border:2px solid var(--b);background:rgba(0,0,0,.3);color:var(--t1);font-family:var(--m);font-size:1rem;outline:0}.ph-dist-select option{background:#222;color:#fff}
 .tut{padding:16px;flex:1;display:flex;flex-direction:column;align-items:center;overflow-y:auto}
-.tut-title{font-size:1.05rem;font-weight:300;text-align:center;margin-bottom:4px}
-.tut-sub{font-size:.8rem;color:var(--t2);text-align:center;margin-bottom:14px}
+.tut-title{font-size:1.02rem;font-weight:300;text-align:center;margin-bottom:4px}
+.tut-sub{font-size:.78rem;color:var(--t2);text-align:center;margin-bottom:12px}
 .tut-grid{display:flex;flex-direction:column;gap:10px;width:min(94vw,360px)}
 .tut-row{display:flex;gap:10px}
 .tut-btn{flex:1;padding:20px 8px;border-radius:18px;border:2px solid var(--b);background:rgba(255,255,255,.03);text-align:center;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:all .12s}
-.tut-btn .arrow{font-size:2rem;color:var(--t1)}.tut-btn .lbl{font-family:var(--m);font-size:.6rem;color:var(--t2);letter-spacing:1px}
+.tut-btn .arrow{font-size:2rem;color:var(--t1)}.tut-btn .lbl{font-family:var(--m);font-size:.58rem;color:var(--t2);letter-spacing:1px}
 .tut-btn.dim{opacity:.2;pointer-events:none}
 .tut-btn.hl{border-color:var(--e);background:rgba(255,69,58,.12);box-shadow:0 0 20px rgba(255,69,58,.3);animation:hlP 1.2s ease-in-out infinite}.tut-btn.hl .arrow{color:var(--e)}
 @keyframes hlP{0%,100%{box-shadow:0 0 14px rgba(255,69,58,.2)}50%{box-shadow:0 0 28px rgba(255,69,58,.5)}}
@@ -49,9 +47,7 @@ body{background:var(--c);color:var(--t1);font-family:var(--f);-webkit-font-smoot
 .tut-no.hl{border-color:var(--e);background:rgba(255,69,58,.12);box-shadow:0 0 20px rgba(255,69,58,.3);color:var(--e);animation:hlP 1.2s ease-in-out infinite}
 .tut-dots{display:flex;gap:6px;justify-content:center;margin-top:10px}
 .tut-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.15)}.tut-dot.active{background:var(--a)}
-.tut-inst{font-family:var(--m);font-size:.55rem;color:var(--t3);text-align:center;margin-top:8px;letter-spacing:1px}
-
-/* Test */
+.tut-inst{font-family:var(--m);font-size:.52rem;color:var(--t3);text-align:center;margin-top:6px;letter-spacing:1px}
 .test{padding:0 16px;flex:1;display:flex;flex-direction:column}
 .test-prog{display:flex;justify-content:center;padding:8px 0;flex-shrink:0}
 .ring{position:relative;width:56px;height:56px}.ring svg{width:56px;height:56px;transform:rotate(-90deg)}
@@ -65,12 +61,10 @@ body{background:var(--c);color:var(--t1);font-family:var(--f);-webkit-font-smoot
 .ori-lbl{font-family:var(--m);font-size:.65rem;letter-spacing:1px;text-transform:uppercase;color:var(--t2)}
 .no-btn{padding:20px;border-radius:20px;border:2px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02);font-size:1.1rem;color:var(--t2);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .1s;touch-action:manipulation;text-align:center}
 .no-btn:active{transform:scale(.97);background:rgba(255,69,58,.08);border-color:rgba(255,69,58,.3);color:var(--e)}
-
-/* Results — higher contrast */
 .res{padding:16px 20px;flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;overflow-y:auto}
 .res-ey{font-family:var(--m);font-size:.65rem;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.6)}
 .res-sc{font-family:var(--m);font-size:3.5rem;font-weight:700;color:var(--a);line-height:1;text-shadow:0 0 60px var(--ag)}
-.res-rk{font-size:1.05rem;font-weight:300;letter-spacing:6px;text-transform:uppercase;color:rgba(255,255,255,.6);margin-top:4px}
+.res-rk{font-size:1.05rem;font-weight:300;letter-spacing:6px;text-transform:uppercase;color:rgba(255,255,255,.65);margin-top:4px}
 .res-dt{font-family:var(--m);font-size:.65rem;color:rgba(255,255,255,.5);margin-top:4px}
 .res-plot{width:100%;max-width:380px;border-radius:8px;margin:8px 0}
 .res-actions{display:flex;gap:10px;margin-top:8px}
@@ -142,68 +136,118 @@ body{background:var(--c);color:var(--t1);font-family:var(--f);-webkit-font-smoot
 <div id="dlog"></div>
 
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-<script>if(typeof Peer==='undefined'){var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.2/peerjs.min.js';document.head.appendChild(s)}</script>
 <script>
-function dlog(m){const e=document.getElementById('dlog');if(e){e.textContent+=m+'\n';e.scrollTop=e.scrollHeight}console.log('[T]',m)}
-function setSt(cls,txt){document.getElementById('stt').innerHTML='<span class="sd '+cls+'"></span>'+txt}
-function setMode(id){document.querySelectorAll('.mode').forEach(m=>m.classList.remove('active'));document.getElementById(id).classList.add('active')}
+// Safari fallback CDN
+if(typeof Peer==='undefined'){var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.2/peerjs.min.js';document.head.appendChild(s)}
+</script>
+<script>
+var ICE=[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'},{urls:'stun:stun2.l.google.com:19302'},{urls:'stun:stun3.l.google.com:19302'},{urls:'stun:stun4.l.google.com:19302'}];
 
-const P=new URLSearchParams(location.search),targetID=P.get('id');
-let conn=null,isConn=false;
-if(!targetID){setSt('sd-er','No ID');dlog('No id')}
-else{dlog('Target: '+targetID);if(typeof Peer==='undefined')setTimeout(function(){if(typeof Peer!=='undefined')doConnect();else setSt('sd-er','PeerJS failed')},2000);else doConnect()}
+function dlog(m){var e=document.getElementById('dlog');if(e){e.textContent+=m+'\n';e.scrollTop=e.scrollHeight}console.log('[T]',m)}
+function setSt(cls,txt){document.getElementById('stt').innerHTML='<span class="sd '+cls+'"></span>'+txt}
+function setMode(id){document.querySelectorAll('.mode').forEach(function(m){m.classList.remove('active')});document.getElementById(id).classList.add('active')}
+
+var P=new URLSearchParams(location.search),targetID=P.get('id');
+var conn=null,isConn=false,peer=null;
+
+if(!targetID){setSt('sd-er','No display ID');dlog('No id in URL')}
+else{dlog('Target: '+targetID);waitForPeer()}
+
+function waitForPeer(){
+    if(typeof Peer!=='undefined'){doConnect();return}
+    var tries=0;
+    var iv=setInterval(function(){
+        tries++;
+        if(typeof Peer!=='undefined'){clearInterval(iv);doConnect()}
+        else if(tries>30){clearInterval(iv);setSt('sd-er','PeerJS failed to load');dlog('PeerJS never loaded')}
+    },200);
+}
 
 function doConnect(){
     setSt('sd-wait','Connecting...');
-    var p=new Peer(undefined,{debug:1,config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]}});
-    var timeout=setTimeout(function(){if(!isConn){setSt('sd-er','Timed out');dlog('Timeout')}},30000);
-    p.on('open',function(myId){
-        dlog('My ID: '+myId.substring(0,8));
-        conn=p.connect(targetID,{reliable:true});
-        conn.on('open',function(){clearTimeout(timeout);isConn=true;dlog('CONNECTED');setSt('sd-ok','Linked')});
+    var myId='csf'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+    peer=new Peer(myId,{debug:0,config:{iceServers:ICE}});
+    var timeout=setTimeout(function(){
+        if(!isConn){setSt('sd-er','Timed out');dlog('30s timeout');tryReconnect()}
+    },30000);
+
+    peer.on('open',function(id){
+        dlog('My ID: '+id.substring(0,10));
+        conn=peer.connect(targetID,{reliable:true,serialization:'json'});
+        conn.on('open',function(){
+            clearTimeout(timeout);isConn=true;
+            dlog('CONNECTED');setSt('sd-ok','Linked');
+        });
         conn.on('data',onMsg);
-        conn.on('close',function(){isConn=false;setSt('sd-er','Disconnected')});
+        conn.on('close',function(){isConn=false;setSt('sd-er','Disconnected');tryReconnect()});
         conn.on('error',function(e){dlog('Conn err: '+(e.type||e))});
     });
-    p.on('error',function(e){clearTimeout(timeout);dlog('Peer err: '+e.type);setSt('sd-er',e.type==='peer-unavailable'?'Display not found':'Error: '+e.type)});
-    p.on('disconnected',function(){if(!p.destroyed)p.reconnect()});
+    peer.on('error',function(e){
+        clearTimeout(timeout);
+        dlog('Peer err: '+e.type);
+        if(e.type==='peer-unavailable'){setSt('sd-er','Display not found - check QR code');dlog('Target peer not found')}
+        else{setSt('sd-er','Error: '+e.type)}
+    });
+    peer.on('disconnected',function(){if(!peer.destroyed)peer.reconnect()});
 }
 
-function tx(m){if(conn&&isConn)conn.send(m);else dlog('tx fail')}
+var reconnAttempts=0;
+function tryReconnect(){
+    if(reconnAttempts>=3){setSt('sd-er','Could not connect. Reload page.');return}
+    reconnAttempts++;
+    dlog('Retry #'+reconnAttempts);
+    setSt('sd-wait','Retrying...');
+    if(peer&&!peer.destroyed)peer.destroy();
+    setTimeout(doConnect,2000);
+}
+
+function tx(m){if(conn&&isConn)conn.send(m);else dlog('tx fail: not connected')}
 
 function onMsg(d){
     if(d.type==='calStep')renderCalStep(d);
     if(d.type==='mirrorSet')dlog('Mirror: '+d.value);
     if(d.type==='tutStep')renderTutStep(d);
-    if(d.type==='testStart'){dlog('Test');setMode('m-test')}
+    if(d.type==='testStart'){dlog('Test started');setMode('m-test')}
     if(d.type==='progress')updateRing(d.trial,d.maxTrials);
     if(d.type==='results')showResults(d);
 }
 
 // ═══ Calibration ═══
 var distTimer=null;
+
 function renderCalStep(d){
     var bd=document.getElementById('cbd'),tl=document.getElementById('ctl'),sl=document.getElementById('csl'),nv=document.getElementById('cnv');
     setMode('m-cal');
     if(d.step===0){
-        sl.textContent='STEP 1 \u00B7 SCALE';tl.textContent='Card Size';
-        bd.innerHTML='<div class="cal-msg">Match the rectangle on display to a credit card width.</div><div class="cal-slider"><input type="range" id="csl2" min="150" max="750" step="0.1" value="'+(d.cardPx||300)+'" oninput="onCard(this.value)"></div><div class="cal-sl"><span>SMALLER</span><span>LARGER</span></div>';
+        sl.textContent='STEP 1 / SCALE';tl.textContent='Card Size';
+        bd.innerHTML='<div class="cal-msg">Match the rectangle on display to a credit card width.</div>'
+            +'<div class="cal-slider"><input type="range" id="csl2" min="150" max="750" step="0.1" value="'+(d.cardPx||300)+'" oninput="onCard(this.value)"></div>'
+            +'<div class="cal-sl"><span>SMALLER</span><span>LARGER</span></div>';
         nv.innerHTML='<button class="cal-btn btn-next" onclick="nav(\'next\')">Next</button>';
     }else if(d.step===1){
-        sl.textContent='STEP 2 \u00B7 SETUP';tl.textContent='Mirror Setup';
-        bd.innerHTML='<div class="cal-msg">Will the patient view through a mirror?</div><div style="display:flex;gap:14px;justify-content:center;margin-top:6px"><button class="btn-mirror" onclick="sendMirror(false)">Direct View</button><button class="btn-mirror" onclick="sendMirror(true)">Mirror View</button></div>';
+        sl.textContent='STEP 2 / SETUP';tl.textContent='Mirror Setup';
+        bd.innerHTML='<div class="cal-msg">Will the patient view through a mirror?</div>'
+            +'<div style="display:flex;gap:14px;justify-content:center;margin-top:6px">'
+            +'<button class="btn-mirror" onclick="sendMirror(false)">Direct View</button>'
+            +'<button class="btn-mirror" onclick="sendMirror(true)">Mirror View</button></div>';
         nv.innerHTML='<button class="cal-btn btn-back" onclick="nav(\'back\')">Back</button>';
     }else if(d.step===2){
-        sl.textContent='STEP 3 \u00B7 LUMINANCE';tl.textContent='Brightness';
-        bd.innerHTML='<div class="cal-val" id="gval">'+(d.gamma||128)+'</div><div class="cal-slider"><input type="range" id="gsl" min="60" max="220" value="'+(d.gamma||128)+'" oninput="onGamma(this.value)"></div><div class="cal-sl"><span>DARKER</span><span>BRIGHTER</span></div><div class="cal-hint">Adjust until circle disappears into checkerboard</div>';
+        sl.textContent='STEP 3 / LUMINANCE';tl.textContent='Brightness';
+        bd.innerHTML='<div class="cal-val" id="gval">'+(d.gamma||128)+'</div>'
+            +'<div class="cal-slider"><input type="range" id="gsl" min="60" max="220" value="'+(d.gamma||128)+'" oninput="onGamma(this.value)"></div>'
+            +'<div class="cal-sl"><span>DARKER</span><span>BRIGHTER</span></div>'
+            +'<div class="cal-hint">Adjust until circle disappears into checkerboard</div>';
         nv.innerHTML='<button class="cal-btn btn-back" onclick="nav(\'back\')">Back</button><button class="cal-btn btn-next" onclick="nav(\'next\')">Next</button>';
     }else if(d.step===3){
-        sl.textContent='STEP 4 \u00B7 DISTANCE';tl.textContent='Viewing Distance';
-        bd.innerHTML='<div class="cal-hint" style="margin-bottom:10px">Enter distance from eyes to screen</div><div style="display:flex;gap:10px;align-items:center;justify-content:center"><input type="number" class="ph-dist-input" id="pdv" placeholder="5" min="0.1" step="0.1" inputmode="decimal" oninput="onDistInput()"><select class="ph-dist-select" id="pdu" onchange="onDistInput()"><option value="ft">feet</option><option value="m">meters</option><option value="cm">cm</option><option value="in">inches</option></select></div>';
+        sl.textContent='STEP 4 / DISTANCE';tl.textContent='Viewing Distance';
+        bd.innerHTML='<div class="cal-hint" style="margin-bottom:10px">Enter distance from eyes to screen</div>'
+            +'<div style="display:flex;gap:10px;align-items:center;justify-content:center">'
+            +'<input type="number" class="ph-dist-input" id="pdv" placeholder="5" min="0.1" step="0.1" inputmode="decimal" oninput="onDistInput()" onchange="onDistInput()">'
+            +'<select class="ph-dist-select" id="pdu" onchange="onDistInput()"><option value="ft">feet</option><option value="m">meters</option><option value="cm">cm</option><option value="in">inches</option></select></div>';
         nv.innerHTML='<button class="cal-btn btn-back" onclick="nav(\'back\')">Back</button><button class="cal-btn btn-next" onclick="nav(\'next\')">Review</button>';
     }else if(d.step===4){
-        sl.textContent='STEP 5 \u00B7 CONFIRM';tl.textContent='Review';
-        bd.innerHTML='<div class="cal-msg" style="font-size:1rem">Review on display. Press Start.</div>';
+        sl.textContent='STEP 5 / CONFIRM';tl.textContent='Review';
+        bd.innerHTML='<div class="cal-msg" style="font-size:1rem">Review settings on display, then press Start.</div>';
         nv.innerHTML='<button class="cal-btn btn-back" onclick="nav(\'back\')">Back</button><button class="cal-btn btn-start" onclick="nav(\'start\')">Start Test</button>';
     }
 }
@@ -212,12 +256,15 @@ function onGamma(v){document.getElementById('gval').textContent=v;tx({type:'gamm
 function onCard(v){tx({type:'cardSize',value:parseFloat(v)})}
 function nav(to){tx({type:'nav',to:to})}
 function sendMirror(v){tx({type:'mirror',value:v})}
+
 function onDistInput(){
-    // Auto-sync to display on every keystroke with small debounce
     clearTimeout(distTimer);
     distTimer=setTimeout(function(){
-        var v=document.getElementById('pdv').value,u=document.getElementById('pdu').value;
-        if(v&&!isNaN(parseFloat(v))&&parseFloat(v)>0)tx({type:'distance',value:parseFloat(v),unit:u});
+        var v=document.getElementById('pdv').value;
+        var u=document.getElementById('pdu').value;
+        if(v&&!isNaN(parseFloat(v))&&parseFloat(v)>0){
+            tx({type:'distance',value:parseFloat(v),unit:u});
+        }
     },300);
 }
 
@@ -225,21 +272,37 @@ function onDistInput(){
 var curTutKey=null;
 function renderTutStep(d){
     setMode('m-tut');curTutKey=d.key;
-    document.getElementById('ttl').textContent='Demo '+( d.stepIdx+1)+' of '+d.total;
+    document.getElementById('ttl').textContent='Demo '+(d.stepIdx+1)+' of '+d.total;
     document.getElementById('tsub').textContent=d.stepIdx<d.total-1?'Press '+d.arrow+' '+d.name:'Press No Target';
-    ['tb-upleft','tb-up','tb-upright','tb-right','tb-none'].forEach(function(id){var el=document.getElementById(id);el.className=el.className.replace(/ hl/g,'');if(!el.className.match(/dim/))el.className+=' dim'});
+
+    var allIds=['tb-upleft','tb-up','tb-upright','tb-right','tb-none'];
+    allIds.forEach(function(id){
+        var el=document.getElementById(id);
+        el.classList.remove('hl');
+        el.classList.add('dim');
+    });
     var map={upleft:'tb-upleft',up:'tb-up',upright:'tb-upright',right:'tb-right',none:'tb-none'};
     var t=document.getElementById(map[d.key]);
-    if(t){t.className=t.className.replace(/ dim/g,'');t.className+=' hl'}
+    if(t){t.classList.remove('dim');t.classList.add('hl')}
+
     var dots=document.getElementById('tdots');dots.innerHTML='';
-    for(var i=0;i<d.total;i++){var dot=document.createElement('div');dot.className='tut-dot'+(i===d.stepIdx?' active':'');dots.appendChild(dot)}
+    for(var i=0;i<d.total;i++){
+        var dot=document.createElement('div');
+        dot.className='tut-dot'+(i===d.stepIdx?' active':'');
+        dots.appendChild(dot);
+    }
     document.getElementById('tinst').textContent=d.stepIdx<d.total-1?'Press the highlighted button':'Press No Target to start testing';
 }
+
 function tutTap(key){if(key===curTutKey)tx({type:'input',value:key})}
 
 // ═══ Test ═══
 function send(v){if(!isConn)return;tx({type:'input',value:v});if(navigator.vibrate)navigator.vibrate(20)}
-function updateRing(t,mx){document.getElementById('rfg').style.strokeDashoffset=2*Math.PI*21*(1-t/mx);document.getElementById('rnum').textContent=t}
+function updateRing(t,mx){
+    var circ=2*Math.PI*21;
+    document.getElementById('rfg').style.strokeDashoffset=circ*(1-t/mx);
+    document.getElementById('rnum').textContent=t;
+}
 
 // ═══ Results ═══
 var resultData=null;
@@ -251,7 +314,7 @@ function showResults(d){
     document.getElementById('rdt').textContent=resultData.detail;
     if(d.plotDataUrl){document.getElementById('rplot').src=d.plotDataUrl;document.getElementById('rplot').style.display='block'}
 }
-function getRText(){if(!resultData)return'';return'BurkeCSF\nAULCSF: '+resultData.score+'\nRating: '+resultData.rank+'\n'+resultData.detail+'\n'+resultData.date}
-function shareR(){if(!resultData)return;if(navigator.share)navigator.share({title:'BurkeCSF',text:getRText()}).catch(function(){});else copyR()}
+function getRText(){if(!resultData)return'';return'BurkeCSF Results\nAULCSF: '+resultData.score+'\nRating: '+resultData.rank+'\n'+resultData.detail+'\n'+resultData.date}
+function shareR(){if(!resultData)return;if(navigator.share)navigator.share({title:'BurkeCSF Results',text:getRText()}).catch(function(){});else copyR()}
 function copyR(){if(!resultData)return;navigator.clipboard.writeText(getRText()).then(function(){var e=document.getElementById('rcp');e.classList.add('show');setTimeout(function(){e.classList.remove('show')},2000)}).catch(function(){})}
 </script></body></html>

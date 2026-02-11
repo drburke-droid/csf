@@ -1,6 +1,6 @@
 /**
- * BurkeCSF — Unified Display Controller
- * Steps: Card → Mirror → Luminance → Distance → Confirm → Tutorial → Test → Results
+ * BurkeCSF — Display Controller
+ * Card → Mirror → Luminance → Distance → Confirm → Tutorial → Test → Results
  */
 import { QCSFEngine }    from './qcsf-engine.js';
 import { createMode }    from './stimulus-modes.js';
@@ -10,6 +10,7 @@ import { computeResult } from './results.js';
 import { createHost }    from './peer-sync.js';
 
 const MAX_TRIALS = 50, DEBOUNCE_MS = 250, NUM_STEPS = 5;
+const CARD_ASPECT = 85.6 / 53.98; // ISO credit card W/H = 1.585
 
 function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -20,24 +21,33 @@ window.showScreen = showScreen;
 let host = null, phoneConnected = false, isMirror = false;
 
 function initPeer() {
-    if (typeof Peer === 'undefined') { document.getElementById('qr-debug').textContent = 'PeerJS unavailable'; return; }
+    if (typeof Peer === 'undefined') {
+        document.getElementById('qr-debug').textContent = 'PeerJS unavailable';
+        return;
+    }
     host = createHost(
         (id) => {
             const dir = location.pathname.substring(0, location.pathname.lastIndexOf('/'));
             const url = `${location.origin}${dir}/tablet.html?id=${id}`;
-            document.getElementById('qr-debug').textContent = `ID: ${id}`;
+            document.getElementById('qr-debug').textContent = id;
             const qrEl = document.getElementById('qrcode'); qrEl.innerHTML = '';
-            if (typeof QRCode !== 'undefined') new QRCode(qrEl, { text: url, width: 180, height: 180, colorDark: '#000', colorLight: '#fff' });
-            else qrEl.innerHTML = `<p style="font-size:.5rem;word-break:break-all;max-width:240px">${url}</p>`;
+            if (typeof QRCode !== 'undefined') {
+                new QRCode(qrEl, { text: url, width: 200, height: 200, colorDark: '#000', colorLight: '#fff', correctLevel: QRCode.CorrectLevel.L });
+            } else {
+                qrEl.innerHTML = `<p style="font-size:.5rem;word-break:break-all;max-width:260px">${url}</p>`;
+            }
         },
-        () => { phoneConnected = true; showScreen('scr-cal'); calGo(0);
+        () => {
+            phoneConnected = true;
             document.getElementById('card-local').style.display = 'none';
             document.getElementById('card-remote').style.display = 'block';
             document.getElementById('gamma-local').style.display = 'none';
             document.getElementById('gamma-remote').style.display = 'block';
+            showScreen('scr-cal'); calGo(0);
         },
         (d) => handlePhoneMessage(d),
-        () => { phoneConnected = false;
+        () => {
+            phoneConnected = false;
             document.getElementById('card-local').style.display = 'block';
             document.getElementById('card-remote').style.display = 'none';
             document.getElementById('gamma-local').style.display = 'block';
@@ -75,7 +85,7 @@ window.setMirror = function(val) {
     const box = document.getElementById('cal-box');
     if (isMirror) box.classList.add('mirrored'); else box.classList.remove('mirrored');
     tx({ type: 'mirrorSet', value: isMirror });
-    calGo(2); // advance to luminance
+    calGo(2);
 };
 
 // ═══ Calibration ═══
@@ -83,8 +93,18 @@ let calStep = 0;
 const gs = document.getElementById('gs'), ss = document.getElementById('ss');
 const ic = document.getElementById('ic'), csh = document.getElementById('card-shape');
 
-function updateGamma() { const v = gs.value; ic.style.backgroundColor = `rgb(${v},${v},${v})`; document.getElementById('gv').textContent = v; }
-function updateCardSize() { const px = parseFloat(ss.value); csh.style.width = px + 'px'; csh.style.height = (px / 1.585) + 'px'; document.getElementById('sv').textContent = px.toFixed(0); }
+function updateGamma() {
+    const v = gs.value;
+    ic.style.backgroundColor = `rgb(${v},${v},${v})`;
+    document.getElementById('gv').textContent = v;
+}
+function updateCardSize() {
+    const px = parseFloat(ss.value);
+    // Fix: update BOTH width and height maintaining credit card aspect ratio
+    csh.style.width = px + 'px';
+    csh.style.height = (px / CARD_ASPECT) + 'px';
+    document.getElementById('sv').textContent = px.toFixed(0);
+}
 gs.oninput = updateGamma; ss.oninput = updateCardSize;
 updateGamma(); updateCardSize();
 
@@ -121,7 +141,7 @@ window.calValidate = function() {
     document.getElementById('smi').textContent = isMirror ? 'On (2x)' : 'Off';
     document.getElementById('sg').textContent = gs.value;
     document.getElementById('sp2').textContent = ppm.toFixed(3) + ' px/mm';
-    document.getElementById('sdi').textContent = `${val} ${u}` + (isMirror ? ` x2` : '') + ` = ${(effMm/1000).toFixed(2)} m`;
+    document.getElementById('sdi').textContent = `${val} ${u}${isMirror ? ' x2' : ''} = ${(effMm / 1000).toFixed(2)} m`;
     document.getElementById('spp').textContent = effPpd.toFixed(1) + ' px/deg';
     document.getElementById('spp').style.color = effPpd < 10 ? 'var(--e)' : 'var(--a)';
     calGo(4);
@@ -140,9 +160,7 @@ let tutStep = 0;
 function renderTutStep(idx) {
     tutStep = idx;
     const s = TUT[idx], tc = document.getElementById('tut-canvas');
-    // Demo calibration: make grating clearly visible on 400px canvas
-    // At 4cpd we want ~8 cycles visible: pixPerDeg = 2*pi*4 * 400/(2*pi*8) = 200
-    // pixPerDeg = distMm * 0.017455 * pxPerMm → use distMm=800, pxPerMm=14.3
+    // Calibration for demo: make ~8 cycles visible across 400px canvas at 4cpd
     const demoCal = { pxPerMm: 14.3, distMm: 800, midPoint: 128 };
     if (s.angle >= 0) {
         drawGabor(tc, { cpd: 4, contrast: 0.95, angle: s.angle }, demoCal);
@@ -155,10 +173,8 @@ function renderTutStep(idx) {
     document.getElementById('tut-arrow').textContent = s.arrow;
     document.getElementById('tut-key-name').textContent = `Press ${s.name} on phone`;
     document.getElementById('tut-title').textContent = `Demo ${idx + 1} of ${TUT.length}`;
-    const dots = document.getElementById('tut-dots');
-    dots.innerHTML = TUT.map((_, i) => `<div class="tut-dot${i === idx ? ' active' : ''}"></div>`).join('');
-    document.getElementById('tut-hint').textContent =
-        idx < TUT.length - 1 ? 'Press the highlighted button on your phone' : 'Press No Target to begin the test';
+    document.getElementById('tut-dots').innerHTML = TUT.map((_, i) => `<div class="tut-dot${i === idx ? ' active' : ''}"></div>`).join('');
+    document.getElementById('tut-hint').textContent = idx < TUT.length - 1 ? 'Press the highlighted button on your phone' : 'Press No Target to begin the test';
     tx({ type: 'tutStep', stepIdx: idx, key: s.key, arrow: s.arrow, name: s.name, total: TUT.length });
 }
 
@@ -175,11 +191,7 @@ let testComplete = false, testStarted = false, inTutorial = false, lastInputTime
 window.startTest = function() {
     localStorage.setItem('user_gamma_grey', gs.value);
     const ppm = parseFloat(ss.value) / 85.6;
-    localStorage.setItem('user_px_per_mm', ppm);
     const effDist = isMirror ? distToMm() * 2 : distToMm();
-    localStorage.setItem('user_distance_mm', effDist);
-    localStorage.setItem('mirror_mode', isMirror);
-
     window._cal = { pxPerMm: ppm, distMm: effDist, midPoint: parseInt(gs.value), isMirror };
     if (isMirror) document.getElementById('mirror-target').classList.add('mirror-flip');
 
