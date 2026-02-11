@@ -1,27 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Manifold · Calibration</title>
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BurkeCSF · Calibration</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,200;9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@200;300;400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:rgb(128,128,128);--a:#00ffcc;--ad:rgba(0,255,204,.1);--ag:rgba(0,255,204,.25);--sf:rgba(0,0,0,.45);--b:rgba(255,255,255,.08);--t1:rgba(255,255,255,.92);--t2:rgba(255,255,255,.45);--t3:rgba(255,255,255,.22);--e:#ff5c5c;--f:'DM Sans',-apple-system,system-ui,sans-serif;--m:'JetBrains Mono','SF Mono',monospace;--ez:cubic-bezier(.4,0,.2,1)}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--t1);font-family:var(--f);display:flex;justify-content:center;align-items:center;height:100vh;height:100dvh;-webkit-font-smoothing:antialiased}
-#cal-box{background:var(--sf);backdrop-filter:blur(40px) saturate(1.2);-webkit-backdrop-filter:blur(40px) saturate(1.2);padding:2.5rem;border-radius:36px;text-align:center;width:500px;min-height:620px;border:1px solid var(--b);display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.15)}
-.step{display:none;flex-direction:column;flex:1;justify-content:space-between}.active{display:flex}
-.step h2{font-weight:400;font-size:1.15rem;letter-spacing:-.2px;margin:0 0 6px}
+#cb{background:var(--sf);backdrop-filter:blur(40px) saturate(1.2);-webkit-backdrop-filter:blur(40px) saturate(1.2);padding:2.5rem;border-radius:36px;text-align:center;width:520px;min-height:640px;border:1px solid var(--b);display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.15)}
+.st{display:none;flex-direction:column;flex:1;justify-content:space-between}.active{display:flex}
+.st h2{font-weight:300;font-size:1.2rem;letter-spacing:-.2px;margin:0 0 6px}
 .sn{font-family:var(--m);font-size:.55rem;font-weight:300;letter-spacing:3px;text-transform:uppercase;color:var(--t3);margin-bottom:6px}
-.sd2{font-size:.8rem;color:var(--t2);line-height:1.5;max-width:380px;margin:0 auto}
-.dots{display:flex;gap:6px;justify-content:center;margin-bottom:20px}
+.sd{font-size:.85rem;color:var(--t2);line-height:1.5;max-width:400px;margin:0 auto}
+.dots{display:flex;gap:6px;justify-content:center;margin-bottom:18px}
 .dot{width:24px;height:3px;border-radius:2px;background:rgba(255,255,255,.1);transition:all .3s var(--ez)}
 .dot.done{background:var(--a);opacity:.5}.dot.cur{background:var(--a);width:32px}
-#card-sandbox{width:100%;height:260px;background:rgba(0,0,0,.2);border-radius:20px;overflow:hidden;display:flex;align-items:center;justify-content:center;border:1px solid var(--b)}
-#card-shape{width:300px;height:189px;background:linear-gradient(135deg,#f0f0f0,#e0e0e0);border-radius:10px;border:1px solid rgba(0,0,0,.15);box-shadow:0 8px 24px rgba(0,0,0,.25);flex-shrink:0}
+#csb{width:100%;height:260px;background:rgba(0,0,0,.2);border-radius:20px;overflow:hidden;display:flex;align-items:center;justify-content:center;border:1px solid var(--b)}
+#csh{width:300px;height:189px;background:linear-gradient(135deg,#f0f0f0,#e0e0e0);border-radius:10px;border:1px solid rgba(0,0,0,.15);box-shadow:0 8px 24px rgba(0,0,0,.25);flex-shrink:0}
 input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;background:rgba(255,255,255,.1);border-radius:2px;outline:0;margin:16px 0 8px;cursor:pointer}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--a);cursor:pointer;box-shadow:0 0 12px var(--ag);border:2px solid rgba(0,0,0,.2)}
-input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--a);cursor:pointer;border:2px solid rgba(0,0,0,.2)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--a);cursor:pointer;box-shadow:0 0 12px var(--ag);border:2px solid rgba(0,0,0,.2)}
 .sl{display:flex;justify-content:space-between;font-family:var(--m);font-size:.55rem;letter-spacing:1px;color:var(--t3);text-transform:uppercase}.sl .v{color:var(--t2)}
 input[type=number],select{padding:12px 16px;border-radius:12px;border:1.5px solid var(--b);background:rgba(0,0,0,.3);color:var(--t1);font-family:var(--m);font-size:.85rem;outline:0}
 input[type=number]:focus,select:focus{border-color:var(--a)}input[type=number].inv{border-color:var(--e)}
@@ -34,295 +30,146 @@ button{border:none;border-radius:100px;font-family:var(--f);font-weight:400;curs
 .bs{background:var(--a);color:#0a0a0c;padding:16px 48px;font-size:.95rem;font-weight:500}.bs:hover{box-shadow:0 0 30px var(--ag)}
 .fn{padding-top:24px;display:flex;justify-content:center;gap:10px;align-items:center}
 .em{color:var(--e);font-family:var(--m);font-size:.65rem;min-height:1em;margin-top:6px}
-.st{text-align:left;margin:0 auto;line-height:2.4}.st .l{font-size:.8rem;color:var(--t2);margin-right:8px}.st .v{font-family:var(--m);font-size:.8rem;font-weight:500;color:var(--a)}
+.stb{text-align:left;margin:0 auto;line-height:2.4}.stb .l{font-size:.85rem;color:var(--t2);margin-right:8px}.stb .v{font-family:var(--m);font-size:.85rem;font-weight:500;color:var(--a)}
 .sw{color:var(--e);font-family:var(--m);font-size:.6rem;margin-top:6px;max-width:350px}
 .eb{background:var(--ad);border:1px solid rgba(0,255,204,.15);border-radius:12px;padding:10px 16px;margin-bottom:16px;font-size:.75rem;color:var(--t2)}.eb a{color:var(--a);text-decoration:none;font-weight:500}
-.bcam{display:flex;flex-direction:column;align-items:center;gap:4px;width:100%;padding:16px;border-radius:16px;background:rgba(0,255,204,.04);border:1.5px solid rgba(0,255,204,.15);color:var(--t1);font-family:var(--f);font-size:.85rem;font-weight:400;cursor:pointer}
-.bcam:hover{border-color:var(--a);background:rgba(0,255,204,.08);box-shadow:0 0 20px var(--ad)}
-.bcam .sub{font-size:.55rem;color:var(--t3);font-family:var(--m);letter-spacing:1px}
+.bcm{display:flex;flex-direction:column;align-items:center;gap:4px;width:100%;padding:16px;border-radius:16px;background:rgba(0,255,204,.04);border:1.5px solid rgba(0,255,204,.15);color:var(--t1);font-family:var(--f);font-size:.85rem;font-weight:400;cursor:pointer}
+.bcm:hover{border-color:var(--a);background:rgba(0,255,204,.08)}
+.bcm .sub{font-size:.55rem;color:var(--t3);font-family:var(--m);letter-spacing:1px}
 .dr{display:flex;align-items:center;gap:12px;justify-content:center;margin:4px 0}.dl{flex:1;height:1px;background:var(--b)}.dt{font-family:var(--m);font-size:.5rem;color:var(--t3);letter-spacing:2px}
 .cr{display:none;text-align:center;padding:10px;border-radius:12px;background:rgba(0,255,204,.06);border:1px solid rgba(0,255,204,.15)}.cr span{font-family:var(--m)}
-/* Phone-connected badge */
-.conn-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:100px;font-family:var(--m);font-size:.5rem;letter-spacing:1px;margin-bottom:12px}
-.conn-badge.off{background:rgba(255,255,255,.03);color:var(--t3);border:1px solid var(--b)}
-.conn-badge.on{background:rgba(0,255,204,.06);color:var(--a);border:1px solid rgba(0,255,204,.2)}
-.conn-badge .d{width:6px;height:6px;border-radius:50%;background:currentColor}
-/* Fiducial overlay */
 #fid{display:none;position:fixed;inset:0;z-index:9999;background:rgb(128,128,128)}
-.fm{position:absolute;width:60px;height:60px;background:#000;border-radius:3px}
+.fm{position:absolute;background:#000;border-radius:3px}
 .fc{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
 .fc .lb{font-family:var(--m);font-size:.6rem;letter-spacing:3px;color:rgba(0,0,0,.3);text-transform:uppercase}
 .fc .wt{margin-top:20px;font-family:var(--m);font-size:.5rem;letter-spacing:2px;color:rgba(0,0,0,.25);animation:br 2s ease-in-out infinite}
 @keyframes br{0%,100%{opacity:.3}50%{opacity:.7}}
-.fcancel{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.3);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.15);padding:10px 24px;border-radius:100px;font-family:var(--f);font-size:.8rem;cursor:pointer}
-.finfo{position:absolute;top:16px;left:50%;transform:translateX(-50%);font-family:var(--m);font-size:.5rem;letter-spacing:1px;color:rgba(0,0,0,.25)}
-</style>
-</head>
-<body>
-<div id="cal-box">
+.fcc{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.3);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.15);padding:10px 24px;border-radius:100px;font-family:var(--f);font-size:.8rem;cursor:pointer}
+.fi{position:absolute;top:16px;left:50%;transform:translateX(-50%);font-family:var(--m);font-size:.5rem;color:rgba(0,0,0,.25)}
+</style></head><body>
+<div id="cb">
 <div class="dots"><div class="dot" id="d0"></div><div class="dot" id="d1"></div><div class="dot" id="d2"></div><div class="dot" id="d3"></div><div class="dot" id="d4"></div></div>
-<div class="eb" id="eb" style="display:none">Previous calibration loaded. <a href="index.html">Skip to test →</a></div>
+<div class="eb" id="eb" style="display:none">Previous calibration found. <a href="index.html">Skip to test →</a></div>
 
-<!-- Step 0: Connect Phone -->
-<div id="s0" class="step active">
-<div><div class="sn">Step 01 of 05</div><h2>Connect Your Phone</h2><p class="sd2">Scan the QR code below to link your phone as a remote controller.</p></div>
+<div id="s0" class="st active">
+<div><div class="sn">Step 1 of 5</div><h2>Connect Your Phone</h2><p class="sd">Scan the QR code to use your phone as a controller.</p></div>
 <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px">
 <div id="qr-area" style="background:white;padding:16px;border-radius:16px;min-width:160px;min-height:160px;display:flex;align-items:center;justify-content:center"><span style="font-family:var(--m);font-size:.5rem;color:#999">Loading…</span></div>
-<div id="conn-status" style="font-family:var(--m);font-size:.5rem;letter-spacing:2px;color:var(--t3)">INITIALIZING</div>
+<div id="conn-st" style="font-family:var(--m);font-size:.55rem;letter-spacing:2px;color:var(--t3)">INITIALIZING</div>
 </div>
 <div class="fn"><button class="bb" onclick="goStep(1)">Skip — use mouse</button></div>
 </div>
 
-<!-- Step 1: Gamma (phone slider or local) -->
-<div id="s1" class="step">
-<div><div class="sn">Step 02 of 05</div><h2>Luminance Calibration</h2><p class="sd2">Adjust from viewing position until the circle disappears into the pattern.</p></div>
+<div id="s1" class="st">
+<div><div class="sn">Step 2 of 5</div><h2>Luminance Calibration</h2><p class="sd">Adjust until the circle disappears into the checkerboard.</p></div>
 <div style="flex:1;display:flex;align-items:center;justify-content:center">
 <div style="width:170px;height:170px;border-radius:50%;background-image:conic-gradient(#000 .25turn,#fff .25turn .5turn,#000 .5turn .75turn,#fff .75turn);background-size:2px 2px;display:flex;align-items:center;justify-content:center">
-<div id="ic" style="width:75px;height:75px;border-radius:50%;background:rgb(128,128,128)"></div>
-</div>
-</div>
-<div id="gamma-local">
-<input type="range" id="gs" min="60" max="220" value="128">
-<div class="sl"><span>Darker</span><span class="v" id="gv">128</span><span>Brighter</span></div>
-</div>
-<div id="gamma-remote" style="display:none;padding:12px;text-align:center;font-family:var(--m);font-size:.55rem;color:var(--t3);letter-spacing:2px">ADJUST ON YOUR PHONE</div>
+<div id="ic" style="width:75px;height:75px;border-radius:50%;background:rgb(128,128,128)"></div></div></div>
+<div id="gl"><input type="range" id="gs" min="60" max="220" value="128"><div class="sl"><span>Darker</span><span class="v" id="gv">128</span><span>Brighter</span></div></div>
+<div id="gr" style="display:none;padding:12px;text-align:center;font-family:var(--m);font-size:.6rem;color:var(--t3);letter-spacing:2px">ADJUST ON YOUR PHONE</div>
 <div class="fn"><button class="bb" onclick="goStep(0)">← Back</button><button class="bp" onclick="goStep(2)">Next →</button></div>
 </div>
 
-<!-- Step 2: Card Size (always local — user is at display) -->
-<div id="s2" class="step">
-<div><div class="sn">Step 03 of 05</div><h2>Physical Scale</h2><p class="sd2">Hold a credit card to the screen. Match the rectangle width.</p></div>
-<div id="card-sandbox"><div id="card-shape"></div></div>
+<div id="s2" class="st">
+<div><div class="sn">Step 3 of 5</div><h2>Physical Scale</h2><p class="sd">Hold a credit card to screen. Match width.</p></div>
+<div id="csb"><div id="csh"></div></div>
 <div><input type="range" id="ss" min="150" max="750" step="0.1" value="300"><div class="sl"><span>Smaller</span><span class="v"><span id="sv">300</span> px</span><span>Larger</span></div></div>
 <div class="fn"><button class="bb" onclick="goStep(1)">← Back</button><button class="bp" onclick="goStep(3)">Next →</button></div>
 </div>
 
-<!-- Step 3: Distance -->
-<div id="s3" class="step">
-<div><div class="sn">Step 04 of 05</div><h2>Viewing Distance</h2><p class="sd2">Use phone camera auto-detect or enter manually.</p></div>
+<div id="s3" class="st">
+<div><div class="sn">Step 4 of 5</div><h2>Viewing Distance</h2><p class="sd">Use phone camera or enter manually.</p></div>
 <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px">
-<button class="bcam" id="bcam" onclick="startCamDist()"><span style="font-size:1.2rem">📷</span><span>Auto-Detect with Phone Camera</span><span class="sub" id="bcam-sub">Requires connected phone</span></button>
+<button class="bcm" id="bcm" onclick="startCamDist()"><span style="font-size:1.2rem">📷</span><span>Auto-Detect with Phone Camera</span><span class="sub" id="bcs">Requires connected phone</span></button>
 <div class="dr"><div class="dl"></div><span class="dt">Or enter manually</span><div class="dl"></div></div>
 <div style="text-align:center"><input type="number" id="dv" value="" min="0.1" step="0.1" placeholder="e.g. 5" style="width:80px;text-align:center"><select id="du"><option value="ft">feet</option><option value="m">meters</option><option value="cm">cm</option><option value="in">inches</option></select><div class="em" id="de"></div></div>
 <div class="cr" id="cr"><span style="font-size:.65rem;color:var(--a);letter-spacing:1px">📷 DETECTED: </span><span id="crv" style="font-size:.85rem;font-weight:600;color:var(--a)"></span></div>
-<label class="ck"><input type="checkbox" id="mm">Mirror setup (invert X-axis)</label>
+<label class="ck"><input type="checkbox" id="mm">Mirror setup</label>
 </div>
 <div class="fn"><button class="bb" onclick="goStep(2)">← Back</button><button class="bp" onclick="validateAndPreview()">Review →</button></div>
 </div>
 
-<!-- Step 4: Confirm -->
-<div id="s4" class="step">
-<div><div class="sn">Step 05 of 05</div><h2>Confirm Settings</h2></div>
+<div id="s4" class="st">
+<div><div class="sn">Step 5 of 5</div><h2>Confirm Settings</h2></div>
 <div style="flex:1;display:flex;align-items:center;justify-content:center">
-<div class="st"><div><span class="l">Gamma Grey</span><span class="v" id="sg">128</span></div><div><span class="l">Display Scale</span><span class="v" id="sp2">–</span> <span style="font-size:.65rem;color:var(--t3)">px/mm</span></div><div><span class="l">Distance</span><span class="v" id="sdi">–</span></div><div><span class="l">Mirror</span><span class="v" id="smi">Off</span></div><div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--b)"><span class="l">Angular Resolution</span><span class="v" id="spp">–</span></div><div class="sw" id="swn"></div></div>
+<div class="stb"><div><span class="l">Gamma Grey</span><span class="v" id="sg">128</span></div><div><span class="l">Scale</span><span class="v" id="sp2">–</span> <span style="font-size:.65rem;color:var(--t3)">px/mm</span></div><div><span class="l">Distance</span><span class="v" id="sdi">–</span></div><div><span class="l">Mirror</span><span class="v" id="smi">Off</span></div><div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--b)"><span class="l">Resolution</span><span class="v" id="spp">–</span></div><div class="sw" id="swn"></div></div>
 </div>
 <div class="fn"><button class="bb" onclick="goStep(3)">← Back</button><button class="bs" onclick="saveAndStart()">Start Test ▶</button></div>
 </div>
 </div>
 
-<!-- Fiducial overlay (fixed-separation markers) -->
-<div id="fid">
-<div class="fm" id="fm-tl"></div><div class="fm" id="fm-tr"></div><div class="fm" id="fm-bl"></div><div class="fm" id="fm-br"></div>
-<div class="finfo" id="finfo"></div>
-<div class="fc"><div class="lb">Phone camera captures these markers</div><div class="wt" id="fst">Waiting for phone…</div><div id="fqr"></div></div>
-<button class="fcancel" onclick="cancelCamDist()">Cancel</button>
-</div>
+<div id="fid"><div class="fm" id="ft"></div><div class="fm" id="ftr"></div><div class="fm" id="fbl"></div><div class="fm" id="fbr"></div><div class="fi" id="fi"></div><div class="fc"><div class="lb">Phone captures these markers</div><div class="wt" id="fst">Waiting…</div><div id="fqr"></div></div><button class="fcc" onclick="cancelCamDist()">Cancel</button></div>
 
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <script>if(typeof Peer==='undefined'){var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.2/peerjs.min.js';document.head.appendChild(s)}</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" onerror=""></script>
 <script>
-// ═══════════════════════════════════════════════════════════════
-// DOM
-// ═══════════════════════════════════════════════════════════════
-const gs=document.getElementById('gs'), ss=document.getElementById('ss');
-const ic=document.getElementById('ic'), cs=document.getElementById('card-shape');
-const dv=document.getElementById('dv'), du=document.getElementById('du');
-const de=document.getElementById('de'), mm=document.getElementById('mm');
-
-// ═══════════════════════════════════════════════════════════════
-// PeerJS — calibration host
-// ═══════════════════════════════════════════════════════════════
+const gs=document.getElementById('gs'),ss=document.getElementById('ss'),ic=document.getElementById('ic'),csh=document.getElementById('csh');
+const dv=document.getElementById('dv'),du=document.getElementById('du'),de=document.getElementById('de'),mmCk=document.getElementById('mm');
 const calID='CAL-'+Math.floor(1000+Math.random()*9000);
-let calPeer=null, calConn=null, phoneConnected=false;
+let calPeer=null,calConn=null,phoneOn=false;
 
-function initCalPeer(){
-    if(typeof Peer==='undefined'){document.getElementById('conn-status').textContent='PEERJS UNAVAILABLE';return}
+function initPeer(){
+    if(typeof Peer==='undefined'){document.getElementById('conn-st').textContent='UNAVAILABLE';return}
     calPeer=new Peer(calID,{debug:1,config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]}});
-    calPeer.on('open',id=>{
-        console.log('[Cal] Peer open:',id);
-        document.getElementById('conn-status').textContent='SCAN QR TO CONNECT';
-        const path=location.pathname, dir=path.substring(0,path.lastIndexOf('/'));
-        const url=`${location.origin}${dir}/tablet.html?cal=${id}`;
-        const qa=document.getElementById('qr-area');
-        qa.innerHTML='';
-        if(typeof QRCode!=='undefined') new QRCode(qa,{text:url,width:150,height:150,colorDark:'#000',colorLight:'#fff'});
-        else qa.innerHTML=`<span style="font-size:.5rem;word-break:break-all">${url}</span>`;
+    calPeer.on('open',()=>{
+        document.getElementById('conn-st').textContent='SCAN QR TO CONNECT';
+        const dir=location.pathname.substring(0,location.pathname.lastIndexOf('/'));
+        const url=`${location.origin}${dir}/tablet.html?cal=${calID}`;
+        const qa=document.getElementById('qr-area');qa.innerHTML='';
+        if(typeof QRCode!=='undefined')new QRCode(qa,{text:url,width:150,height:150});
+        else qa.innerHTML=`<span style="font-size:.4rem;word-break:break-all">${url}</span>`;
     });
     calPeer.on('connection',conn=>{
         conn.on('open',()=>{
-            calConn=conn; phoneConnected=true;
-            document.getElementById('conn-status').innerHTML='<span style="color:#00ffcc">● PHONE LINKED</span>';
-            document.getElementById('bcam-sub').textContent='Phone connected ✓';
-            // Show remote gamma control hint
-            document.getElementById('gamma-local').style.display='none';
-            document.getElementById('gamma-remote').style.display='block';
-            // Auto advance
+            calConn=conn;phoneOn=true;
+            document.getElementById('conn-st').innerHTML='<span style="color:#00ffcc">● PHONE LINKED</span>';
+            document.getElementById('bcs').textContent='Phone connected ✓';
+            document.getElementById('gl').style.display='none';
+            document.getElementById('gr').style.display='block';
             goStep(1);
         });
-        conn.on('data',onPhoneMsg);
-        conn.on('close',()=>{calConn=null;phoneConnected=false;
-            document.getElementById('conn-status').innerHTML='<span style="color:var(--e)">DISCONNECTED</span>';
-            document.getElementById('gamma-local').style.display='block';
-            document.getElementById('gamma-remote').style.display='none';
-        });
+        conn.on('data',onMsg);
+        conn.on('close',()=>{calConn=null;phoneOn=false;document.getElementById('conn-st').innerHTML='<span style="color:var(--e)">DISCONNECTED</span>';document.getElementById('gl').style.display='block';document.getElementById('gr').style.display='none'});
     });
-    calPeer.on('error',e=>{console.warn('[Cal] Peer error:',e.type);document.getElementById('conn-status').textContent='ERROR: '+e.type});
+    calPeer.on('error',e=>document.getElementById('conn-st').textContent='ERR: '+e.type);
 }
-
-function onPhoneMsg(d){
-    if(d.type==='gamma'){
-        gs.value=d.value; updateGamma();
-    }
-    if(d.type==='camDistance'&&d.distMm>0){
-        const ft=(d.distMm/304.8).toFixed(1);
-        dv.value=ft; du.value='ft';
-        document.getElementById('cr').style.display='block';
-        document.getElementById('crv').textContent=`${ft} ft (${(d.distMm/1000).toFixed(2)} m)`;
-        cancelCamDist();
-    }
-    if(d.type==='camError'){
-        document.getElementById('fst').textContent=d.msg||'Detection failed — reposition and try again';
-    }
+function tx(m){if(calConn&&calConn.open)calConn.send(m)}
+function onMsg(d){
+    if(d.type==='gamma'){gs.value=d.value;uGamma()}
+    if(d.type==='cardSize'){ss.value=d.value;uSize()}
+    if(d.type==='nav'){if(d.to==='next'){if(cur===3)validateAndPreview();else goStep(cur+1)}else if(d.to==='back')goStep(Math.max(0,cur-1));else if(d.to==='start')saveAndStart()}
+    if(d.type==='camDistance'&&d.distMm>0){const ft=(d.distMm/304.8).toFixed(1);dv.value=ft;du.value='ft';document.getElementById('cr').style.display='block';document.getElementById('crv').textContent=`${ft} ft (${(d.distMm/1000).toFixed(2)} m)`;cancelCamDist()}
+    if(d.type==='camError')document.getElementById('fst').textContent=d.msg||'Detection failed';
 }
+initPeer();
 
-function sendToPhone(msg){if(calConn&&calConn.open)calConn.send(msg)}
+const ePx=parseFloat(localStorage.getItem('user_px_per_mm')),eD=parseFloat(localStorage.getItem('user_distance_mm'));
+if(!isNaN(ePx)&&!isNaN(eD)&&ePx>0&&eD>0){document.getElementById('eb').style.display='block';const eG=localStorage.getItem('user_gamma_grey');if(eG)gs.value=eG;ss.value=ePx*85.6;dv.value=(eD/304.8).toFixed(1);du.value='ft';mmCk.checked=localStorage.getItem('mirror_mode')==='true'}
+uGamma();uSize();gs.oninput=uGamma;ss.oninput=uSize;
+function uGamma(){const v=gs.value;ic.style.backgroundColor=`rgb(${v},${v},${v})`;document.getElementById('gv').textContent=v}
+function uSize(){const px=parseFloat(ss.value);csh.style.width=px+'px';csh.style.height=(px/1.585)+'px';document.getElementById('sv').textContent=px.toFixed(0)}
 
-initCalPeer();
-
-// ═══════════════════════════════════════════════════════════════
-// Load existing cal
-// ═══════════════════════════════════════════════════════════════
-const ePx=parseFloat(localStorage.getItem('user_px_per_mm'));
-const eD=parseFloat(localStorage.getItem('user_distance_mm'));
-if(!isNaN(ePx)&&!isNaN(eD)&&ePx>0&&eD>0){
-    document.getElementById('eb').style.display='block';
-    const eG=localStorage.getItem('user_gamma_grey');if(eG)gs.value=eG;
-    ss.value=ePx*85.6; dv.value=(eD/304.8).toFixed(1); du.value='ft';
-    mm.checked=localStorage.getItem('mirror_mode')==='true';
-}
-
-// ═══════════════════════════════════════════════════════════════
-// Controls
-// ═══════════════════════════════════════════════════════════════
-updateGamma();updateSize();
-gs.oninput=updateGamma; ss.oninput=updateSize;
-
-function updateGamma(){const v=gs.value;ic.style.backgroundColor=`rgb(${v},${v},${v})`;document.getElementById('gv').textContent=v}
-function updateSize(){const px=parseFloat(ss.value);cs.style.width=px+'px';cs.style.height=(px/1.585)+'px';document.getElementById('sv').textContent=px.toFixed(0)}
-
-// ═══════════════════════════════════════════════════════════════
-// Navigation
-// ═══════════════════════════════════════════════════════════════
-let curStep=0;
-function goStep(n){
-    curStep=n;
-    for(let i=0;i<5;i++){document.getElementById('s'+i).classList.remove('active');const d=document.getElementById('d'+i);d.classList.remove('done','cur');if(i<n)d.classList.add('done');else if(i===n)d.classList.add('cur')}
-    document.getElementById('s'+n).classList.add('active');
-    // Tell phone which step we're on
-    sendToPhone({type:'calStep',step:n});
-}
-
+let cur=0;
+function goStep(n){cur=n;for(let i=0;i<5;i++){document.getElementById('s'+i).classList.remove('active');const d=document.getElementById('d'+i);d.classList.remove('done','cur');if(i<n)d.classList.add('done');else if(i===n)d.classList.add('cur')}document.getElementById('s'+n).classList.add('active');tx({type:'calStep',step:n,pxPerMm:parseFloat(ss.value)/85.6,gamma:parseInt(gs.value),cardPx:parseFloat(ss.value)})}
 function distToMm(){const v=parseFloat(dv.value);if(isNaN(v))return NaN;return v*({ft:304.8,m:1000,cm:10,'in':25.4}[du.value]||NaN)}
-
-function validateAndPreview(){
-    dv.classList.remove('inv');de.textContent='';
-    const raw=dv.value.trim();if(!raw){showErr('Enter a viewing distance.');return}
-    const val=parseFloat(raw);if(isNaN(val)){showErr('Enter a valid number.');return}
-    if(val<=0){showErr('Must be > 0.');return}
-    const mmVal=distToMm();if(mmVal<200){showErr('Too close — min ~20 cm.');return}if(mmVal>20000){showErr('Too far.');return}
-    const pxPerMm=parseFloat(ss.value)/85.6, ppd=mmVal*0.017455*pxPerMm;
-    document.getElementById('sg').textContent=gs.value;
-    document.getElementById('sp2').textContent=pxPerMm.toFixed(3);
-    document.getElementById('sdi').textContent=`${val} ${{ft:'ft',m:'m',cm:'cm','in':'in'}[du.value]}  (${(mmVal/1000).toFixed(2)} m)`;
-    document.getElementById('smi').textContent=mm.checked?'On':'Off';
-    const pe=document.getElementById('spp');pe.textContent=ppd.toFixed(1)+' px/°';pe.style.color=ppd<10?'var(--e)':'var(--a)';
-    document.getElementById('swn').textContent=ppd<10?'⚠ Low resolution — high frequencies may alias.':'';
-    goStep(4);
-}
-function showErr(m){dv.classList.add('inv');de.textContent=m;dv.focus()}
-function saveAndStart(){
-    localStorage.setItem('user_gamma_grey',gs.value);
-    localStorage.setItem('user_px_per_mm',parseFloat(ss.value)/85.6);
-    localStorage.setItem('user_distance_mm',distToMm());
-    localStorage.setItem('mirror_mode',mm.checked);
-    localStorage.setItem('cal_timestamp',new Date().toISOString());
-    window.location.href='index.html';
-}
+function validateAndPreview(){dv.classList.remove('inv');de.textContent='';const r=dv.value.trim();if(!r){sErr('Enter a distance.');return}const v=parseFloat(r);if(isNaN(v)||v<=0){sErr('Invalid.');return}const mmV=distToMm();if(mmV<200){sErr('Too close.');return}if(mmV>20000){sErr('Too far.');return}const ppm=parseFloat(ss.value)/85.6,ppd=mmV*.017455*ppm;document.getElementById('sg').textContent=gs.value;document.getElementById('sp2').textContent=ppm.toFixed(3);document.getElementById('sdi').textContent=`${v} ${{ft:'ft',m:'m',cm:'cm','in':'in'}[du.value]}  (${(mmV/1000).toFixed(2)} m)`;document.getElementById('smi').textContent=mmCk.checked?'On':'Off';const pe=document.getElementById('spp');pe.textContent=ppd.toFixed(1)+' px/°';pe.style.color=ppd<10?'var(--e)':'var(--a)';document.getElementById('swn').textContent=ppd<10?'⚠ Low resolution':'';goStep(4)}
+function sErr(m){dv.classList.add('inv');de.textContent=m;dv.focus()}
+function saveAndStart(){localStorage.setItem('user_gamma_grey',gs.value);localStorage.setItem('user_px_per_mm',parseFloat(ss.value)/85.6);localStorage.setItem('user_distance_mm',distToMm());localStorage.setItem('mirror_mode',mmCk.checked);localStorage.setItem('cal_timestamp',new Date().toISOString());tx({type:'calComplete'});window.location.href='index.html'}
 dv.addEventListener('input',()=>{dv.classList.remove('inv');de.textContent=''});
 
-// ═══════════════════════════════════════════════════════════════
-// Camera Distance — Fixed-Separation Fiducials
-// ═══════════════════════════════════════════════════════════════
-// The 4 markers are placed at a FIXED physical separation derived
-// from px/mm, CENTERED on screen. Not tied to window edges.
-// markerSepMm = 200mm (≈8 inches) — a reasonable span
-// markerSepPx = markerSepMm * pxPerMm
-// Markers form a square centered on screen with this side length.
-
-const MARKER_SEP_MM = 200; // fixed 200mm between marker centers
-
+const MSEP=200;
 function startCamDist(){
-    const pxPerMm=parseFloat(ss.value)/85.6;
-    if(pxPerMm<=0||isNaN(pxPerMm)){alert('Complete Step 3 (Physical Scale) first.');return}
-
-    const sepPx=MARKER_SEP_MM*pxPerMm;
-    const diagMm=Math.sqrt(2)*MARKER_SEP_MM; // diagonal of the 200mm square
-
-    // Position markers: centered square, sepPx apart
-    const cx=window.innerWidth/2, cy=window.innerHeight/2, half=sepPx/2;
-    const mw=60; // marker width px
-    document.getElementById('fm-tl').style.cssText=`position:absolute;left:${cx-half-mw/2}px;top:${cy-half-mw/2}px;width:${mw}px;height:${mw}px;background:#000;border-radius:3px`;
-    document.getElementById('fm-tr').style.cssText=`position:absolute;left:${cx+half-mw/2}px;top:${cy-half-mw/2}px;width:${mw}px;height:${mw}px;background:#000;border-radius:3px`;
-    document.getElementById('fm-bl').style.cssText=`position:absolute;left:${cx-half-mw/2}px;top:${cy+half-mw/2}px;width:${mw}px;height:${mw}px;background:#000;border-radius:3px`;
-    document.getElementById('fm-br').style.cssText=`position:absolute;left:${cx+half-mw/2}px;top:${cy+half-mw/2}px;width:${mw}px;height:${mw}px;background:#000;border-radius:3px`;
-
-    document.getElementById('finfo').textContent=`Markers: ${MARKER_SEP_MM}mm apart (${(sepPx).toFixed(0)}px) | Diag: ${diagMm.toFixed(0)}mm`;
-
-    // Show overlay FULLSCREEN so markers are at correct positions
-    const fidEl = document.getElementById('fid');
-    fidEl.style.display='block';
-    if(fidEl.requestFullscreen) fidEl.requestFullscreen().catch(()=>{});
-    else if(fidEl.webkitRequestFullscreen) fidEl.webkitRequestFullscreen();
-    document.getElementById('fst').textContent='Waiting for phone capture…';
-
-    // Clear old QR
-    document.getElementById('fqr').innerHTML='';
-
-    if(phoneConnected){
-        // Phone is already connected — tell it to start camera capture
-        sendToPhone({type:'startCamCapture',diagMm:diagMm});
-        document.getElementById('fst').textContent='Phone connected — capture when markers visible';
-    } else {
-        // Need phone to connect — show QR for camera-only mode
-        document.getElementById('fst').textContent='Scan QR with phone to capture';
-        if(typeof QRCode!=='undefined'){
-            const path=location.pathname,dir=path.substring(0,path.lastIndexOf('/'));
-            const url=`${location.origin}${dir}/tablet.html?cam=${calID}&diagMm=${diagMm.toFixed(1)}`;
-            const qd=document.createElement('div');
-            qd.style.cssText='margin-top:16px;background:white;padding:10px;border-radius:10px;display:inline-block';
-            new QRCode(qd,{text:url,width:120,height:120});
-            document.getElementById('fqr').appendChild(qd);
-        }
-    }
+    const ppm=parseFloat(ss.value)/85.6;if(ppm<=0||isNaN(ppm)){alert('Complete card size step first.');return}
+    const spx=MSEP*ppm,dmm=Math.sqrt(2)*MSEP,mw=60,cx=window.innerWidth/2,cy=window.innerHeight/2,h=spx/2;
+    ['ft','ftr','fbl','fbr'].forEach((id,i)=>{const el=document.getElementById(id);const lx=cx+((i%2===0)?-h:h)-mw/2;const ly=cy+(i<2?-h:h)-mw/2;el.style.cssText=`position:absolute;left:${lx}px;top:${ly}px;width:${mw}px;height:${mw}px;background:#000;border-radius:3px`});
+    document.getElementById('fi').textContent=`${MSEP}mm apart | Diag: ${dmm.toFixed(0)}mm`;
+    const f=document.getElementById('fid');f.style.display='block';
+    if(f.requestFullscreen)f.requestFullscreen().catch(()=>{});
+    document.getElementById('fst').textContent='Waiting for phone…';document.getElementById('fqr').innerHTML='';
+    if(phoneOn){tx({type:'startCam',diagMm:dmm,sepMm:MSEP});document.getElementById('fst').textContent='Phone connected — capture when markers visible'}
+    else{document.getElementById('fst').textContent='Scan QR with phone';
+        if(typeof QRCode!=='undefined'){const dir=location.pathname.substring(0,location.pathname.lastIndexOf('/'));const url=`${location.origin}${dir}/tablet.html?cam=${calID}&diagMm=${dmm.toFixed(1)}`;const qd=document.createElement('div');qd.style.cssText='margin-top:16px;background:white;padding:10px;border-radius:10px;display:inline-block';new QRCode(qd,{text:url,width:120,height:120});document.getElementById('fqr').appendChild(qd)}}
 }
-
-function cancelCamDist(){
-    document.getElementById('fid').style.display='none';
-    if(document.fullscreenElement) document.exitFullscreen().catch(()=>{});
-    else if(document.webkitFullscreenElement) document.webkitExitFullscreen();
-    sendToPhone({type:'cancelCamCapture'});
-}
-</script>
-</body>
-</html>
+function cancelCamDist(){document.getElementById('fid').style.display='none';if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});tx({type:'cancelCam'})}
+</script></body></html>
