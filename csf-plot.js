@@ -11,7 +11,7 @@ import { MAX_HUMAN_CUTOFF_CPD } from './qcsf-engine.js';
  *    Reading at 250 ft (76 m): letter angle = atan(0.406/76) = 0.306 deg
  *    Critical SF for letter ID = 3 cycles/letter / 0.306 = ~10 cpd
  *    DAY: White on retroreflective green, Michelson ~0.85 → sens ~1.2 → plot 2
- *     NIGHT (worn sheeting): contrast ~0.03 → sens ~33
+ *     NIGHT (worn sheeting): contrast ~0.03 → sens ~140
  *
  * 2. Golf Ball at 150 yd (137 m) — diam 42.7 mm
  *    Angle = atan(0.0427/137.16) = 0.0178 deg → cpd = 0.5/0.0178 = ~28 cpd
@@ -21,12 +21,12 @@ import { MAX_HUMAN_CUTOFF_CPD } from './qcsf-engine.js';
  * 3. Pedestrian at 100 m — limb feature ~15 cm
  *    Feature angle = atan(0.15/100) = 0.086 deg → cpd = 1/(2*0.086) = ~6 cpd
  *    DAYLIGHT: dark on light pavement, contrast ~0.50 → sens ~2
- *    DUSK: dark on dark road, contrast ~0.03 → sens ~34
+ *    DUSK: dark on dark road, contrast ~0.03 → sens ~170
  *
  * 4. Vehicle Tail-lights at 500 m — pair separation ~1 m
  *    Angle = atan(1.0/500) = 0.115 deg → cpd = 1/(2*0.115) = ~4 cpd
  *    CLEAR: red lights on body color, contrast ~0.30 → sens ~3
- *    FOG: scattered, contrast ~0.03 → sens ~30
+ *    FOG: scattered, contrast ~0.03 → sens ~160
  *
  * SNELLEN ACUITY:
  *    20/20 letter = 5 arcmin, stroke = 1 arcmin → critical SF ~30 cpd
@@ -36,13 +36,13 @@ import { MAX_HUMAN_CUTOFF_CPD } from './qcsf-engine.js';
 
 const LANDMARKS = [
     { name: 'Exit sign (day)',       freq: 10, sens: 2,    pair: 'sign' },
-    { name: 'Exit sign (night)',     freq: 10, sens: 33,   pair: 'sign' },
+    { name: 'Exit sign (night)',     freq: 10, sens: 140,   pair: 'sign' },
     { name: 'Golf ball on grass',    freq: 28, sens: 2,    pair: 'golf' },
     { name: 'Golf ball, cloudy sky', freq: 28, sens: 10,   pair: 'golf' },
     { name: 'Pedestrian (day)',      freq: 6,  sens: 2,    pair: 'ped'  },
-    { name: 'Pedestrian (dusk)',     freq: 6,  sens: 34,   pair: 'ped'  },
+    { name: 'Pedestrian (dusk)',     freq: 6,  sens: 170,   pair: 'ped'  },
     { name: 'Tail-lights (clear)',   freq: 4,  sens: 3,    pair: 'car'  },
-    { name: 'Tail-lights (fog)',     freq: 4,  sens: 30,   pair: 'car'  },
+    { name: 'Tail-lights (fog)',     freq: 4,  sens: 160,   pair: 'car'  },
 ];
 
 const PAIR_COLORS = {
