@@ -24,24 +24,21 @@ export function createMode(mode) {
     }
 }
 
-// ─── Gabor 4-Orientation + No Target (DEFAULT) ──────────────────────────
+// ─── Gabor 4-AFC (DEFAULT) ───────────────────────────────────────────────
 // Stimulus is ALWAYS present with one of 4 orientations.
-// User identifies orientation OR says "No target" if invisible.
-// Correct orientation = strong above-threshold evidence.
-// "No target" = definitive non-detection (always incorrect since patch exists).
+// This keeps the response model aligned with the Bayesian engine (numAFC = 4).
 
 function createGaborYesNoMode() {
-    const ANGLE_MAP = { 0: 'up', 90: 'right', 45: 'upright', 135: 'upleft' };
     let currentAngle = 0;
 
     return {
         id: 'gabor',
-        name: 'Gabor Detection',
-        numAFC: 4,                    // 4 orientations → gamma = 0.25
+        name: 'Gabor 4-AFC',
+        numAFC: 4,
         psychometricSlope: 3.5,
-        labels: ['↑', '↗', '→', '↖', 'No target'],
-        keys:   ['up', 'upright', 'right', 'upleft', 'none'],
-        responseType: 'orientation+detection',
+        labels: ['↑', '↗', '→', '↖'],
+        keys:   ['up', 'upright', 'right', 'upleft'],
+        responseType: 'orientation',
 
         generate() { /* No templates */ },
 
@@ -56,9 +53,6 @@ function createGaborYesNoMode() {
         },
 
         checkAnswer(response) {
-            // "none" = user says no target → always incorrect (patch is always there)
-            if (response === 'none') return false;
-            // Otherwise check orientation match
             const map = { up: 0, right: 90, upright: 45, upleft: 135 };
             return map[response] === currentAngle;
         }

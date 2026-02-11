@@ -112,7 +112,6 @@ body{background:var(--c);color:var(--t1);font-family:var(--f);-webkit-font-smoot
 <div class="tut-row">
 <div class="tut-btn dim" id="tb-right" onclick="tutTap('right')" style="max-width:45%;margin:0 auto"><span class="arrow">&#8594;</span><span class="lbl">Horiz</span></div>
 </div>
-<div class="tut-no dim" id="tb-none" onclick="tutTap('none')">No Target Visible</div>
 </div>
 <div class="tut-dots" id="tdots"></div>
 <div class="tut-inst" id="tinst">Look at the display</div>
@@ -131,7 +130,6 @@ body{background:var(--c);color:var(--t1);font-family:var(--f);-webkit-font-smoot
 <div class="ori-row">
 <button class="ori-btn" onclick="send('right')" style="max-width:45%;margin:0 auto">&#8594;<span class="ori-lbl">Horiz</span></button>
 </div>
-<button class="no-btn" onclick="send('none')">No Target Visible</button>
 </div></div>
 </div></div>
 
@@ -288,15 +286,15 @@ var curTutKey=null;
 function renderTutStep(d){
     setMode('m-tut');curTutKey=d.key;
     document.getElementById('ttl').textContent='Demo '+(d.stepIdx+1)+' of '+d.total;
-    document.getElementById('tsub').textContent=d.stepIdx<d.total-1?'Press '+d.arrow+' '+d.name:'Press No Target';
+    document.getElementById('tsub').textContent=d.stepIdx<d.total-1?'Press '+d.arrow+' '+d.name:'Complete this step to begin';
 
-    var allIds=['tb-upleft','tb-up','tb-upright','tb-right','tb-none'];
+    var allIds=['tb-upleft','tb-up','tb-upright','tb-right'];
     allIds.forEach(function(id){
         var el=document.getElementById(id);
         el.classList.remove('hl');
         el.classList.add('dim');
     });
-    var map={upleft:'tb-upleft',up:'tb-up',upright:'tb-upright',right:'tb-right',none:'tb-none'};
+    var map={upleft:'tb-upleft',up:'tb-up',upright:'tb-upright',right:'tb-right'};
     var t=document.getElementById(map[d.key]);
     if(t){t.classList.remove('dim');t.classList.add('hl')}
 
@@ -306,7 +304,7 @@ function renderTutStep(d){
         dot.className='tut-dot'+(i===d.stepIdx?' active':'');
         dots.appendChild(dot);
     }
-    document.getElementById('tinst').textContent=d.stepIdx<d.total-1?'Press the highlighted button':'Press No Target to start testing';
+     document.getElementById('tinst').textContent=d.stepIdx<d.total-1?'Press the highlighted button':'Tap the highlighted button to start testing';
 }
 
 function tutTap(key){if(key===curTutKey)tx({type:'input',value:key})}

@@ -156,8 +156,7 @@ const TUT = [
     { angle: 0,   key: 'up',      arrow: '\u2191', name: 'Vertical' },
     { angle: 90,  key: 'right',   arrow: '\u2192', name: 'Horizontal' },
     { angle: 45,  key: 'upright', arrow: '\u2197', name: 'Right Tilt' },
-    { angle: 135, key: 'upleft',  arrow: '\u2196', name: 'Left Tilt' },
-    { angle: -1,  key: 'none',    arrow: '\u2715', name: 'No Target' }
+    { angle: 135, key: 'upleft',  arrow: '\u2196', name: 'Left Tilt' } 
 ];
 let tutStep = 0;
 
@@ -182,7 +181,7 @@ function renderTutStep(idx) {
     document.getElementById('tut-key-name').textContent = `Press ${s.name}`;
     document.getElementById('tut-dots').innerHTML = TUT.map((_, i) => `<div class="tut-dot${i === idx ? ' active' : ''}"></div>`).join('');
     document.getElementById('tut-hint').textContent =
-        idx < TUT.length - 1 ? 'Press the highlighted button on your phone' : 'Press No Target to begin';
+        idx < TUT.length - 1 ? 'Press the highlighted button on your phone' : 'Complete this step to begin';
     tx({ type: 'tutStep', stepIdx: idx, key: s.key, arrow: s.arrow, name: s.name, total: TUT.length });
 }
 
@@ -277,7 +276,6 @@ document.addEventListener('keydown', e => {
     else if (k === 'arrowright' || k === 'd') handleInput('right');
     else if (k === 'e') handleInput('upright');
     else if (k === 'q') handleInput('upleft');
-    else if (k === 'n') handleInput('none');
 });
 
 function nextTrial() {
