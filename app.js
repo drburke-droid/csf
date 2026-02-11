@@ -139,13 +139,13 @@ window.calValidate = function() {
 
     const ppm = parseFloat(ss.value) / CARD_W_MM;
     const u = document.getElementById('du').value;
-    const effMm = isMirror ? mmVal * 2 : mmVal;
+    const effMm = mmVal;
     const effPpd = effMm * 0.017455 * ppm;
 
-    document.getElementById('smi').textContent = isMirror ? 'On (2x)' : 'Off';
+    document.getElementById('smi').textContent = isMirror ? 'On' : 'Off';
     document.getElementById('sg').textContent = gs.value;
     document.getElementById('sp2').textContent = ppm.toFixed(3) + ' px/mm';
-    document.getElementById('sdi').textContent = `${val} ${u}${isMirror ? ' x2' : ''} = ${(effMm / 1000).toFixed(2)} m`;
+   document.getElementById('sdi').textContent = `${val} ${u} = ${(effMm / 1000).toFixed(2)} m`;
     document.getElementById('spp').textContent = effPpd.toFixed(1) + ' px/deg';
     document.getElementById('spp').style.color = effPpd < 10 ? 'var(--e)' : 'var(--a)';
     calGo(4);
@@ -228,7 +228,7 @@ let testComplete = false, testStarted = false, inTutorial = false, lastInputTime
 
 window.startTest = function() {
     const ppm = parseFloat(ss.value) / CARD_W_MM;
-    const effDist = isMirror ? distToMm() * 2 : distToMm();
+    const effDist = distToMm();
     window._cal = { pxPerMm: ppm, distMm: effDist, midPoint: parseInt(gs.value), isMirror };
     const mirrorTarget = document.getElementById('mirror-target');
     if (isMirror) mirrorTarget.classList.add('mirror-flip');
