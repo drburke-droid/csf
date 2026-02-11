@@ -317,13 +317,13 @@ function finish() {
     const lmResults = [];
     const landmarks = [
         { name: 'Exit sign (day)',       freq: 10, sens: 2,   context: 'Reading highway signs at 250 ft' },
-        { name: 'Exit sign (night)',     freq: 10, sens: 80,  context: 'Worn road signs at night' },
-        { name: 'Golf ball on grass',    freq: 14, sens: 4,   context: 'Tracking ball on fairway at 75 yd' },
-        { name: 'Golf ball, cloudy sky', freq: 14, sens: 60,  context: 'Spotting ball against overcast sky' },
+       { name: 'Exit sign (night)',     freq: 10, sens: 33,  context: 'Worn road signs at night' },
+        { name: 'Golf ball on grass',    freq: 28, sens: 2,   context: 'Tracking ball on fairway at 150 yd' },
+        { name: 'Golf ball, cloudy sky', freq: 28, sens: 10,  context: 'Spotting ball against overcast sky at 150 yd' },
         { name: 'Pedestrian (day)',      freq: 6,  sens: 2,   context: 'Seeing a person at 100 m in daylight' },
-        { name: 'Pedestrian (dusk)',     freq: 6,  sens: 70,  context: 'Detecting a person at dusk on a dark road' },
+        { name: 'Pedestrian (dusk)',     freq: 6,  sens: 34,  context: 'Detecting a person at dusk on a dark road' },
         { name: 'Tail-lights (clear)',   freq: 4,  sens: 3,   context: 'Vehicle ahead at 500 m in clear weather' },
-        { name: 'Tail-lights (fog)',     freq: 4,  sens: 50,  context: 'Vehicle ahead at 500 m in fog' },
+        { name: 'Tail-lights (fog)',     freq: 4,  sens: 30,  context: 'Vehicle ahead at 500 m in fog' },
     ];
     landmarks.forEach(lm => {
         const yourSens = Math.pow(10, engine.evaluateCSF(lm.freq, result.params));

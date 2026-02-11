@@ -9,22 +9,22 @@
  *    Reading at 250 ft (76 m): letter angle = atan(0.406/76) = 0.306 deg
  *    Critical SF for letter ID = 3 cycles/letter / 0.306 = ~10 cpd
  *    DAY: White on retroreflective green, Michelson ~0.85 → sens ~1.2 → plot 2
- *    NIGHT (worn sheeting): contrast ~0.08 → sens ~12 → plot 30
+ *     NIGHT (worn sheeting): contrast ~0.03 → sens ~33
  *
- * 2. Golf Ball at 75 yd (69 m) — diam 42.7 mm
- *    Angle = atan(0.0427/69) = 0.035 deg → cpd = 0.5/0.035 = ~14 cpd
- *    ON GRASS: white vs green, Weber ~0.35 → sens ~4
- *    CLOUDY SKY: white vs overcast grey, contrast ~0.06 → sens ~18
+ * 2. Golf Ball at 150 yd (137 m) — diam 42.7 mm
+ *    Angle = atan(0.0427/137.16) = 0.0178 deg → cpd = 0.5/0.0178 = ~28 cpd
+ *    ON GRASS: moderate luminance split, contrast ~0.50 → sens ~2
+ *    CLOUDY SKY: white vs overcast grey, contrast ~0.10 → sens ~10
  *
  * 3. Pedestrian at 100 m — limb feature ~15 cm
  *    Feature angle = atan(0.15/100) = 0.086 deg → cpd = 1/(2*0.086) = ~6 cpd
  *    DAYLIGHT: dark on light pavement, contrast ~0.50 → sens ~2
- *    DUSK: dark on dark road, contrast ~0.04 → sens ~25
+ *    DUSK: dark on dark road, contrast ~0.03 → sens ~34
  *
  * 4. Vehicle Tail-lights at 500 m — pair separation ~1 m
  *    Angle = atan(1.0/500) = 0.115 deg → cpd = 1/(2*0.115) = ~4 cpd
  *    CLEAR: red lights on body color, contrast ~0.30 → sens ~3
- *    FOG: scattered, contrast ~0.06 → sens ~16
+ *    FOG: scattered, contrast ~0.03 → sens ~30
  *
  * SNELLEN ACUITY:
  *    20/20 letter = 5 arcmin, stroke = 1 arcmin → critical SF ~30 cpd
@@ -34,13 +34,13 @@
 
 const LANDMARKS = [
     { name: 'Exit sign (day)',       freq: 10, sens: 2,    pair: 'sign' },
-    { name: 'Exit sign (night)',     freq: 10, sens: 80,   pair: 'sign' },
-    { name: 'Golf ball on grass',    freq: 14, sens: 4,    pair: 'golf' },
-    { name: 'Golf ball, cloudy sky', freq: 14, sens: 60,   pair: 'golf' },
+    { name: 'Exit sign (night)',     freq: 10, sens: 33,   pair: 'sign' },
+    { name: 'Golf ball on grass',    freq: 28, sens: 2,    pair: 'golf' },
+    { name: 'Golf ball, cloudy sky', freq: 28, sens: 10,   pair: 'golf' },
     { name: 'Pedestrian (day)',      freq: 6,  sens: 2,    pair: 'ped'  },
-    { name: 'Pedestrian (dusk)',     freq: 6,  sens: 70,   pair: 'ped'  },
+    { name: 'Pedestrian (dusk)',     freq: 6,  sens: 34,   pair: 'ped'  },
     { name: 'Tail-lights (clear)',   freq: 4,  sens: 3,    pair: 'car'  },
-    { name: 'Tail-lights (fog)',     freq: 4,  sens: 50,   pair: 'car'  },
+    { name: 'Tail-lights (fog)',     freq: 4,  sens: 30,   pair: 'car'  },
 ];
 
 const PAIR_COLORS = {
@@ -59,7 +59,7 @@ export function drawCSFPlot(canvas, engine, params) {
     const ctx = canvas.getContext('2d');
     ctx.scale(dpr, dpr);
     const W = cssW, H = cssH;
-    const pad = { top: 32, right: 40, bottom: 78, left: 92 };
+    const pad = { top: 40, right: 52, bottom: 230, left: 280 };
     const pW = W - pad.left - pad.right;
     const pH = H - pad.top  - pad.bottom;
 
@@ -276,70 +276,70 @@ export function drawCSFPlot(canvas, engine, params) {
 
     // ── X-Axis ──
     ctx.fillStyle = 'rgba(255,255,255,0.65)';
-    ctx.font = '600 12px "JetBrains Mono", monospace';
+    ctx.font = '600 36px "JetBrains Mono", monospace';
     ctx.textAlign = 'center';
     freqs.forEach(f => {
         const x = tX(Math.log10(f));
         if (x >= pad.left && x <= pad.left + pW)
-            ctx.fillText(String(f), x, pad.top + pH + 20);
+            ctx.fillText(String(f), x, pad.top + pH + 56);
     });
     // Primary label
     ctx.fillStyle = 'rgba(255,255,255,0.50)';
-    ctx.font = '500 13px "DM Sans", sans-serif';
-    ctx.fillText('Level of Detail', W / 2, pad.top + pH + 38);
+    ctx.font = '500 39px "DM Sans", sans-serif';
+    ctx.fillText('Level of Detail', W / 2, pad.top + pH + 112);
     // Secondary scientific label
     ctx.fillStyle = 'rgba(255,255,255,0.20)';
-    ctx.font = '10px "JetBrains Mono", monospace';
-    ctx.fillText('Spatial Frequency (cpd)', W / 2, pad.top + pH + 52);
+    ctx.font = '30px "JetBrains Mono", monospace';
+    ctx.fillText('Spatial Frequency (cpd)', W / 2, pad.top + pH + 154);
     // Range
-    ctx.font = '500 9px "JetBrains Mono", monospace';
+    ctx.font = '500 27px "JetBrains Mono", monospace';
     ctx.fillStyle = 'rgba(255,255,255,0.18)';
     ctx.textAlign = 'left';
-    ctx.fillText('Coarse', pad.left, pad.top + pH + 68);
+    ctx.fillText('Coarse', pad.left, pad.top + pH + 204);
     ctx.textAlign = 'right';
-    ctx.fillText('Fine', pad.left + pW, pad.top + pH + 68);
+    ctx.fillText('Fine', pad.left + pW, pad.top + pH + 204);
 
     // ── Y-Axis ──
     ctx.fillStyle = 'rgba(255,255,255,0.65)';
-    ctx.font = '600 12px "JetBrains Mono", monospace';
+    ctx.font = '600 36px "JetBrains Mono", monospace';
     ctx.textAlign = 'right';
     senss.forEach(s => {
         const y = tY(Math.log10(s));
         if (y >= pad.top && y <= pad.top + pH)
-            ctx.fillText(String(s), pad.left - 12, y + 4);
+            ctx.fillText(String(s), pad.left - 24, y + 12);
     });
     // Primary label (rotated)
     ctx.save();
-    ctx.translate(20, H / 2 - 10);
+    ctx.translate(34, H / 2 - 10);
     ctx.rotate(-Math.PI / 2);
     ctx.fillStyle = 'rgba(255,255,255,0.50)';
-    ctx.font = '500 13px "DM Sans", sans-serif';
+    ctx.font = '500 39px "DM Sans", sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('Boldness', 0, 0);
     ctx.restore();
     // Secondary scientific label
     ctx.save();
-    ctx.translate(34, H / 2 - 10);
+    ctx.translate(112, H / 2 - 10);
     ctx.rotate(-Math.PI / 2);
     ctx.fillStyle = 'rgba(255,255,255,0.20)';
-    ctx.font = '10px "JetBrains Mono", monospace';
+    ctx.font = '30px "JetBrains Mono", monospace';
     ctx.textAlign = 'center';
     ctx.fillText('Sensitivity (1/contrast)', 0, 0);
     ctx.restore();
     // Range labels
     ctx.save();
-    ctx.translate(8, pad.top + pH - 4);
+    ctx.translate(22, pad.top + pH - 8);
     ctx.rotate(-Math.PI / 2);
     ctx.fillStyle = 'rgba(255,255,255,0.14)';
-    ctx.font = '500 8px "JetBrains Mono", monospace';
+    ctx.font = '500 24px "JetBrains Mono", monospace';
     ctx.textAlign = 'left';
     ctx.fillText('Black on White', 0, 0);
     ctx.restore();
     ctx.save();
-    ctx.translate(8, pad.top + 4);
+    ctx.translate(22, pad.top + pH + 8);
     ctx.rotate(-Math.PI / 2);
     ctx.fillStyle = 'rgba(255,255,255,0.14)';
-    ctx.font = '500 8px "JetBrains Mono", monospace';
+    ctx.font = '500 24px "JetBrains Mono", monospace';
     ctx.textAlign = 'right';
     ctx.fillText('Gray on Gray', 0, 0);
     ctx.restore();
