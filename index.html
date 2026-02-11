@@ -3,124 +3,115 @@
 <title>BurkeCSF</title><link rel="stylesheet" href="main.css">
 </head><body>
 
-<!-- QR Connect -->
 <div id="scr-qr" class="screen active">
-<div class="qr-title">BurkeCSF</div>
-<div class="qr-sub">Contrast Sensitivity Function</div>
-<div id="qrcode"></div>
-<div class="qr-sub">Scan with your phone to connect</div>
+<div class="qr-title">BurkeCSF</div><div class="qr-sub">Contrast Sensitivity Function</div>
+<div id="qrcode"></div><div class="qr-sub">Scan with your phone to connect</div>
 <div class="qr-debug" id="qr-debug"></div>
 <button class="qr-skip" onclick="skipPhone()">Use Keyboard Instead</button>
 </div>
 
-<!-- Calibration -->
 <div id="scr-cal" class="screen">
 <div class="cal-box" id="cal-box">
 <div class="dots"><div class="dot" id="d0"></div><div class="dot" id="d1"></div><div class="dot" id="d2"></div><div class="dot" id="d3"></div><div class="dot" id="d4"></div></div>
 
-<!-- Step 0: Mirror question -->
-<div id="cs0" class="cal-step active">
-<div class="cal-sn">Step 1 of 5</div>
-<h2>Setup Type</h2>
-<p class="cal-sd">Is the patient viewing this screen<br>through a mirror?</p>
+<!-- Step 0: Card calibration (NORMAL — user is near screen) -->
+<div id="cs0" class="cal-step active"><div class="step-n">
+<div class="sn">Step 1 of 5</div><h2>Physical Scale</h2>
+<p class="sd">Hold a credit card to the screen. Adjust until the rectangle matches the card width.</p>
+</div>
+<div id="card-sandbox"><div id="card-shape"></div></div>
+<div id="card-local"><input type="range" id="ss" min="150" max="750" step="0.1" value="300">
+<div class="sl"><span>Smaller</span><span class="v"><span id="sv">300</span> px</span><span>Larger</span></div></div>
+<div id="card-remote" class="phone-hint-l" style="display:none;font-size:.7rem">ADJUST ON YOUR PHONE</div>
+<div class="cal-fn"><button class="bp" onclick="calGo(1)">Next</button></div>
+</div>
+
+<!-- Step 1: Mirror question (NORMAL — user still near) -->
+<div id="cs1" class="cal-step"><div class="step-n">
+<div class="sn">Step 2 of 5</div><h2>Setup Type</h2>
+<p class="sd">Will the patient view this screen through a mirror?</p>
+</div>
 <div style="flex:1;display:flex;align-items:center;justify-content:center">
 <div class="mirror-choice">
-<button class="mirror-btn" onclick="setMirror(false)">No Mirror</button>
-<button class="mirror-btn" onclick="setMirror(true)">🪞 Using Mirror</button>
-</div>
-</div>
+<button class="mirror-btn" onclick="setMirror(false)">Direct View</button>
+<button class="mirror-btn" onclick="setMirror(true)">Mirror View</button>
+</div></div>
+<div class="cal-fn"><button class="bb" onclick="calGo(0)">Back</button></div>
 </div>
 
-<!-- Step 1: Gamma -->
-<div id="cs1" class="cal-step">
-<div class="cal-sn">Step 2 of 5</div>
-<h2>Luminance</h2>
-<p class="cal-sd">Adjust until circle disappears into pattern</p>
+<!-- Step 2: Luminance (LARGE — user now at testing distance) -->
+<div id="cs2" class="cal-step"><div class="step-l">
+<div class="sn">Step 3 of 5</div><h2>Luminance</h2>
+<p class="sd">Adjust until circle disappears into pattern</p>
+</div>
 <div style="flex:1;display:flex;align-items:center;justify-content:center">
-<div style="width:clamp(140px,20vw,200px);height:clamp(140px,20vw,200px);border-radius:50%;background-image:conic-gradient(#000 .25turn,#fff .25turn .5turn,#000 .5turn .75turn,#fff .75turn);background-size:2px 2px;display:flex;align-items:center;justify-content:center">
-<div id="ic" style="width:clamp(60px,9vw,90px);height:clamp(60px,9vw,90px);border-radius:50%;background:rgb(128,128,128)"></div></div></div>
+<div style="width:clamp(160px,22vw,220px);height:clamp(160px,22vw,220px);border-radius:50%;background-image:conic-gradient(#000 .25turn,#fff .25turn .5turn,#000 .5turn .75turn,#fff .75turn);background-size:2px 2px;display:flex;align-items:center;justify-content:center">
+<div id="ic" style="width:clamp(70px,10vw,100px);height:clamp(70px,10vw,100px);border-radius:50%;background:rgb(128,128,128)"></div></div></div>
 <div id="gamma-local"><input type="range" id="gs" min="60" max="220" value="128"><div class="sl"><span>Darker</span><span class="v" id="gv">128</span><span>Brighter</span></div></div>
-<div id="gamma-remote" class="phone-hint" style="display:none">ADJUST ON YOUR PHONE</div>
-<div class="cal-fn"><button class="bb" onclick="calGo(0)">← Back</button><button class="bp" onclick="calGo(2)">Next →</button></div>
+<div id="gamma-remote" class="phone-hint-l" style="display:none">ADJUST ON YOUR PHONE</div>
+<div class="cal-fn"><button class="bb-l" onclick="calGo(1)">Back</button><button class="bp-l" onclick="calGo(3)">Next</button></div>
 </div>
 
-<!-- Step 2: Card -->
-<div id="cs2" class="cal-step">
-<div class="cal-sn">Step 3 of 5</div>
-<h2>Physical Scale</h2>
-<p class="cal-sd">Hold credit card to screen. Match width.</p>
-<div id="card-sandbox"><div id="card-shape"></div></div>
-<input type="range" id="ss" min="150" max="750" step="0.1" value="300">
-<div class="sl"><span>Smaller</span><span class="v"><span id="sv">300</span> px</span><span>Larger</span></div>
-<div class="cal-fn"><button class="bb" onclick="calGo(1)">← Back</button><button class="bp" onclick="calGo(3)">Next →</button></div>
+<!-- Step 3: Distance (LARGE) -->
+<div id="cs3" class="cal-step"><div class="step-l">
+<div class="sn">Step 4 of 5</div><h2>Viewing Distance</h2>
+<p class="sd">Enter distance from eyes to screen</p>
 </div>
-
-<!-- Step 3: Distance -->
-<div id="cs3" class="cal-step">
-<div class="cal-sn">Step 4 of 5</div>
-<h2>Viewing Distance</h2>
-<p class="cal-sd">Enter distance from eyes to screen</p>
 <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:16px;align-items:center">
-<div style="display:flex;gap:12px;align-items:center">
+<div style="display:flex;gap:14px;align-items:center">
 <input type="number" class="dist-input" id="dv" placeholder="5" min="0.1" step="0.1">
 <select class="dist-select" id="du"><option value="ft">feet</option><option value="m">meters</option><option value="cm">cm</option><option value="in">inches</option></select>
 </div>
-<div class="cal-em" id="de"></div>
+<div class="cal-em-l" id="de"></div>
 </div>
-<div class="cal-fn"><button class="bb" onclick="calGo(2)">← Back</button><button class="bp" onclick="calValidate()">Review →</button></div>
+<div class="cal-fn"><button class="bb-l" onclick="calGo(2)">Back</button><button class="bp-l" onclick="calValidate()">Review</button></div>
 </div>
 
-<!-- Step 4: Confirm -->
-<div id="cs4" class="cal-step">
-<div class="cal-sn">Step 5 of 5</div>
-<h2>Confirm & Start</h2>
+<!-- Step 4: Confirm (LARGE) -->
+<div id="cs4" class="cal-step"><div class="step-l">
+<div class="sn">Step 5 of 5</div><h2>Confirm</h2>
+</div>
 <div style="flex:1;display:flex;align-items:center;justify-content:center">
 <div class="cal-summary">
 <div><span class="l">Mirror</span><span class="v" id="smi">Off</span></div>
 <div><span class="l">Gamma</span><span class="v" id="sg">128</span></div>
-<div><span class="l">Scale</span><span class="v" id="sp2">–</span> <span style="font-size:.65rem;color:var(--t3)">px/mm</span></div>
-<div><span class="l">Distance</span><span class="v" id="sdi">–</span></div>
-<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--b)"><span class="l">Resolution</span><span class="v" id="spp">–</span></div>
-</div>
-</div>
-<div class="cal-fn"><button class="bb" onclick="calGo(3)">← Back</button><button class="bs" onclick="startTest()">Start Test ▶</button></div>
+<div><span class="l">Scale</span><span class="v" id="sp2">-</span></div>
+<div><span class="l">Distance</span><span class="v" id="sdi">-</span></div>
+<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--b)"><span class="l">Res</span><span class="v" id="spp">-</span></div>
+</div></div>
+<div class="cal-fn"><button class="bb-l" onclick="calGo(3)">Back</button><button class="bs-l" onclick="startTest()">Start Test</button></div>
 </div>
 </div></div>
 
-<!-- Test -->
 <div id="scr-test" class="screen">
 <div class="display-frame" id="mirror-target">
 <canvas id="stimCanvas" width="600" height="600"></canvas>
 <div class="hud"><span class="hud-mode">Gabor Detection</span><div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div><span class="hud-progress" id="live-progress">0 / 50</span></div>
-<!-- Tutorial overlay — actual Gabor demos rendered here -->
 <div class="tut-overlay" id="tutorial" style="display:none">
 <div class="tut-title" id="tut-title">Orientation Demo</div>
-<div class="tut-sub" id="tut-sub">This is a <strong>Vertical</strong> grating</div>
+<div class="tut-sub" id="tut-sub"></div>
 <div class="tut-canvas-wrap">
-<canvas class="tut-gabor-canvas" id="tut-canvas" width="220" height="220"></canvas>
+<canvas class="tut-gabor-canvas" id="tut-canvas" width="400" height="400"></canvas>
 <div style="display:flex;flex-direction:column;align-items:center">
-<div class="tut-btn-label" id="tut-arrow">↑</div>
-<div class="tut-btn-name" id="tut-key-name">Press ↑ on phone</div>
-</div>
-</div>
+<div class="tut-btn-label" id="tut-arrow"></div>
+<div class="tut-btn-name" id="tut-key-name"></div>
+</div></div>
 <div class="tut-dots" id="tut-dots"></div>
-<div class="tut-sub" id="tut-hint" style="margin-top:8px">Tap the highlighted button on your phone</div>
+<div class="tut-hint" id="tut-hint"></div>
 </div>
 </div></div>
 
-<!-- Results -->
 <div id="scr-results" class="screen">
 <div id="result-content">
 <div class="result-eyebrow">Area Under Log CSF</div>
 <div class="auc-value" id="final-auc">0.00</div>
-<div class="rank-label" id="final-rank">—</div>
+<div class="rank-label" id="final-rank">--</div>
 <div class="result-detail" id="final-detail"></div>
 <canvas id="csf-plot"></canvas>
 <button class="restart-btn" onclick="location.reload()">Test Again</button>
 </div></div>
 
-<div id="gear-btn" onclick="showScreen('scr-cal');calGo(0)">⚙</div>
-
+<div id="gear-btn" onclick="showScreen('scr-cal');calGo(0)">&#9881;</div>
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <script>if(typeof Peer==='undefined'){var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.2/peerjs.min.js';document.head.appendChild(s)}</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" onerror=""></script>
