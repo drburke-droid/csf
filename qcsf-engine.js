@@ -46,6 +46,16 @@ export function logParabolaCSF(freq, g, f, b, d) {
     return g - baseDrop - highFreqDrop;
 }
 
+// Frequency bands with minimum trial guarantees for clinical coverage
+const FREQ_BANDS = [
+    { min: 0.5, max: 2,  minTrials: 8  },  // low spatial freq
+    { min: 2,   max: 6,  minTrials: 10 },  // mid (clinical core)
+    { min: 6,   max: 16, minTrials: 8  },   // high-mid
+    { min: 16,  max: 30, minTrials: 5  },   // high
+];
+
+const LOG4 = Math.log10(4); // ~4 cpd center for clinical importance
+
 const DEFAULTS = {
     numAFC:             5,      // 4 orientations + optional "no target" response
     lapse:              0.04,
@@ -59,7 +69,6 @@ const DEFAULTS = {
     stimLogContrasts:   linspace(-3.0, 0.0, 30),
     robustLikelihoodMix: 0.03,
     boundarySigmaLogC:  0.2,
-    lowMidFreqBoost:    1.35,
 };
 
 export class QCSFEngine {
@@ -73,7 +82,6 @@ export class QCSFEngine {
         this.slopeParam = cfg.psychometricSlope;
         this.robustLikelihoodMix = cfg.robustLikelihoodMix;
         this.boundarySigmaLogC = cfg.boundarySigmaLogC;
-        this.lowMidFreqBoost = cfg.lowMidFreqBoost;
 
         // Parameter grid
         this.paramGrid = [];
@@ -99,6 +107,7 @@ export class QCSFEngine {
         this._precompute();
         this.trialCount = 0;
         this.history    = [];
+        this.freqTrialCounts = new Map();
     }
 
     /**
@@ -128,6 +137,8 @@ export class QCSFEngine {
     selectStimulus() {
         const pHat = this.getExpectedEstimate();
         const ee = new Float64Array(this.nStim);
+        const bandCounts = this._getBandCounts();
+
         for (let s = 0; s < this.nStim; s++) {
             let pCorr = 0;
             for (let h = 0; h < this.nParams; h++) {
@@ -148,26 +159,43 @@ export class QCSFEngine {
                     if (n > 1e-30) hI -= n * Math.log2(n);
                 }
             }
-            // Prefer stimuli close to the posterior-predicted threshold boundary.
-            // This keeps testing near the expected contour while still maximizing
-            // information gain over the full posterior.
+
             const stim = this.stimGrid[s];
+            const baseEntropy = pCorr * hC + pInc * hI;
+
+            // Boundary weight: prefer stimuli near posterior-predicted threshold
             const predictedBoundaryLogC = -this.evaluateCSF(stim.freq, pHat);
             const boundaryDelta = stim.logContrast - predictedBoundaryLogC;
             const boundaryWeight = Math.exp(-0.5 * Math.pow(boundaryDelta / this.boundarySigmaLogC, 2));
-            const midFreqWeight = (stim.freq >= 1 && stim.freq <= 5) ? this.lowMidFreqBoost : 1.0;
-            ee[s] = (pCorr * hC + pInc * hI) * (1 + boundaryWeight) * midFreqWeight;
+
+            // Smooth clinical frequency importance (Gaussian centered at ~4 cpd)
+            const logF = Math.log10(stim.freq);
+            const freqWeight = 1.0 + 1.5 * Math.exp(-0.5 * ((logF - LOG4) / 0.55) ** 2);
+
+            // Frequency diversity penalty: penalize oversampled frequencies
+            const freqCount = this.freqTrialCounts.get(stim.freq) || 0;
+            const diversityPenalty = 1 + freqCount * 1.5;
+
+            // Band coverage boost: strongly prefer under-tested bands
+            const band = this._getBand(stim.freq);
+            const coverageBoost = (band && bandCounts.get(band) < band.minTrials) ? 3.0 : 1.0;
+
+            // CORRECTED utility: lower ee = more preferred
+            // Divide by desirable weights (lower ee), multiply by penalties (raise ee)
+            ee[s] = baseEntropy * diversityPenalty / ((1 + boundaryWeight) * freqWeight * coverageBoost);
         }
 
-        const sorted = Array.from(ee).map((e, i) => ({ e, i })).sort((a, b) => a.e - b.e);
-        const topN   = this.trialCount < 8 ? 5 : 1;
-        const chosen = sorted[Math.floor(Math.random() * topN)];
-        const stim   = this.stimGrid[chosen.i];
+        // Deterministic selection: always pick the best (lowest ee) stimulus
+        let bestIdx = 0;
+        for (let s = 1; s < this.nStim; s++) {
+            if (ee[s] < ee[bestIdx]) bestIdx = s;
+        }
+        const stim = this.stimGrid[bestIdx];
         return {
             frequency:   stim.freq,
             contrast:    Math.pow(10, stim.logContrast),
             logContrast: stim.logContrast,
-            stimIndex:   chosen.i,
+            stimIndex:   bestIdx,
         };
     }
 
@@ -187,6 +215,9 @@ export class QCSFEngine {
         if (total > 0) {
             for (let h = 0; h < this.nParams; h++) this.prior[h] /= total;
         }
+        // Track frequency usage for diversity weighting
+        const freq = this.stimGrid[stimIndex].freq;
+        this.freqTrialCounts.set(freq, (this.freqTrialCounts.get(freq) || 0) + 1);
         this.trialCount++;
         this.history.push({ trial: this.trialCount, stimIndex, correct: detected });
     }
@@ -235,5 +266,21 @@ export class QCSFEngine {
             curve.push({ freq: f, logS: this.evaluateCSF(f, p) });
         }
         return curve;
+    }
+
+    _getBand(freq) {
+        return FREQ_BANDS.find(b => freq >= b.min && freq < b.max) || null;
+    }
+
+    _getBandCounts() {
+        const counts = new Map();
+        for (const band of FREQ_BANDS) {
+            let count = 0;
+            for (const [freq, n] of this.freqTrialCounts) {
+                if (freq >= band.min && freq < band.max) count += n;
+            }
+            counts.set(band, count);
+        }
+        return counts;
     }
 }
