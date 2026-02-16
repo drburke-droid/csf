@@ -23,21 +23,25 @@ body{background:var(--bg);font-family:var(--f);color:var(--t1);-webkit-font-smoo
 /* ═══ Welcome / QR — Single-Screen Intro ═══ */
 #scr-qr{background:linear-gradient(170deg,#0c0c10 0%,#080810 50%,#0a0a12 100%);z-index:100;gap:0;text-align:center;padding:40px 30px;overflow:hidden}
 #scr-qr::before{content:'';position:absolute;top:-40%;left:-20%;width:140%;height:100%;background:radial-gradient(ellipse at 50% 0%,rgba(0,255,204,.04) 0%,transparent 60%);pointer-events:none;animation:fadeIn 1.2s var(--ez-out)}
-.intro-stack{display:grid;place-items:center;position:relative;z-index:1}
+.intro-stack{display:flex;flex-direction:column;align-items:center;position:relative;z-index:1}
+.intro-text{display:grid;place-items:center}
 .intro-a,.intro-b{grid-area:1/1;display:flex;flex-direction:column;align-items:center}
+.intro-hero{display:grid;place-items:center;margin-top:32px}.intro-hero>*{grid-area:1/1}
 .welcome-greeting{font-size:clamp(4rem,10vw,7rem);font-weight:200;line-height:1.1;letter-spacing:-.02em;opacity:0;animation:fadeOnly var(--settle) var(--ez) .15s forwards}
 .welcome-prompt{font-size:clamp(.8rem,1.4vw,1.1rem);color:var(--t2);max-width:400px;line-height:1.5;font-weight:300;letter-spacing:.5px;margin-top:16px;opacity:0;animation:fadeOnly var(--settle) var(--ez) .6s forwards}
-.welcome-dot{width:48px;height:48px;border-radius:50%;background:#fff;margin-top:32px;opacity:0;animation:fadeOnly .5s var(--ez-out) 1s forwards,breathe 1.6s ease-in-out 1s infinite}
+.welcome-dot{width:48px;height:48px;border-radius:50%;background:#fff;opacity:0;animation:fadeOnly .5s var(--ez-out) 1s forwards,breathe 1.6s ease-in-out 1s infinite}
 .welcome-title{font-size:clamp(2.8rem,7vw,5rem);font-weight:200;line-height:1.15;letter-spacing:-.02em;margin-bottom:12px;opacity:0;white-space:nowrap}
 .welcome-sub{font-size:clamp(.75rem,1.2vw,.95rem);color:var(--t2);max-width:360px;line-height:1.5;font-weight:300;letter-spacing:.5px;margin-bottom:24px;opacity:0}
-#qrcode{background:#fff;padding:18px;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.04);margin-bottom:20px;opacity:0}
+#qrcode{padding:18px;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.04);margin-bottom:20px;opacity:0;z-index:1}
 .qr-skip{background:transparent;color:var(--t3);border:1px solid var(--b);padding:10px 28px;border-radius:100px;cursor:pointer;font-family:var(--f);font-size:.7rem;letter-spacing:.5px;opacity:0;transition:border-color .3s var(--ez),color .3s var(--ez),background .3s var(--ez),transform .15s var(--ez-spring)}
 #scr-qr.phase-ready .welcome-greeting,#scr-qr.phase-ready .welcome-prompt{animation:settleOut .8s var(--ez-out) forwards}
-#scr-qr.phase-ready .welcome-dot{animation:fadeOut .6s var(--ez-out) forwards}
+#scr-qr.phase-ready .welcome-dot{animation:breathe 1.6s ease-in-out infinite;opacity:1}
 #scr-qr.phase-ready .welcome-title{animation:settleUp .6s var(--ez) .6s forwards}
 #scr-qr.phase-ready .welcome-sub{animation:settleUp .6s var(--ez) .8s forwards}
-#scr-qr.phase-ready #qrcode{animation:slideUp .7s var(--ez) 1.2s forwards}
-#scr-qr.phase-ready .qr-skip{animation:fadeOnly var(--settle) var(--ez) 1.8s forwards}
+@keyframes dotToQR{from{width:48px;height:48px;border-radius:50%}to{width:236px;height:236px;border-radius:16px}}
+#scr-qr.phase-qr .welcome-dot{animation:dotToQR .8s var(--ez) forwards;opacity:1}
+#scr-qr.phase-qr #qrcode{animation:fadeOnly .8s var(--ez) .8s forwards}
+#scr-qr.phase-qr .qr-skip{animation:fadeOnly var(--settle) var(--ez) 1.4s forwards}
 .qr-skip:hover{border-color:var(--a);color:var(--a);background:var(--as)}
 .qr-skip:active{transform:scale(.96)}
 .qr-debug{font-family:var(--m);font-size:.35rem;color:rgba(255,255,255,.06);margin-top:6px}
@@ -72,7 +76,7 @@ button{border:none;border-radius:100px;font-family:var(--f);font-weight:400;curs
 .h2-n{font-weight:200;font-size:clamp(1.8rem,4vw,3rem);margin:0 0 6px;flex-shrink:0}
 .sd-n{font-size:clamp(1rem,2vw,1.4rem);color:var(--t2);line-height:1.5;max-width:600px;margin:0 auto;flex-shrink:0}
 /* Card sandbox — full width available */
-#card-sandbox{width:100%;flex:1;min-height:140px;max-height:clamp(120px,25vh,220px);background:rgba(255,255,255,.02);border-radius:20px;overflow:hidden;display:flex;align-items:center;justify-content:center;border:1px solid var(--b);margin:clamp(8px,1.5vh,16px) 0;position:relative;transition:border-color .3s}
+#card-sandbox{width:100%;flex:1;min-height:140px;background:rgba(255,255,255,.02);border-radius:20px;overflow:hidden;display:flex;align-items:center;justify-content:center;border:1px solid var(--b);margin:clamp(8px,1.5vh,16px) 0;position:relative;transition:border-color .3s}
 #card-shape{background:linear-gradient(135deg,#f0f0f0 0%,#e8e8e8 50%,#ddd 100%);border-radius:10px;border:1px solid rgba(0,0,0,.12);box-shadow:0 6px 20px rgba(0,0,0,.3);transition:width .08s var(--ez),height .08s var(--ez)}
 input[type=range]{-webkit-appearance:none;width:min(100%,500px);height:4px;background:rgba(255,255,255,.08);border-radius:2px;outline:0;margin:10px 0 4px}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:var(--a);cursor:pointer;box-shadow:0 0 12px var(--ag);border:2px solid rgba(0,0,0,.15);transition:transform .2s var(--ez-spring),box-shadow .2s}
@@ -99,6 +103,13 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.2);box-shadow:0
 .cal-summary .l{font-size:clamp(1.8rem,4vw,3.2rem);color:var(--t2);margin-right:clamp(12px,2vw,24px);font-weight:300}
 .cal-summary .v{font-family:var(--m);font-size:clamp(1.8rem,4vw,3.2rem);font-weight:500;color:var(--a);transition:color .3s}
 .phone-hint-l{padding:20px;border-radius:16px;background:var(--as);border:1px solid rgba(0,255,204,.08);font-family:var(--m);font-size:clamp(1rem,2vw,1.5rem);color:var(--t3);letter-spacing:2px;text-align:center;text-transform:uppercase}
+.cal-phone-hint{display:none;font-family:var(--m);font-size:clamp(1.2rem,3vw,2rem);color:var(--t3);letter-spacing:2px;text-transform:uppercase;text-align:center;padding:20px}
+.phone-connected .sd-n,.phone-connected .sd-l{display:none}
+.phone-connected .cal-fn{display:none}
+.phone-connected .mirror-wrap{display:none}
+.phone-connected .dist-wrap{display:none}
+.phone-connected .dist-hint{display:none}
+.phone-connected .cal-phone-hint{display:block}
 
 /* ═══ Test ═══ */
 .display-frame{position:relative;display:flex;flex-direction:column;align-items:center;gap:18px;opacity:0;animation:settleUp var(--settle) var(--ez) .1s forwards}

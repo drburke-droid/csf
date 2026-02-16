@@ -25,8 +25,11 @@ window.showScreen = showScreen;
 
 let host = null, phoneConnected = false, isMirror = false;
 
-// Auto-advance: swap welcome content for QR content (same screen, no flash)
-setTimeout(() => document.getElementById('scr-qr').classList.add('phase-ready'), 6200);
+// Auto-advance: two-phase intro — text cross-fade, then dot morphs to QR
+setTimeout(() => {
+    document.getElementById('scr-qr').classList.add('phase-ready');
+    setTimeout(() => document.getElementById('scr-qr').classList.add('phase-qr'), 1400);
+}, 6200);
 
 function initPeer() {
     if (typeof Peer === 'undefined') {
@@ -52,6 +55,7 @@ function initPeer() {
             document.getElementById('card-remote').style.display = 'block';
             document.getElementById('gamma-local').style.display = 'none';
             document.getElementById('gamma-remote').style.display = 'block';
+            document.getElementById('cal-box').classList.add('phone-connected');
             showScreen('scr-cal'); calGo(0);
         },
         (d) => handlePhoneMessage(d),
@@ -61,6 +65,7 @@ function initPeer() {
             document.getElementById('card-remote').style.display = 'none';
             document.getElementById('gamma-local').style.display = 'block';
             document.getElementById('gamma-remote').style.display = 'none';
+            document.getElementById('cal-box').classList.remove('phone-connected');
         }
     );
 }
@@ -143,7 +148,7 @@ window.calValidate = function() {
     const val = parseFloat(raw);
     if (isNaN(val) || val <= 0) { de.textContent = 'Invalid'; return; }
     const mmVal = distToMm();
-    if (mmVal < 200) { de.textContent = 'Too close'; return; }
+    if (mmVal < 4572) { de.textContent = 'Minimum 15 ft'; return; }
     if (mmVal > 30000) { de.textContent = 'Too far'; return; }
 
     const ppm = parseFloat(ss.value) / CARD_W_MM;

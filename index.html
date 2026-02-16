@@ -8,19 +8,23 @@
 
 <div id="scr-qr" class="screen active">
 <div class="intro-stack">
+<div class="intro-text">
 <div class="intro-a">
 <div class="welcome-greeting">Welcome.</div>
 <div class="welcome-prompt">Have your phone nearby and get comfortable.</div>
-<div class="welcome-dot"></div>
 </div>
 <div class="intro-b">
 <div class="welcome-title">Let's test your vision.</div>
 <div class="welcome-sub">This display shows the targets. Your phone is the controller.</div>
 <div class="welcome-sub">Scan with your phone to begin</div>
+</div>
+</div>
+<div class="intro-hero">
+<div class="welcome-dot"></div>
 <div id="qrcode"></div>
+</div>
 <button class="qr-skip" onclick="skipPhone()">Use Keyboard Instead</button>
 <div class="qr-debug" id="qr-debug"></div>
-</div>
 </div>
 </div>
 
@@ -43,7 +47,7 @@
 <div id="cs1" class="cal-step">
 <div class="sn-n">Step 2 of 5</div><div class="h2-n">Setup Type</div>
 <p class="sd-n">Will the patient view this screen through a mirror?</p>
-<div style="flex:1;display:flex;align-items:center;justify-content:center">
+<div class="mirror-wrap" style="flex:1;display:flex;align-items:center;justify-content:center">
 <div class="mirror-choice">
 <button class="mirror-btn" onclick="setMirror(false)">Direct View</button>
 <button class="mirror-btn" onclick="setMirror(true)">Mirror View</button>
@@ -67,13 +71,13 @@
 <div id="cs3" class="cal-step">
 <div class="sn-l">Step 4 of 5</div><div class="h2-l">Viewing Distance</div>
 <p class="sd-l">Enter distance from eyes to screen</p>
-<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px;align-items:center">
+<div class="dist-wrap" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px;align-items:center">
 <div style="display:flex;gap:14px;align-items:center">
-<input type="number" class="dist-input" id="dv" placeholder="5" min="0.1" step="0.1">
+<input type="number" class="dist-input" id="dv" placeholder="15" min="0.1" step="0.1">
 <select class="dist-select" id="du"><option value="ft">feet</option><option value="m">meters</option><option value="cm">cm</option><option value="in">inches</option></select>
 </div>
 <div class="cal-em-l" id="de"></div>
-<div style="font-family:var(--m);font-size:clamp(1rem,2.5vw,1.8rem);color:var(--t3);letter-spacing:1px;text-align:center;line-height:1.6;max-width:600px">Minimum 10 ft required. 20 ft+ preferred for clinical accuracy.</div>
+<div class="dist-hint" style="font-family:var(--m);font-size:clamp(1rem,2.5vw,1.8rem);color:var(--t3);letter-spacing:1px;text-align:center;line-height:1.6;max-width:600px">Minimum 15 ft required. 20 ft+ preferred for clinical accuracy.</div>
 </div>
 <div class="cal-fn"><button class="bb-l" onclick="calGo(2)">Back</button><button class="bp-l" onclick="calValidate()">Review</button></div>
 </div>
@@ -91,6 +95,7 @@
 </div></div>
 <div class="cal-fn"><button class="bb-l" onclick="calGo(3)">Back</button><button class="bs-l" onclick="startTest()">Start Test</button></div>
 </div>
+<div class="cal-phone-hint">Follow instructions on your phone</div>
 </div></div>
 
 <div id="scr-test" class="screen">

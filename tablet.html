@@ -315,8 +315,9 @@ function renderCalStep(d){
         sl.textContent='STEP 4 / DISTANCE';tl.textContent='Viewing Distance';
         bd.innerHTML='<div class="cal-hint" style="margin-bottom:10px">Measure from the patient\'s eyes to the display screen. Accuracy matters — this sets the spatial frequency scale for the test.</div>'
             +'<div style="display:flex;gap:10px;align-items:center;justify-content:center">'
-            +'<input type="number" class="ph-dist-input" id="pdv" placeholder="5" min="0.1" step="0.1" inputmode="decimal" oninput="onDistInput()" onchange="onDistInput()">'
-            +'<select class="ph-dist-select" id="pdu" onchange="onDistInput()"><option value="ft">feet</option><option value="m">meters</option><option value="cm">cm</option><option value="in">inches</option></select></div>';
+            +'<input type="number" class="ph-dist-input" id="pdv" placeholder="15" min="0.1" step="0.1" inputmode="decimal" oninput="onDistInput()" onchange="onDistInput()">'
+            +'<select class="ph-dist-select" id="pdu" onchange="onDistInput()"><option value="ft">feet</option><option value="m">meters</option><option value="cm">cm</option><option value="in">inches</option></select></div>'
+            +'<div class="cal-hint">Minimum 15 ft required. 20 ft+ preferred for clinical accuracy.</div>';
         nv.innerHTML='<button class="cal-btn btn-back" onclick="nav(\'back\')">Back</button><button class="cal-btn btn-next" onclick="nav(\'next\')">Review</button>';
     }else if(d.step===4){
         sl.textContent='STEP 5 / CONFIRM';tl.textContent='Review';
