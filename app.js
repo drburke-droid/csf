@@ -13,8 +13,13 @@ const MAX_TRIALS = 50, DEBOUNCE_MS = 250, NUM_STEPS = 5;
 const CARD_W_MM = 85.6, CARD_H_MM = 53.98, CARD_ASPECT = CARD_W_MM / CARD_H_MM;
 
 function showScreen(id) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
+    const target = document.getElementById(id);
+    const current = document.querySelector('.screen.active');
+    if (current && current.id !== id) {
+        current.classList.remove('active');
+    }
+    // Small delay so the outgoing fade starts before incoming
+    requestAnimationFrame(() => target.classList.add('active'));
 }
 window.showScreen = showScreen;
 
@@ -168,7 +173,10 @@ function renderTutStep(idx) {
 
     // Labels ABOVE the plate
     document.getElementById('tut-step-label').textContent = `Demo ${idx + 1} of ${TUT.length}`;
-    document.getElementById('tut-orient-name').textContent = s.name;
+    const orientEl = document.getElementById('tut-orient-name');
+    orientEl.style.animation = 'none'; orientEl.offsetHeight;
+    orientEl.textContent = s.name;
+    orientEl.style.animation = '';
 
     if (s.angle >= 0) {
         drawGabor(tc, { cpd: 4, contrast: 0.95, angle: s.angle }, demoCal);
@@ -190,7 +198,9 @@ function advanceTut(key) {
     if (key !== TUT[tutStep].key) return;
     if (tutStep < TUT.length - 1) renderTutStep(tutStep + 1);
     else {
-        document.getElementById('tutorial').style.display = 'none';
+        const tutEl = document.getElementById('tutorial');
+        tutEl.classList.add('hiding');
+        setTimeout(() => { tutEl.style.display = 'none'; tutEl.classList.remove('hiding'); }, 350);
         testStarted = true;
         nextTrial();
         tx({ type: 'testStart', maxTrials: MAX_TRIALS });
