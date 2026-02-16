@@ -15,14 +15,19 @@ body{background:var(--bg);font-family:var(--f);color:var(--t1);-webkit-font-smoo
 @keyframes popIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
 @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes glowPulse{0%,100%{text-shadow:0 0 80px rgba(0,255,204,.15)}50%{text-shadow:0 0 120px rgba(0,255,204,.3),0 0 60px rgba(0,255,204,.1)}}
+@keyframes fadeOnly{from{opacity:0}to{opacity:1}}
+@keyframes breathe{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.08);opacity:1}}
 
 /* ═══ Welcome / QR — Hero Layout ═══ */
 #scr-qr{background:linear-gradient(170deg,#0c0c10 0%,#080810 50%,#0a0a12 100%);z-index:100;gap:0;text-align:center;padding:40px 30px;overflow:hidden}
 #scr-qr::before{content:'';position:absolute;top:-40%;left:-20%;width:140%;height:100%;background:radial-gradient(ellipse at 50% 0%,rgba(0,255,204,.04) 0%,transparent 60%);pointer-events:none;animation:fadeIn 1.2s var(--ez-out)}
-.welcome-title{font-size:clamp(2.8rem,7vw,5rem);font-weight:200;line-height:1.15;max-width:700px;letter-spacing:-.02em;margin-bottom:12px;position:relative;z-index:1;opacity:0;animation:settleUp var(--settle) var(--ez) .15s forwards}
-.welcome-sub{font-size:clamp(.75rem,1.2vw,.95rem);color:var(--t2);max-width:360px;line-height:1.5;font-weight:300;letter-spacing:.5px;position:relative;z-index:1;margin-bottom:24px;opacity:0;animation:settleUp var(--settle) var(--ez) .3s forwards}
-#qrcode{background:#fff;padding:18px;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.04);position:relative;z-index:1;margin-bottom:20px;opacity:0;animation:popIn .5s var(--ez-spring) .45s forwards}
-.qr-skip{background:transparent;color:var(--t3);border:1px solid var(--b);padding:10px 28px;border-radius:100px;cursor:pointer;font-family:var(--f);font-size:.7rem;letter-spacing:.5px;position:relative;z-index:1;opacity:0;animation:settleUp var(--settle) var(--ez) .6s forwards;transition:border-color .3s var(--ez),color .3s var(--ez),background .3s var(--ez),transform .15s var(--ez-spring)}
+.welcome-title{font-size:clamp(2.8rem,7vw,5rem);font-weight:200;line-height:1.15;max-width:700px;letter-spacing:-.02em;margin-bottom:12px;position:relative;z-index:1;opacity:0;animation:fadeOnly var(--settle) var(--ez) .15s forwards}
+.welcome-sub{font-size:clamp(.75rem,1.2vw,.95rem);color:var(--t2);max-width:360px;line-height:1.5;font-weight:300;letter-spacing:.5px;position:relative;z-index:1;margin-bottom:24px;opacity:0;animation:fadeOnly var(--settle) var(--ez) .3s forwards}
+#qrcode{background:#fff;padding:18px;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.04);position:relative;z-index:1;margin-bottom:20px;transition:opacity .5s var(--ez-out)}
+#qrcode.phase-dot{width:48px;height:48px;padding:0;border-radius:50%;opacity:0;animation:fadeOnly .5s var(--ez-out) .45s forwards}
+#qrcode.phase-breathe{width:48px;height:48px;padding:0;border-radius:50%;opacity:1;animation:breathe 1.6s ease-in-out infinite}
+#qrcode.phase-qr{opacity:1;animation:none}
+.qr-skip{background:transparent;color:var(--t3);border:1px solid var(--b);padding:10px 28px;border-radius:100px;cursor:pointer;font-family:var(--f);font-size:.7rem;letter-spacing:.5px;position:relative;z-index:1;opacity:0;animation:fadeOnly var(--settle) var(--ez) 3s forwards;transition:border-color .3s var(--ez),color .3s var(--ez),background .3s var(--ez),transform .15s var(--ez-spring)}
 .qr-skip:hover{border-color:var(--a);color:var(--a);background:var(--as)}
 .qr-skip:active{transform:scale(.96)}
 .qr-debug{font-family:var(--m);font-size:.35rem;color:rgba(255,255,255,.06);position:relative;z-index:1;margin-top:6px}
@@ -98,14 +103,14 @@ canvas#stimCanvas{width:560px;height:560px;background:var(--bg);border-radius:12
 .tut-hint{font-family:var(--m);font-size:clamp(1rem,2.5vw,1.8rem);color:var(--t3);letter-spacing:1px}
 
 /* ═══ Results — Premium Full Screen with staggered reveals ═══ */
-#scr-results{background:linear-gradient(170deg,var(--s1) 0%,#080810 100%);z-index:200;text-align:center;padding:clamp(20px,4vw,40px);overflow-y:auto}
+#scr-results{background:linear-gradient(170deg,var(--s1) 0%,#080810 100%);z-index:200;text-align:center;padding:clamp(20px,4vw,40px);overflow-y:auto;overflow-x:hidden}
 #result-content{display:flex;flex-direction:column;align-items:center;max-width:1800px;margin:0 auto}
 #scr-results.results-boost #result-content{font-size:200%}
 .result-eyebrow{font-family:var(--m);font-size:clamp(.8rem,1.5vw,1.2rem);letter-spacing:6px;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:8px;opacity:0;animation:settleUp .5s var(--ez) .15s forwards}
 .auc-value{font-family:var(--m);font-size:clamp(5rem,14vw,11rem);font-weight:700;color:var(--a);line-height:.85;text-shadow:0 0 100px rgba(0,255,204,.2);opacity:0;animation:popIn .6s var(--ez-spring) .3s forwards,glowPulse 4s ease-in-out 1s infinite}
 .rank-label{font-size:clamp(1.2rem,3vw,2.2rem);font-weight:200;text-transform:uppercase;letter-spacing:clamp(4px,1vw,12px);margin-top:10px;color:rgba(255,255,255,.55);opacity:0;animation:settleUp .5s var(--ez) .5s forwards}
 .result-detail{font-family:var(--m);font-size:clamp(.7rem,1.2vw,1rem);color:rgba(255,255,255,.4);margin-top:8px;letter-spacing:.5px;opacity:0;animation:settleUp .5s var(--ez) .65s forwards}
-#csf-plot{margin-top:20px;border-radius:10px;display:block;max-width:1440px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,.3);opacity:0;animation:settleUp .6s var(--ez) .8s forwards}
+#csf-plot{margin-top:20px;border-radius:10px;display:block;max-width:1440px;width:100%;height:auto;box-shadow:0 10px 40px rgba(0,0,0,.3);opacity:0;animation:settleUp .6s var(--ez) .8s forwards}
 .restart-btn{padding:clamp(10px,2vw,16px) clamp(28px,4vw,44px);border-radius:100px;border:1px solid var(--b);background:transparent;color:var(--t3);font-family:var(--f);font-size:clamp(.75rem,1.2vw,1rem);cursor:pointer;letter-spacing:.5px;transition:all .3s var(--ez),transform .15s var(--ez-spring)}
 .restart-btn:hover{border-color:var(--a);color:var(--a);box-shadow:0 0 20px var(--ag)}
 .restart-btn:active{transform:scale(.96)}

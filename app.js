@@ -24,6 +24,16 @@ function showScreen(id) {
 window.showScreen = showScreen;
 
 let host = null, phoneConnected = false, isMirror = false;
+const pageLoadTime = performance.now();
+
+// Switch QR dot from fade-in to breathing after initial animation
+setTimeout(() => {
+    const qrEl = document.getElementById('qrcode');
+    if (qrEl && qrEl.classList.contains('phase-dot')) {
+        qrEl.classList.remove('phase-dot');
+        qrEl.classList.add('phase-breathe');
+    }
+}, 900);
 
 function initPeer() {
     if (typeof Peer === 'undefined') {
@@ -35,12 +45,23 @@ function initPeer() {
             const dir = location.pathname.substring(0, location.pathname.lastIndexOf('/'));
             const url = `${location.origin}${dir}/tablet.html?id=${id}`;
             document.getElementById('qr-debug').textContent = id;
-            const qrEl = document.getElementById('qrcode'); qrEl.innerHTML = '';
-            if (typeof QRCode !== 'undefined') {
-                new QRCode(qrEl, { text: url, width: 200, height: 200, colorDark: '#000', colorLight: '#fff', correctLevel: QRCode.CorrectLevel.L });
-            } else {
-                qrEl.innerHTML = `<a href="${url}" style="font-size:.5rem;word-break:break-all;max-width:260px;color:#00ffcc">${url}</a>`;
-            }
+
+            // Phased QR reveal: wait at least 2500ms from page load for breathing dot
+            const elapsed = performance.now() - pageLoadTime;
+            const delay = Math.max(0, 2500 - elapsed);
+            setTimeout(() => {
+                const qrEl = document.getElementById('qrcode');
+                qrEl.style.opacity = '0';
+                qrEl.classList.remove('phase-dot', 'phase-breathe');
+                qrEl.innerHTML = '';
+                qrEl.classList.add('phase-qr');
+                if (typeof QRCode !== 'undefined') {
+                    new QRCode(qrEl, { text: url, width: 200, height: 200, colorDark: '#000', colorLight: '#fff', correctLevel: QRCode.CorrectLevel.L });
+                } else {
+                    qrEl.innerHTML = `<a href="${url}" style="font-size:.5rem;word-break:break-all;max-width:260px;color:#00ffcc">${url}</a>`;
+                }
+                requestAnimationFrame(() => { qrEl.style.opacity = '1'; });
+            }, delay);
         },
         () => {
             phoneConnected = true;
@@ -375,8 +396,14 @@ function finish() {
         totalLandmarks: lmResults.length,
     });
 
-    // Send plot image separately (may be too large for single PeerJS message)
+    // Send downscaled plot image to phone (full PNG can be 2-4MB)
     if (plotUrl) {
-        try { tx({ type: 'plotImage', url: plotUrl }); } catch (e) { console.warn('Plot send failed:', e); }
+        try {
+            const srcCanvas = document.getElementById('csf-plot');
+            const phoneCanvas = document.createElement('canvas');
+            phoneCanvas.width = 760; phoneCanvas.height = 528;
+            phoneCanvas.getContext('2d').drawImage(srcCanvas, 0, 0, 760, 528);
+            tx({ type: 'plotImage', url: phoneCanvas.toDataURL('image/jpeg', 0.80) });
+        } catch (e) { console.warn('Plot send failed:', e); }
     }
 }

@@ -56,8 +56,8 @@ export function drawCSFPlot(canvas, engine, params) {
     const dpr = window.devicePixelRatio || 1;
     const cssW = 1440, cssH = 1000;
     canvas.width = cssW * dpr; canvas.height = cssH * dpr;
-    canvas.style.width  = cssW + 'px';
-    canvas.style.height = cssH + 'px';
+    canvas.style.width  = '100%';
+    canvas.style.height = 'auto';
     const ctx = canvas.getContext('2d');
     ctx.scale(dpr, dpr);
     const W = cssW, H = cssH;
@@ -66,7 +66,20 @@ export function drawCSFPlot(canvas, engine, params) {
     const pH = H - pad.top  - pad.bottom;
 
     const lfMin = -0.3, lfMax = 1.75;
-    const lsMin = -0.3, lsMax = 2.65;
+
+    // ── Auto-scale Y-axis: compute curve first, scan for max logS ──
+    const curve = engine.getCSFCurve(params);
+    let computedLsMax = 2.65;
+    for (const pt of curve) {
+        if (pt.logS > computedLsMax) computedLsMax = pt.logS;
+    }
+    for (const trial of engine.history) {
+        const trialLogS = -engine.stimGrid[trial.stimIndex].logContrast;
+        if (trialLogS > computedLsMax) computedLsMax = trialLogS;
+    }
+    const lsMax = computedLsMax + 0.15;
+
+    const lsMin = -0.3;
     const tX = lf => pad.left + (lf - lfMin) / (lfMax - lfMin) * pW;
     const tY = ls => pad.top  + pH - (ls - lsMin) / (lsMax - lsMin) * pH;
 
@@ -80,6 +93,8 @@ export function drawCSFPlot(canvas, engine, params) {
     // ── Grid ──
     const freqs = [0.5, 1, 2, 4, 8, 16, 32];
     const senss = [1, 3, 10, 30, 100, 300];
+    if (lsMax > Math.log10(300) + 0.1) senss.push(1000);
+    if (lsMax > Math.log10(1000) + 0.1) senss.push(3000);
     ctx.lineWidth = 1;
 
     freqs.forEach(f => {
@@ -137,8 +152,7 @@ export function drawCSFPlot(canvas, engine, params) {
         ctx.restore();
     });
 
-    // ── CSF Curve data ──
-    const curve = engine.getCSFCurve(params);
+    // ── CSF Curve rendering ──
     const curvGrad = ctx.createLinearGradient(0, pad.top, 0, pad.top + pH);
     curvGrad.addColorStop(0, 'rgba(0,255,204,0.14)');
     curvGrad.addColorStop(0.7, 'rgba(0,255,204,0.03)');
@@ -150,7 +164,7 @@ export function drawCSFPlot(canvas, engine, params) {
     for (const pt of curve) {
         if (pt.logS < lsMin - 0.5) continue; // slight undershoot allowed for smoothing
         const x = tX(Math.log10(pt.freq));
-        const y = tY(Math.min(pt.logS, lsMax));
+        const y = tY(pt.logS);
         pts.push({ x, y, logS: pt.logS });
     }
 
