@@ -292,13 +292,13 @@ function renderCalStep(d){
     setMode('m-cal');
     if(d.step===0){
         sl.textContent='STEP 1 / SCALE';tl.textContent='Card Size';
-        bd.innerHTML='<div class="cal-msg">Match the rectangle on display to a credit card width.</div>'
+        bd.innerHTML='<div class="cal-msg">We need to measure your screen\'s pixel density. Hold any wallet card (loyalty, ID, or credit card) flat against the display and use the slider until the white rectangle matches the card\'s width exactly.</div>'
             +'<div class="cal-slider"><input type="range" id="csl2" min="150" max="750" step="0.1" value="'+(d.cardPx||300)+'" oninput="onCard(this.value)"></div>'
             +'<div class="cal-sl"><span>SMALLER</span><span>LARGER</span></div>';
         nv.innerHTML='<button class="cal-btn btn-next" onclick="nav(\'next\')">Next</button>';
     }else if(d.step===1){
         sl.textContent='STEP 2 / SETUP';tl.textContent='Mirror Setup';
-        bd.innerHTML='<div class="cal-msg">Will the patient view through a mirror?</div>'
+        bd.innerHTML='<div class="cal-msg">Is the display being viewed directly, or reflected in a mirror? Mirror mode flips the image so it reads correctly in the reflection.</div>'
             +'<div style="display:flex;gap:14px;justify-content:center;margin-top:6px">'
             +'<button class="btn-mirror" onclick="sendMirror(false)">Direct View</button>'
             +'<button class="btn-mirror" onclick="sendMirror(true)">Mirror View</button></div>';
@@ -308,18 +308,19 @@ function renderCalStep(d){
         bd.innerHTML='<div class="cal-val" id="gval">'+(d.gamma||128)+'</div>'
             +'<div class="cal-slider"><input type="range" id="gsl" min="60" max="220" value="'+(d.gamma||128)+'" oninput="onGamma(this.value)"></div>'
             +'<div class="cal-sl"><span>DARKER</span><span>BRIGHTER</span></div>'
+            +'<div class="cal-hint">This calibrates screen brightness for accurate contrast measurements.</div>'
             +'<div class="cal-hint">Adjust until circle disappears into checkerboard</div>';
         nv.innerHTML='<button class="cal-btn btn-back" onclick="nav(\'back\')">Back</button><button class="cal-btn btn-next" onclick="nav(\'next\')">Next</button>';
     }else if(d.step===3){
         sl.textContent='STEP 4 / DISTANCE';tl.textContent='Viewing Distance';
-        bd.innerHTML='<div class="cal-hint" style="margin-bottom:10px">Enter distance from eyes to screen</div>'
+        bd.innerHTML='<div class="cal-hint" style="margin-bottom:10px">Measure from the patient\'s eyes to the display screen. Accuracy matters — this sets the spatial frequency scale for the test.</div>'
             +'<div style="display:flex;gap:10px;align-items:center;justify-content:center">'
             +'<input type="number" class="ph-dist-input" id="pdv" placeholder="5" min="0.1" step="0.1" inputmode="decimal" oninput="onDistInput()" onchange="onDistInput()">'
             +'<select class="ph-dist-select" id="pdu" onchange="onDistInput()"><option value="ft">feet</option><option value="m">meters</option><option value="cm">cm</option><option value="in">inches</option></select></div>';
         nv.innerHTML='<button class="cal-btn btn-back" onclick="nav(\'back\')">Back</button><button class="cal-btn btn-next" onclick="nav(\'next\')">Review</button>';
     }else if(d.step===4){
         sl.textContent='STEP 5 / CONFIRM';tl.textContent='Review';
-        bd.innerHTML='<div class="cal-msg" style="font-size:1rem">Review settings on display, then press Start.</div>';
+        bd.innerHTML='<div class="cal-msg" style="font-size:1rem">Check the summary on the display. When everything looks right, press Start to begin the orientation demo.</div>';
         nv.innerHTML='<button class="cal-btn btn-back" onclick="nav(\'back\')">Back</button><button class="cal-btn btn-start" onclick="nav(\'start\')">Start Test</button>';
     }
 }

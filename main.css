@@ -41,6 +41,19 @@ body{background:var(--bg);font-family:var(--f);color:var(--t1);-webkit-font-smoo
 .qr-skip:hover{border-color:var(--a);color:var(--a);background:var(--as)}
 .qr-skip:active{transform:scale(.96)}
 .qr-debug{font-family:var(--m);font-size:.35rem;color:rgba(255,255,255,.06);margin-top:6px}
+/* Tablet displays (≤1024px) */
+@media(max-width:1024px){
+  .welcome-greeting{font-size:clamp(3rem,8vw,5rem)}
+  .welcome-title{font-size:clamp(2rem,6vw,3.5rem)}
+  .welcome-prompt,.welcome-sub{font-size:clamp(.7rem,1.6vw,1rem)}
+}
+/* Phone displays (≤600px) */
+@media(max-width:600px){
+  .welcome-greeting{font-size:clamp(2.2rem,10vw,3.5rem)}
+  .welcome-title{font-size:clamp(1.4rem,6vw,2.2rem);white-space:normal}
+  .welcome-prompt,.welcome-sub{font-size:clamp(.65rem,3vw,.9rem)}
+  #qrcode{padding:12px;border-radius:12px}
+}
 
 /* ═══ Calibration — full screen ═══ */
 #scr-cal{background:var(--chrome);z-index:50}
@@ -59,7 +72,7 @@ button{border:none;border-radius:100px;font-family:var(--f);font-weight:400;curs
 .h2-n{font-weight:200;font-size:clamp(1.8rem,4vw,3rem);margin:0 0 6px;flex-shrink:0}
 .sd-n{font-size:clamp(1rem,2vw,1.4rem);color:var(--t2);line-height:1.5;max-width:600px;margin:0 auto;flex-shrink:0}
 /* Card sandbox — full width available */
-#card-sandbox{width:100%;flex:1;min-height:140px;background:rgba(255,255,255,.02);border-radius:20px;overflow:visible;display:flex;align-items:center;justify-content:center;border:1px solid var(--b);margin:clamp(8px,1.5vh,16px) 0;position:relative;transition:border-color .3s}
+#card-sandbox{width:100%;flex:1;min-height:140px;max-height:clamp(120px,25vh,220px);background:rgba(255,255,255,.02);border-radius:20px;overflow:hidden;display:flex;align-items:center;justify-content:center;border:1px solid var(--b);margin:clamp(8px,1.5vh,16px) 0;position:relative;transition:border-color .3s}
 #card-shape{background:linear-gradient(135deg,#f0f0f0 0%,#e8e8e8 50%,#ddd 100%);border-radius:10px;border:1px solid rgba(0,0,0,.12);box-shadow:0 6px 20px rgba(0,0,0,.3);transition:width .08s var(--ez),height .08s var(--ez)}
 input[type=range]{-webkit-appearance:none;width:min(100%,500px);height:4px;background:rgba(255,255,255,.08);border-radius:2px;outline:0;margin:10px 0 4px}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:var(--a);cursor:pointer;box-shadow:0 0 12px var(--ag);border:2px solid rgba(0,0,0,.15);transition:transform .2s var(--ez-spring),box-shadow .2s}
