@@ -267,7 +267,7 @@ window.startTest = function() {
     showScreen('scr-test');
     const tutEl = document.getElementById('tutorial');
     tutEl.style.display = 'flex';
-    if (isMirror) tutEl.classList.add('mirrored'); else tutEl.classList.remove('mirrored');
+    if (isMirror) tutEl.classList.add('mirror-flip'); else tutEl.classList.remove('mirror-flip');
     renderTutStep(0);
 };
 
@@ -343,10 +343,10 @@ function finish() {
         { name: 'Pedestrian (dusk)',     freq: 6,  sens: 33,  context: 'Detecting a person at dusk on a dark road' },
         { name: 'Exit sign (day)',       freq: 10, sens: 2,   context: 'Reading highway signs at 250 ft' },
         { name: 'Exit sign (night)',     freq: 10, sens: 33,  context: 'Reading worn road signs at night in rain' },
-        { name: 'Plate (day)',           freq: 18, sens: 2,   context: 'Reading a license plate at 25 m in daylight' },
-        { name: 'Plate (night)',         freq: 18, sens: 16,  context: 'Reading a license plate at 25 m in rain at night' },
-        { name: 'Golf ball on grass',    freq: 28, sens: 2,   context: 'Tracking ball on fairway at 150 yd' },
-        { name: 'Golf ball, cloudy sky', freq: 28, sens: 10,  context: 'Spotting ball against overcast sky at 150 yd' },
+        { name: 'Golf ball on grass',    freq: 18, sens: 2,   context: 'Tracking ball on fairway at 100 yd' },
+        { name: 'Golf ball, cloudy sky', freq: 18, sens: 10,  context: 'Spotting ball against overcast sky at 100 yd' },
+        { name: 'Plate (day)',           freq: 26, sens: 2,   context: 'Reading a license plate at 35 m in daylight' },
+        { name: 'Plate (night)',         freq: 26, sens: 25,  context: 'Reading a license plate at 35 m in rain at night' },
     ];
     landmarks.forEach(lm => {
         const yourSens = Math.pow(10, engine.evaluateCSF(lm.freq, result.params));

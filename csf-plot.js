@@ -26,16 +26,16 @@ import { MAX_HUMAN_CUTOFF_CPD } from './qcsf-engine.js';
  *    NIGHT (worn sheeting + rain): contrast ~0.03 → sens ~33
  *    (FHWA-HRT-07-040; Carlson & Hawkins 2003)
  *
- * 4. License Plate at 25 m (82 ft, ~5 car lengths) — characters 70 mm tall
- *    Letter angle = atan(0.070/25) = 0.160 deg → cpd = 3/0.160 = ~18 cpd
- *    (AASHTO standard: 70 mm character height)
- *    DAY: dark on white/light plate, Michelson ~0.88 → sens ~2
- *    NIGHT/RAIN: glare + wet + dirty plate, Michelson ~0.06 → sens ~16
- *
- * 5. Golf Ball at 150 yd (137 m) — diam 42.67 mm (USGA minimum)
- *    Angle = atan(0.04267/137.16) = 0.0178 deg → cpd = 0.5/0.0178 = ~28 cpd
+ * 4. Golf Ball at 100 yd (91.4 m) — diam 42.67 mm (USGA minimum)
+ *    Angle = atan(0.04267/91.44) = 0.0267 deg → cpd = 0.5/0.0267 = ~18 cpd
  *    ON GRASS: white on green, Michelson ~0.50 → sens ~2
  *    CLOUDY SKY: white vs overcast grey, Michelson ~0.10 → sens ~10
+ *
+ * 5. License Plate at 35 m (115 ft, ~7 car lengths) — characters 70 mm tall
+ *    Letter angle = atan(0.070/35) = 0.115 deg → cpd = 3/0.115 = ~26 cpd
+ *    (AASHTO standard: 70 mm character height)
+ *    DAY: dark on white/light plate, Michelson ~0.88 → sens ~2
+ *    NIGHT/RAIN: glare + wet + dirty plate, Michelson ~0.04 → sens ~25
  *
  * SNELLEN ACUITY:
  *    20/20 letter = 5 arcmin, stroke = 1 arcmin → critical SF ~30 cpd
@@ -50,10 +50,10 @@ const LANDMARKS = [
     { name: 'Pedestrian (dusk)',     freq: 6,  sens: 33,   pair: 'ped'   },
     { name: 'Exit sign (day)',       freq: 10, sens: 2,    pair: 'sign'  },
     { name: 'Exit sign (night)',     freq: 10, sens: 33,   pair: 'sign'  },
-    { name: 'Plate (day)',           freq: 18, sens: 2,    pair: 'plate' },
-    { name: 'Plate (night)',         freq: 18, sens: 16,   pair: 'plate' },
-    { name: 'Golf ball on grass',    freq: 28, sens: 2,    pair: 'golf'  },
-    { name: 'Golf ball, cloudy sky', freq: 28, sens: 10,   pair: 'golf'  },
+    { name: 'Golf ball on grass',    freq: 18, sens: 2,    pair: 'golf'  },
+    { name: 'Golf ball, cloudy sky', freq: 18, sens: 10,   pair: 'golf'  },
+    { name: 'Plate (day)',           freq: 26, sens: 2,    pair: 'plate' },
+    { name: 'Plate (night)',         freq: 26, sens: 25,   pair: 'plate' },
 ];
 
 const PAIR_COLORS = {
