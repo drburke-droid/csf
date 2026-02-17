@@ -6,25 +6,86 @@
 <title>Burke Vision Lab</title><link rel="stylesheet" href="main.css">
 </head><body>
 
-<div id="scr-qr" class="screen active">
-<div class="intro-stack">
-<div class="intro-text">
-<div class="intro-a">
-<div class="welcome-greeting">Welcome.</div>
-<div class="welcome-prompt">Have your phone nearby and get comfortable.</div>
-</div>
-<div class="intro-b">
-<div class="welcome-title">Let's test your vision.</div>
-<div class="welcome-sub">This display shows the targets. Your phone is the controller.</div>
-<div class="welcome-sub">Scan with your phone to begin</div>
+<!-- Screen: Welcome -->
+<div id="scr-welcome" class="screen active">
+<div class="landing-stack">
+<div class="landing-brand">Burke Vision Lab</div>
+<div class="landing-title">Contrast Sensitivity<br>Function Test</div>
+<div class="landing-desc">This test measures how well you see patterns at different sizes and contrasts &mdash; a more complete picture of your vision than an eye chart alone.<br><br>You'll need two devices: a large screen to display the targets and a phone or tablet as your controller.</div>
+<button class="landing-begin" onclick="goToRole()">Begin Setup</button>
 </div>
 </div>
-<div class="intro-hero">
-<div class="welcome-dot"></div>
-<div id="qrcode"></div>
+
+<!-- Screen: Role Selection -->
+<div id="scr-role" class="screen">
+<div class="landing-stack">
+<div class="role-header">
+<div class="role-illustration">
+<div class="dev-icon dev-phone"><div class="dev-body"></div><div class="dev-label">Remote</div></div>
+<div class="signal-dots"><span></span><span></span><span></span></div>
+<div class="dev-icon dev-monitor"><div class="dev-body"></div><div class="dev-label">Display</div></div>
+</div>
+<div class="role-prompt">What is this device?</div>
+</div>
+<div class="role-cards">
+<div class="role-card" onclick="selectRole('remote')">
+<div class="role-card-title">Remote</div>
+<div class="role-card-desc">Submit your responses from this phone or tablet</div>
+</div>
+<div class="role-card" id="card-display-role" onclick="selectRole('display')">
+<div class="role-card-title">Display</div>
+<div class="role-card-desc">Show test targets on this screen</div>
+<div class="role-card-disabled" id="display-disabled">Phone screens are too small for the test display</div>
+</div>
+</div>
+<button class="landing-back" onclick="goToWelcome()">Back</button>
+</div>
+</div>
+
+<!-- Screen: Remote Pairing (phone generates code) -->
+<div id="scr-pair-remote" class="screen">
+<div class="landing-stack">
+<div class="pair-section">
+<div class="pair-label">Your pairing code</div>
+<div class="pair-code" id="my-code">----</div>
+<div class="pair-instruction">Open <span class="pair-url" id="pair-url"></span> on your display and enter this code</div>
+<div class="pair-status" id="remote-status"><span class="sd sd-wait"></span> Waiting for display&hellip;</div>
+</div>
+<div class="pair-divider"><span>or</span></div>
+<div class="pair-section pair-secondary">
+<div class="pair-label-sm">Already have a code from your display?</div>
+<div class="pair-input-row">
+<input class="pair-input" id="remote-code-input" maxlength="4" placeholder="CODE" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
+<button class="pair-connect-btn" onclick="remoteEnterCode()">Connect</button>
+</div>
+</div>
+<button class="landing-back" onclick="goToRole()">Back</button>
+</div>
+</div>
+
+<!-- Screen: Display Pairing (PC enters phone's code or generates own) -->
+<div id="scr-pair-display" class="screen">
+<div class="landing-stack">
+<div class="pair-section">
+<div class="pair-label">Enter code from your phone</div>
+<div class="pair-input-row">
+<input class="pair-input pair-input-lg" id="display-code-input" maxlength="4" placeholder="CODE" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
+<button class="pair-connect-btn" onclick="displayEnterCode()">Connect</button>
+</div>
+<div class="pair-status" id="display-status"></div>
+</div>
+<div class="pair-divider"><span>or</span></div>
+<div class="pair-section pair-secondary">
+<div class="pair-label-sm">Setting up the display first?</div>
+<button class="pair-gen-btn" id="gen-code-btn" onclick="displayGenerateCode()">Generate a Code</button>
+<div id="display-code-area" style="display:none">
+<div class="pair-code" id="display-my-code">----</div>
+<div id="display-qrcode"></div>
+<div class="pair-status" id="display-wait-status"><span class="sd sd-wait"></span> Waiting for phone&hellip;</div>
+</div>
 </div>
 <button class="qr-skip" onclick="skipPhone()">Use Keyboard Instead</button>
-<div class="qr-debug" id="qr-debug"></div>
+<button class="landing-back" onclick="goToRole()">Back</button>
 </div>
 </div>
 

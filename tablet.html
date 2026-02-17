@@ -227,9 +227,11 @@ function setMode(id){
 if(window._stalePeer){try{window._stalePeer.destroy()}catch(e){}}
 
 var P=new URLSearchParams(location.search),targetID=P.get('id');
+// Support ?code=XXXX shorthand (converts to bvl-xxxx PeerJS ID)
+if(!targetID){var codeParam=P.get('code');if(codeParam&&codeParam.length===4){targetID='bvl-'+codeParam.toLowerCase()}}
 var conn=null,isConn=false,peer=null;
 
-if(!targetID){setSt('sd-er','No display ID');dlog('No id in URL')}
+if(!targetID){setSt('sd-er','No display ID');dlog('No id in URL');document.getElementById('cbd').innerHTML='<div class="cal-msg">Open the main site on your display device first, then scan the QR code or enter the pairing code.</div>'}
 else{dlog('Target: '+targetID);waitForPeer()}
 
 function waitForPeer(){

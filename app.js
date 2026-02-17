@@ -7,7 +7,8 @@ import { createMode }    from './stimulus-modes.js';
 import { drawGabor }     from './gabor.js';
 import { drawCSFPlot }   from './csf-plot.js';
 import { computeResult } from './results.js';
-import { createHost }    from './peer-sync.js';
+import { createHost, createTemporaryHost, createHandoffClient,
+         shortCode, codeToId, idToCode, formatCode } from './peer-sync.js';
 
 const MAX_TRIALS = 50, DEBOUNCE_MS = 250, NUM_STEPS = 5;
 const CARD_W_MM = 85.6, CARD_H_MM = 53.98, CARD_ASPECT = CARD_W_MM / CARD_H_MM;
@@ -24,51 +25,8 @@ function showScreen(id) {
 window.showScreen = showScreen;
 
 let host = null, phoneConnected = false, isMirror = false;
+let tempHost = null; // temporary PeerJS host for phone-first flow
 
-// Auto-advance: two-phase intro — text cross-fade, then dot morphs to QR
-setTimeout(() => {
-    document.getElementById('scr-qr').classList.add('phase-ready');
-    setTimeout(() => document.getElementById('scr-qr').classList.add('phase-qr'), 5000);
-}, 5000);
-
-function initPeer() {
-    if (typeof Peer === 'undefined') {
-        document.getElementById('qr-debug').textContent = 'PeerJS unavailable';
-        return;
-    }
-    host = createHost(
-        (id) => {
-            const dir = location.pathname.substring(0, location.pathname.lastIndexOf('/'));
-            const url = `${location.origin}${dir}/tablet.html?id=${id}`;
-            document.getElementById('qr-debug').textContent = id;
-            const qrEl = document.getElementById('qrcode');
-            qrEl.innerHTML = '';
-            if (typeof QRCode !== 'undefined') {
-                new QRCode(qrEl, { text: url, width: 200, height: 200, colorDark: '#000', colorLight: '#fff', correctLevel: QRCode.CorrectLevel.L });
-            } else {
-                qrEl.innerHTML = `<a href="${url}" style="font-size:.5rem;word-break:break-all;max-width:260px;color:#00ffcc">${url}</a>`;
-            }
-        },
-        () => {
-            phoneConnected = true;
-            document.getElementById('card-local').style.display = 'none';
-            document.getElementById('card-remote').style.display = 'block';
-            document.getElementById('gamma-local').style.display = 'none';
-            document.getElementById('gamma-remote').style.display = 'block';
-            document.getElementById('cal-box').classList.add('phone-connected');
-            showScreen('scr-cal'); calGo(0);
-        },
-        (d) => handlePhoneMessage(d),
-        () => {
-            phoneConnected = false;
-            document.getElementById('card-local').style.display = 'block';
-            document.getElementById('card-remote').style.display = 'none';
-            document.getElementById('gamma-local').style.display = 'block';
-            document.getElementById('gamma-remote').style.display = 'none';
-            document.getElementById('cal-box').classList.remove('phone-connected');
-        }
-    );
-}
 function tx(msg) { if (host && host.connected) host.send(msg); }
 
 function handlePhoneMessage(d) {
@@ -84,14 +42,184 @@ function handlePhoneMessage(d) {
     if (d.type === 'input') handleInput(d.value);
 }
 
+function onPhoneConnect() {
+    phoneConnected = true;
+    document.getElementById('card-local').style.display = 'none';
+    document.getElementById('card-remote').style.display = 'block';
+    document.getElementById('gamma-local').style.display = 'none';
+    document.getElementById('gamma-remote').style.display = 'block';
+    document.getElementById('cal-box').classList.add('phone-connected');
+    showScreen('scr-cal'); calGo(0);
+}
+
+function onPhoneDisconnect() {
+    phoneConnected = false;
+    document.getElementById('card-local').style.display = 'block';
+    document.getElementById('card-remote').style.display = 'none';
+    document.getElementById('gamma-local').style.display = 'block';
+    document.getElementById('gamma-remote').style.display = 'none';
+    document.getElementById('cal-box').classList.remove('phone-connected');
+}
+
 window.skipPhone = function() {
+    if (tempHost) { tempHost.destroy(); tempHost = null; }
+    if (host) { host.destroy(); host = null; }
     document.getElementById('card-local').style.display = 'block';
     document.getElementById('card-remote').style.display = 'none';
     document.getElementById('gamma-local').style.display = 'block';
     document.getElementById('gamma-remote').style.display = 'none';
     showScreen('scr-cal'); calGo(0);
 };
-initPeer();
+
+// ═══ Landing Flow ═══
+function isMobileDevice() {
+    return window.innerWidth < 768 && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+}
+
+function siteBaseUrl() {
+    const dir = location.pathname.substring(0, location.pathname.lastIndexOf('/'));
+    return `${location.origin}${dir}/`;
+}
+
+window.goToWelcome = function() {
+    if (tempHost) { tempHost.destroy(); tempHost = null; }
+    if (host) { host.destroy(); host = null; }
+    showScreen('scr-welcome');
+};
+
+window.goToRole = function() {
+    if (tempHost) { tempHost.destroy(); tempHost = null; }
+    if (host) { host.destroy(); host = null; }
+    showScreen('scr-role');
+};
+
+window.selectRole = function(role) {
+    if (role === 'remote') {
+        showScreen('scr-pair-remote');
+        startRemotePairing();
+    } else if (role === 'display') {
+        showScreen('scr-pair-display');
+    }
+};
+
+// ── Remote Pairing (phone generates code, waits for Display to connect) ──
+function startRemotePairing() {
+    if (tempHost) { tempHost.destroy(); tempHost = null; }
+    const code = shortCode();
+    const peerId = codeToId(code);
+
+    document.getElementById('my-code').textContent = formatCode(code);
+    document.getElementById('pair-url').textContent = siteBaseUrl();
+    setStatus('remote-status', 'sd-wait', 'Waiting for display\u2026');
+
+    tempHost = createTemporaryHost(
+        peerId,
+        () => { console.log('[Landing] Remote listening as', peerId); },
+        (displayId) => {
+            // Handoff received — redirect to tablet.html
+            setStatus('remote-status', 'sd-ok', 'Connected! Loading\u2026');
+            setTimeout(() => {
+                tempHost.destroy(); tempHost = null;
+                const dir = location.pathname.substring(0, location.pathname.lastIndexOf('/'));
+                location.href = `${location.origin}${dir}/tablet.html?id=${displayId}`;
+            }, 400);
+        },
+        (err) => {
+            if (err === 'unavailable-id') {
+                setStatus('remote-status', 'sd-wait', 'Regenerating code\u2026');
+                setTimeout(startRemotePairing, 300);
+            }
+        }
+    );
+}
+
+// Secondary: Remote enters a code from Display
+window.remoteEnterCode = function() {
+    const input = document.getElementById('remote-code-input');
+    const code = input.value.trim().toUpperCase().replace(/[^A-Z2-9]/g, '');
+    if (code.length !== 4) { input.style.borderColor = 'var(--e)'; return; }
+    input.style.borderColor = '';
+
+    if (tempHost) { tempHost.destroy(); tempHost = null; }
+
+    const dir = location.pathname.substring(0, location.pathname.lastIndexOf('/'));
+    location.href = `${location.origin}${dir}/tablet.html?id=${codeToId(code)}`;
+};
+
+// ── Display Pairing (PC enters phone's code → handoff) ──
+window.displayEnterCode = function() {
+    const input = document.getElementById('display-code-input');
+    const code = input.value.trim().toUpperCase().replace(/[^A-Z2-9]/g, '');
+    if (code.length !== 4) { input.style.borderColor = 'var(--e)'; return; }
+    input.style.borderColor = '';
+
+    if (typeof Peer === 'undefined') { setStatus('display-status', 'sd-er', 'PeerJS unavailable'); return; }
+
+    setStatus('display-status', 'sd-wait', 'Connecting\u2026');
+
+    const phoneId = codeToId(code);
+    const myCode = shortCode();
+    const myId = codeToId(myCode);
+
+    host = createHandoffClient(
+        phoneId, myId,
+        () => onPhoneConnect(),         // permanent connection open
+        (d) => handlePhoneMessage(d),
+        () => onPhoneDisconnect(),
+        (e) => {
+            const msg = (e && e.type === 'peer-unavailable') ? 'Code not found — check the code on your phone' : 'Connection error';
+            setStatus('display-status', 'sd-er', msg);
+        }
+    );
+};
+
+// Secondary: Display generates its own code (PC-first flow)
+window.displayGenerateCode = function() {
+    if (typeof Peer === 'undefined') { setStatus('display-wait-status', 'sd-er', 'PeerJS unavailable'); return; }
+
+    const code = shortCode();
+    const peerId = codeToId(code);
+
+    document.getElementById('display-code-area').style.display = '';
+    document.getElementById('display-code-area').style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:12px';
+    document.getElementById('display-my-code').textContent = formatCode(code);
+    document.getElementById('gen-code-btn').style.display = 'none';
+
+    // Generate QR code
+    const dir = location.pathname.substring(0, location.pathname.lastIndexOf('/'));
+    const url = `${location.origin}${dir}/tablet.html?id=${peerId}`;
+    const qrEl = document.getElementById('display-qrcode');
+    qrEl.innerHTML = '';
+    if (typeof QRCode !== 'undefined') {
+        new QRCode(qrEl, { text: url, width: 180, height: 180, colorDark: '#000', colorLight: '#fff', correctLevel: QRCode.CorrectLevel.L });
+    }
+
+    setStatus('display-wait-status', 'sd-wait', 'Waiting for phone\u2026');
+
+    host = createHost(
+        (id) => { console.log('[Display] Listening as', id); },
+        () => onPhoneConnect(),
+        (d) => handlePhoneMessage(d),
+        () => onPhoneDisconnect(),
+        peerId
+    );
+};
+
+function setStatus(elId, dotClass, text) {
+    const el = document.getElementById(elId);
+    if (el) el.innerHTML = `<span class="sd ${dotClass}"></span> ${text}`;
+}
+
+// ── Init: check URL params or show welcome ──
+(function initLanding() {
+    const params = new URLSearchParams(location.search);
+    const urlCode = params.get('code');
+    if (urlCode && urlCode.length === 4) {
+        showScreen('scr-pair-display');
+        document.getElementById('display-code-input').value = urlCode.toUpperCase();
+    }
+    // Otherwise #scr-welcome is already active in HTML
+})();
 
 // ═══ Mirror ═══
 window.setMirror = function(val) {
