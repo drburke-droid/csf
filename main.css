@@ -26,6 +26,15 @@ body{background:var(--bg);font-family:var(--f);color:var(--t1);-webkit-font-smoo
 /* Welcome screen */
 #scr-welcome,#scr-role,#scr-pair-remote,#scr-pair-display{background:linear-gradient(170deg,#0c0c10 0%,#080810 50%,#0a0a12 100%);z-index:100;overflow-y:auto}
 #scr-welcome::before,#scr-role::before,#scr-pair-remote::before,#scr-pair-display::before{content:'';position:absolute;top:-40%;left:-20%;width:140%;height:100%;background:radial-gradient(ellipse at 50% 0%,rgba(0,255,204,.04) 0%,transparent 60%);pointer-events:none}
+
+/* Moiré Gabor background */
+.moire-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.moire-layer{position:absolute;inset:-50%;width:200%;height:200%;will-change:transform}
+.moire-layer:first-child{background:repeating-linear-gradient(42deg,transparent,transparent 6px,rgba(255,255,255,.07) 6px,rgba(255,255,255,.07) 7px);animation:moireDrift1 28s linear infinite}
+.moire-layer:nth-child(2){background:repeating-linear-gradient(-38deg,transparent,transparent 8px,rgba(0,255,204,.05) 8px,rgba(0,255,204,.05) 9px);animation:moireDrift2 34s linear infinite}
+.moire-vignette{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,transparent 30%,rgba(10,10,12,.85) 70%,rgba(10,10,12,1) 100%);z-index:1}
+@keyframes moireDrift1{from{transform:translate(0,0) rotate(0deg)}to{transform:translate(-3%,2%) rotate(4deg)}}
+@keyframes moireDrift2{from{transform:translate(0,0) rotate(0deg)}to{transform:translate(2%,-3%) rotate(-5deg)}}
 .landing-brand{font-family:var(--m);font-size:clamp(.55rem,1.2vw,.85rem);letter-spacing:4px;text-transform:uppercase;color:var(--t3);opacity:0;animation:settleUp var(--settle) var(--ez) .1s forwards}
 .landing-title{font-size:clamp(2rem,6vw,4.2rem);font-weight:200;line-height:1.15;letter-spacing:-.02em;opacity:0;animation:settleUp var(--settle) var(--ez) .2s forwards}
 .landing-desc{font-size:clamp(.65rem,1.2vw,.9rem);color:var(--t2);max-width:440px;line-height:1.65;font-weight:300;opacity:0;animation:settleUp var(--settle) var(--ez) .35s forwards}
@@ -99,6 +108,11 @@ body{background:var(--bg);font-family:var(--f);color:var(--t1);-webkit-font-smoo
   .pair-code{font-size:clamp(1.8rem,10vw,3rem)}
   .pair-input-lg{font-size:clamp(1.1rem,6vw,1.8rem);letter-spacing:6px}
   .landing-title{font-size:clamp(1.6rem,8vw,3rem)}
+}
+@media(min-width:1024px){
+  #scr-welcome .landing-stack{max-width:900px}
+  #scr-welcome .landing-title{font-size:clamp(3rem,5vw,5rem)}
+  #scr-welcome .landing-desc{max-width:600px}
 }
 
 /* ═══ Calibration — full screen ═══ */
