@@ -150,28 +150,65 @@ export function drawCSFPlot(canvas, engine, params) {
         ctx.restore();
     });
 
-    // ── Landmark markers + labels ──
+    // ── Landmark markers + labels (with overlap avoidance) ──
+    const labelFont = '500 10px "DM Sans", -apple-system, sans-serif';
+    ctx.font = labelFont;
+    const labelH = 13;
+
+    // Build label rects
+    const labels = [];
     LANDMARKS.forEach(lm => {
         const lx = tX(Math.log10(lm.freq));
         const ly = tY(Math.log10(lm.sens));
         if (lx < pad.left || lx > pad.left + pW || ly < pad.top || ly > pad.top + pH) return;
-        const col = PAIR_COLORS[lm.pair] || '#888';
+        const tw = ctx.measureText(lm.name).width;
+        labels.push({ lm, mx: lx, my: ly, x: lx + 9, y: ly + 4, w: tw, h: labelH });
+    });
+
+    // Nudge overlapping labels apart vertically
+    for (let pass = 0; pass < 8; pass++) {
+        let moved = false;
+        for (let i = 0; i < labels.length; i++) {
+            for (let j = i + 1; j < labels.length; j++) {
+                const a = labels[i], b = labels[j];
+                if (a.x < b.x + b.w && a.x + a.w > b.x &&
+                    a.y - a.h < b.y && a.y > b.y - b.h) {
+                    const push = (a.h - Math.abs(a.y - b.y)) / 2 + 1;
+                    if (a.y <= b.y) { a.y -= push; b.y += push; }
+                    else { a.y += push; b.y -= push; }
+                    moved = true;
+                }
+            }
+        }
+        if (!moved) break;
+    }
+
+    labels.forEach(l => {
+        const col = PAIR_COLORS[l.lm.pair] || '#888';
+        ctx.save();
 
         // Diamond marker
-        ctx.save();
         ctx.fillStyle = col;
         ctx.globalAlpha = 0.6;
         ctx.beginPath();
-        ctx.moveTo(lx, ly - 5); ctx.lineTo(lx + 5, ly);
-        ctx.lineTo(lx, ly + 5); ctx.lineTo(lx - 5, ly);
+        ctx.moveTo(l.mx, l.my - 5); ctx.lineTo(l.mx + 5, l.my);
+        ctx.lineTo(l.mx, l.my + 5); ctx.lineTo(l.mx - 5, l.my);
         ctx.closePath(); ctx.fill();
+
+        // Leader line from marker to nudged label
+        if (Math.abs(l.y - (l.my + 4)) > 2) {
+            ctx.globalAlpha = 0.2;
+            ctx.strokeStyle = col;
+            ctx.lineWidth = 0.75;
+            ctx.beginPath(); ctx.moveTo(l.mx + 6, l.my); ctx.lineTo(l.x - 2, l.y - 3); ctx.stroke();
+        }
 
         // Label
         ctx.globalAlpha = 0.55;
         ctx.fillStyle = col;
-        ctx.font = '500 10px "DM Sans", -apple-system, sans-serif';
+        ctx.font = labelFont;
         ctx.textAlign = 'left';
-        ctx.fillText(lm.name, lx + 9, ly + 4);
+        ctx.fillText(l.lm.name, l.x, l.y);
         ctx.restore();
     });
 
