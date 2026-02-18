@@ -395,6 +395,7 @@ function showPreTest() {
     preTestData = { eye: null, correction: null };
     const ptEl = document.getElementById('pretest');
     ptEl.style.display = 'flex';
+    if (isMirror) ptEl.classList.add('mirror-flip'); else ptEl.classList.remove('mirror-flip');
     // Reset button states
     ptEl.querySelectorAll('.pretest-btn').forEach(b => b.classList.remove('selected'));
     document.getElementById('pt-go').disabled = true;
