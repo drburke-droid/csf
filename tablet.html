@@ -185,12 +185,14 @@ body{background:var(--c);color:var(--t1);font-family:var(--f);-webkit-font-smoot
 <div class="tut-sub" id="tsub">Press the highlighted button</div>
 <div class="tut-grid">
 <div class="tut-row">
-<div class="tut-btn dim" id="tb-upleft" onclick="tutTap('upleft')"><span class="arrow">&#8598;</span><span class="lbl">Left</span></div>
-<div class="tut-btn dim" id="tb-up" onclick="tutTap('up')"><span class="arrow">&#8593;</span><span class="lbl">Vertical</span></div>
-<div class="tut-btn dim" id="tb-upright" onclick="tutTap('upright')"><span class="arrow">&#8599;</span><span class="lbl">Right</span></div>
+<div class="tut-btn dim" id="tb-12oclock" onclick="tutTap('12oclock')"><span class="arrow" style="display:inline-block;width:24px;height:24px;border-left:3px solid currentColor;transform:rotate(0deg)"></span><span class="lbl">12</span></div>
+<div class="tut-btn dim" id="tb-1oclock" onclick="tutTap('1oclock')"><span class="arrow" style="display:inline-block;width:24px;height:24px;border-left:3px solid currentColor;transform:rotate(30deg)"></span><span class="lbl">1</span></div>
+<div class="tut-btn dim" id="tb-2oclock" onclick="tutTap('2oclock')"><span class="arrow" style="display:inline-block;width:24px;height:24px;border-left:3px solid currentColor;transform:rotate(60deg)"></span><span class="lbl">2</span></div>
 </div>
 <div class="tut-row">
-<div class="tut-btn dim" id="tb-right" onclick="tutTap('right')" style="max-width:45%;margin:0 auto"><span class="arrow">&#8594;</span><span class="lbl">Horiz</span></div>
+<div class="tut-btn dim" id="tb-3oclock" onclick="tutTap('3oclock')"><span class="arrow" style="display:inline-block;width:24px;height:24px;border-left:3px solid currentColor;transform:rotate(90deg)"></span><span class="lbl">3</span></div>
+<div class="tut-btn dim" id="tb-4oclock" onclick="tutTap('4oclock')"><span class="arrow" style="display:inline-block;width:24px;height:24px;border-left:3px solid currentColor;transform:rotate(120deg)"></span><span class="lbl">4</span></div>
+<div class="tut-btn dim" id="tb-5oclock" onclick="tutTap('5oclock')"><span class="arrow" style="display:inline-block;width:24px;height:24px;border-left:3px solid currentColor;transform:rotate(150deg)"></span><span class="lbl">5</span></div>
 </div>
 <div class="tut-no dim" id="tb-none" onclick="tutTap('none')">No Target</div>
 </div>
@@ -227,12 +229,14 @@ body{background:var(--c);color:var(--t1);font-family:var(--f);-webkit-font-smoot
 <div class="test-resp">
 <div class="ori-pad">
 <div class="ori-row">
-<button class="ori-btn" onclick="send('upleft')">&#8598;<span class="ori-lbl">Left</span></button>
-<button class="ori-btn" onclick="send('up')">&#8593;<span class="ori-lbl">Vertical</span></button>
-<button class="ori-btn" onclick="send('upright')">&#8599;<span class="ori-lbl">Right</span></button>
+<button class="ori-btn" onclick="send('12oclock')"><span style="display:inline-block;width:28px;height:28px;border-left:3px solid currentColor;transform:rotate(0deg)"></span><span class="ori-lbl">12</span></button>
+<button class="ori-btn" onclick="send('1oclock')"><span style="display:inline-block;width:28px;height:28px;border-left:3px solid currentColor;transform:rotate(30deg)"></span><span class="ori-lbl">1</span></button>
+<button class="ori-btn" onclick="send('2oclock')"><span style="display:inline-block;width:28px;height:28px;border-left:3px solid currentColor;transform:rotate(60deg)"></span><span class="ori-lbl">2</span></button>
 </div>
 <div class="ori-row">
-<button class="ori-btn" onclick="send('right')" style="max-width:45%;margin:0 auto">&#8594;<span class="ori-lbl">Horiz</span></button>
+<button class="ori-btn" onclick="send('3oclock')"><span style="display:inline-block;width:28px;height:28px;border-left:3px solid currentColor;transform:rotate(90deg)"></span><span class="ori-lbl">3</span></button>
+<button class="ori-btn" onclick="send('4oclock')"><span style="display:inline-block;width:28px;height:28px;border-left:3px solid currentColor;transform:rotate(120deg)"></span><span class="ori-lbl">4</span></button>
+<button class="ori-btn" onclick="send('5oclock')"><span style="display:inline-block;width:28px;height:28px;border-left:3px solid currentColor;transform:rotate(150deg)"></span><span class="ori-lbl">5</span></button>
 </div>
 <button class="no-btn" onclick="send('none')">No Target Visible</button>
 </div></div>
@@ -450,13 +454,13 @@ function renderTutStep(d){
     document.getElementById('ttl').textContent='Demo '+(d.stepIdx+1)+' of '+d.total;
     document.getElementById('tsub').textContent=d.stepIdx<d.total-1?'Press '+d.arrow+' '+d.name:'Complete this step to begin';
 
-    var allIds=['tb-upleft','tb-up','tb-upright','tb-right','tb-none'];
+    var allIds=['tb-12oclock','tb-1oclock','tb-2oclock','tb-3oclock','tb-4oclock','tb-5oclock','tb-none'];
     allIds.forEach(function(id){
         var el=document.getElementById(id);
         el.classList.remove('hl');
         el.classList.add('dim');
     });
-    var map={upleft:'tb-upleft',up:'tb-up',upright:'tb-upright',right:'tb-right',none:'tb-none'};
+    var map={'12oclock':'tb-12oclock','1oclock':'tb-1oclock','2oclock':'tb-2oclock','3oclock':'tb-3oclock','4oclock':'tb-4oclock','5oclock':'tb-5oclock',none:'tb-none'};
     var t=document.getElementById(map[d.key]);
     if(t){t.classList.remove('dim');t.classList.add('hl')}
 

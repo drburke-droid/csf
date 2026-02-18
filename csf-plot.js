@@ -299,15 +299,24 @@ export function drawCSFPlot(canvas, engine, params) {
     }
     ctx.restore();
 
-    // ── Trial markers ──
+    // ── Trial markers (graded coloring by angular distance) ──
     for (const trial of engine.history) {
         const s = engine.stimGrid[trial.stimIndex];
         const x = tX(Math.log10(s.freq));
         const y = tY(-s.logContrast);
         if (y < pad.top || y > pad.top + pH) continue;
+        const d = trial.angularDistance;
+        let radius, color;
+        if (d === 0) {
+            radius = 4; color = 'rgba(0,255,150,0.55)';      // correct — green
+        } else if (d === 1) {
+            radius = 3.5; color = 'rgba(180,255,80,0.45)';    // close — yellow-green
+        } else {
+            radius = 3; color = 'rgba(255,80,80,0.45)';       // far/none — red
+        }
         ctx.beginPath();
-        ctx.arc(x, y, trial.correct ? 4 : 3, 0, Math.PI * 2);
-        ctx.fillStyle = trial.correct ? 'rgba(0,255,150,0.5)' : 'rgba(255,80,80,0.45)';
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fillStyle = color;
         ctx.fill();
     }
 

@@ -56,8 +56,13 @@ const FREQ_BANDS = [
 
 const LOG4 = Math.log10(4); // ~4 cpd center for clinical importance
 
+// Graded response model constants (7-AFC: 6 orientations + "no target")
+const GRADED_KERNEL = [0.70, 0.10, 0.04, 0.02]; // K(d) for d=0,1,2,3 steps
+const GRADED_GUESS_RATE = 0.10;  // g: probability of guessing an orientation when blind
+const GRADED_LAPSE = 0.02;       // λ: lapse rate
+
 const DEFAULTS = {
-    numAFC:             5,      // 4 orientations + optional "no target" response
+    numAFC:             7,      // 6 orientations + "no target" = 7-AFC
     lapse:              0.04,
     falseAlarmRate:     0.01,   // unused in AFC mode
     psychometricSlope:  3.5,
@@ -69,6 +74,8 @@ const DEFAULTS = {
     stimLogContrasts:   linspace(-3.0, 0.0, 30),
     robustLikelihoodMix: 0.03,
     boundarySigmaLogC:  0.2,
+    priorMeans: { peakGain: 1.8, logPeakFreq: 0.602, bandwidth: 1.3, truncation: 1.8 },
+    priorSDs:   { peakGain: 0.5, logPeakFreq: 0.3, bandwidth: 0.3, truncation: 0.5 },
 };
 
 export class QCSFEngine {
@@ -101,8 +108,21 @@ export class QCSFEngine {
                 this.stimGrid.push({ freq, logContrast: logC });
         this.nStim = this.stimGrid.length;
 
-        // Uniform prior
-        this.prior = new Float64Array(this.nParams).fill(1 / this.nParams);
+        // Gaussian-weighted prior
+        const pm = cfg.priorMeans, ps = cfg.priorSDs;
+        this.prior = new Float64Array(this.nParams);
+        let priorSum = 0;
+        for (let h = 0; h < this.nParams; h++) {
+            const p = this.paramGrid[h];
+            const zG = (p.g - pm.peakGain) / ps.peakGain;
+            const zF = (Math.log10(p.f) - pm.logPeakFreq) / ps.logPeakFreq;
+            const zB = (p.b - pm.bandwidth) / ps.bandwidth;
+            const zD = (p.d - pm.truncation) / ps.truncation;
+            const w = Math.exp(-0.5 * (zG*zG + zF*zF + zB*zB + zD*zD));
+            this.prior[h] = w;
+            priorSum += w;
+        }
+        for (let h = 0; h < this.nParams; h++) this.prior[h] /= priorSum;
 
         this._precompute();
         this.trialCount = 0;
@@ -111,14 +131,11 @@ export class QCSFEngine {
     }
 
     /**
-     * For Yes/No: p("yes" | hypothesis, stimulus)
-     *   = gamma + (1 - gamma - lapse) * psi(x)
-     * where gamma = falseAlarmRate (≈0.01) and psi is logistic.
-     *
-     * For nAFC: same formula with gamma = 1/n.
+     * Precompute raw detection probability psi(c,f) for each hypothesis × stimulus.
+     * The graded response model wraps psi with kernel/lapse/guess in selectStimulus/update.
      */
     _precompute() {
-        this.pCorrectMatrix = [];
+        this.psiMatrix = [];
         for (let h = 0; h < this.nParams; h++) {
             const p   = this.paramGrid[h];
             const row = new Float64Array(this.nStim);
@@ -127,10 +144,9 @@ export class QCSFEngine {
                 const logSens = logParabolaCSF(stim.freq, p.g, p.f, p.b, p.d);
                 const x   = logSens - (-stim.logContrast);
                 const psi = 1 / (1 + Math.exp(-this.slopeParam * x));
-                const pC  = this.gamma + (1 - this.gamma - this.lapse) * psi;
-                row[s] = Math.max(0.001, Math.min(0.999, pC));
+                row[s] = Math.max(0.001, Math.min(0.999, psi));
             }
-            this.pCorrectMatrix.push(row);
+            this.psiMatrix.push(row);
         }
     }
 
@@ -139,29 +155,62 @@ export class QCSFEngine {
         const ee = new Float64Array(this.nStim);
         const bandCounts = this._getBandCounts();
 
+        // Graded model constants (inlined for hot-loop performance)
+        const K = GRADED_KERNEL;          // [0.70, 0.10, 0.04, 0.02]
+        const lam = GRADED_LAPSE;         // 0.02
+        const g = GRADED_GUESS_RATE;      // 0.10
+        const g6 = g / 6;                 // guess prob per orientation when blind
+        const oneMinusG = 1 - g;          // prob of "none" when blind
+        // Multiplicity: d=0→×1, d=1→×2, d=2→×2, d=3→×1 = 6 orientations total
+        // 5 outcomes: d=0, d=1, d=2, d=3, none (averaged over random true orientation)
+        // Outcome counts: [1, 2, 2, 1] orientations at each distance, plus 1 "none"
+
         for (let s = 0; s < this.nStim; s++) {
-            let pCorr = 0;
-            for (let h = 0; h < this.nParams; h++) {
-                pCorr += this.pCorrectMatrix[h][s] * this.prior[h];
-            }
-            const pInc = 1 - pCorr;
-            let hC = 0, hI = 0;
+            // Compute marginal outcome probabilities (averaged over hypotheses)
+            let mP0 = 0, mP1 = 0, mP2 = 0, mP3 = 0, mPN = 0;
             for (let h = 0; h < this.nParams; h++) {
                 const ph = this.prior[h];
                 if (ph < 1e-30) continue;
-                const pCH = this.pCorrectMatrix[h][s];
-                if (pCorr > 1e-30) {
-                    const n = (ph * pCH) / pCorr;
-                    if (n > 1e-30) hC -= n * Math.log2(n);
+                const psi = this.psiMatrix[h][s];
+                const det = psi * (1 - lam);
+                // P(orient at dist d) = det*K[d] + (1-psi)*g/6
+                // P("none") = psi*lam + (1-psi)*(1-g)
+                const blind = 1 - psi;
+                mP0 += ph * (det * K[0] + blind * g6);
+                mP1 += ph * (det * K[1] + blind * g6);
+                mP2 += ph * (det * K[2] + blind * g6);
+                mP3 += ph * (det * K[3] + blind * g6);
+                mPN += ph * (psi * lam + blind * oneMinusG);
+            }
+
+            // 5-outcome expected posterior entropy
+            // For each outcome o, H_o = -Σ_h p(h|o) log2 p(h|o)
+            // E[H] = Σ_o mult[o] * P(o) * H_o
+            // mult: d0=1, d1=2, d2=2, d3=1, none=1
+            let baseEntropy = 0;
+            const marginals = [mP0, mP1, mP2, mP3, mPN];
+            const mults = [1, 2, 2, 1, 1];
+
+            for (let o = 0; o < 5; o++) {
+                const marg = marginals[o] * mults[o];
+                if (marg < 1e-30) continue;
+                let hO = 0;
+                for (let h = 0; h < this.nParams; h++) {
+                    const ph = this.prior[h];
+                    if (ph < 1e-30) continue;
+                    const psi = this.psiMatrix[h][s];
+                    const det = psi * (1 - lam);
+                    const blind = 1 - psi;
+                    let pOH;
+                    if (o < 4) pOH = det * K[o] + blind * g6;
+                    else       pOH = psi * lam + blind * oneMinusG;
+                    const posterior = (ph * pOH) / (marginals[o]);
+                    if (posterior > 1e-30) hO -= posterior * Math.log2(posterior);
                 }
-                if (pInc > 1e-30) {
-                    const n = (ph * (1 - pCH)) / pInc;
-                    if (n > 1e-30) hI -= n * Math.log2(n);
-                }
+                baseEntropy += marg * hO;
             }
 
             const stim = this.stimGrid[s];
-            const baseEntropy = pCorr * hC + pInc * hI;
 
             // Boundary weight: prefer stimuli near posterior-predicted threshold
             const predictedBoundaryLogC = -this.evaluateCSF(stim.freq, pHat);
@@ -180,8 +229,7 @@ export class QCSFEngine {
             const band = this._getBand(stim.freq);
             const coverageBoost = (band && bandCounts.get(band) < band.minTrials) ? 3.0 : 1.0;
 
-            // CORRECTED utility: lower ee = more preferred
-            // Divide by desirable weights (lower ee), multiply by penalties (raise ee)
+            // Lower ee = more preferred
             ee[s] = baseEntropy * diversityPenalty / ((1 + boundaryWeight) * freqWeight * coverageBoost);
         }
 
@@ -200,15 +248,31 @@ export class QCSFEngine {
     }
 
     /**
-     * @param {number}  stimIndex
-     * @param {boolean} detected – true = "I see it" or correct AFC, false = "I don't see it" or incorrect
+     * @param {number} stimIndex
+     * @param {number} angularDistance – 0-3 (orientation steps from true) or -1 for "none"
      */
-    update(stimIndex, detected) {
+    update(stimIndex, angularDistance) {
+        const K = GRADED_KERNEL;
+        const lam = GRADED_LAPSE;
+        const g = GRADED_GUESS_RATE;
+        const g6 = g / 6;
+        const oneMinusG = 1 - g;
+        const mix = this.robustLikelihoodMix;
+        const uniformP = 1 / 7;  // robust mixing: uniform over 7 outcomes
+
         let total = 0;
         for (let h = 0; h < this.nParams; h++) {
-            const pCH = this.pCorrectMatrix[h][stimIndex];
-            const pObsRaw = detected ? pCH : (1 - pCH);
-            const pObs = (1 - this.robustLikelihoodMix) * pObsRaw + this.robustLikelihoodMix * 0.5;
+            const psi = this.psiMatrix[h][stimIndex];
+            const det = psi * (1 - lam);
+            const blind = 1 - psi;
+            let pObsRaw;
+            if (angularDistance >= 0 && angularDistance <= 3) {
+                pObsRaw = det * K[angularDistance] + blind * g6;
+            } else {
+                // "none" response
+                pObsRaw = psi * lam + blind * oneMinusG;
+            }
+            const pObs = (1 - mix) * pObsRaw + mix * uniformP;
             this.prior[h] *= pObs;
             total += this.prior[h];
         }
@@ -219,7 +283,7 @@ export class QCSFEngine {
         const freq = this.stimGrid[stimIndex].freq;
         this.freqTrialCounts.set(freq, (this.freqTrialCounts.get(freq) || 0) + 1);
         this.trialCount++;
-        this.history.push({ trial: this.trialCount, stimIndex, correct: detected });
+        this.history.push({ trial: this.trialCount, stimIndex, angularDistance });
     }
 
     getEstimate() {

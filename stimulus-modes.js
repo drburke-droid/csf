@@ -12,7 +12,7 @@ import { drawFilteredLetter }                      from './letter-renderer.js';
 
 const CENTER_FREQ = 4;
 const BANDWIDTH   = 1;
-const ORIENTATIONS_4 = [0, 45, 90, 135];
+const ORIENTATIONS_6 = [0, 30, 60, 90, 120, 150];
 
 export function createMode(mode) {
     switch (mode) {
@@ -24,27 +24,27 @@ export function createMode(mode) {
     }
 }
 
-// // ─── Gabor 4-AFC + "No Target" (DEFAULT) ─────────────────────────────────
-// Stimulus is ALWAYS present with one of 4 orientations.
-// "No target" is intentionally allowed as a high-value below-threshold response.
-// Bayesian model treats this as incorrect evidence (numAFC = 5 guess rate).
+// // ─── Gabor 6-AFC + "No Target" (DEFAULT) ─────────────────────────────────
+// Stimulus is ALWAYS present with one of 6 orientations (30° steps, Gabor symmetry).
+// "No target" is allowed as a high-value below-threshold response.
+// Graded response model: checkAnswer returns angular distance (0-3) or -1 for "none".
 
 function createGaborYesNoMode() {
     let currentAngle = 0;
 
     return {
         id: 'gabor',
-        name: 'Gabor 4-AFC + No Target',
-        numAFC: 5,
+        name: 'Gabor 6-AFC + No Target',
+        numAFC: 7,
         psychometricSlope: 3.5,
-        labels: ['↑', '↗', '→', '↖', 'Ø'],
-        keys:   ['up', 'upright', 'right', 'upleft', 'none'],
+        labels: ['12', '1', '2', '3', '4', '5', 'Ø'],
+        keys:   ['12oclock', '1oclock', '2oclock', '3oclock', '4oclock', '5oclock', 'none'],
         responseType: 'orientation',
 
         generate() { /* No templates */ },
 
         render(canvas, stim, cal) {
-            currentAngle = ORIENTATIONS_4[Math.floor(Math.random() * 4)];
+            currentAngle = ORIENTATIONS_6[Math.floor(Math.random() * 6)];
             drawGabor(canvas, {
                 cpd: stim.frequency,
                 contrast: stim.contrast,
@@ -54,9 +54,17 @@ function createGaborYesNoMode() {
         },
 
         checkAnswer(response) {
-            const map = { up: 0, right: 90, upright: 45, upleft: 135 };
-            if (response === 'none') return false;
-            return map[response] === currentAngle;
+            if (response === 'none') return -1;
+            const map = {
+                '12oclock': 0, '1oclock': 30, '2oclock': 60,
+                '3oclock': 90, '4oclock': 120, '5oclock': 150
+            };
+            const respAngle = map[response];
+            if (respAngle === undefined) return -1;
+            const diff = Math.abs(currentAngle - respAngle);
+            // Gabor symmetry: 0°=180°, so max distance is 90° (3 steps)
+            const angDist = Math.min(diff, 180 - diff);
+            return Math.round(angDist / 30); // 0, 1, 2, or 3 steps
         }
     };
 }
@@ -64,6 +72,7 @@ function createGaborYesNoMode() {
 // ─── Gabor 4-AFC (hidden) ────────────────────────────────────────────────
 
 function createGabor4AFCMode() {
+    const LEGACY_ORIENTATIONS = [0, 45, 90, 135];
     const ANGLE_MAP = { 0:'up', 90:'right', 45:'upright', 135:'upleft' };
     let currentAngle = 0;
     return {
@@ -72,7 +81,7 @@ function createGabor4AFCMode() {
         responseType: 'orientation',
         generate() {},
         render(canvas, stim, cal) {
-            currentAngle = ORIENTATIONS_4[Math.floor(Math.random() * 4)];
+            currentAngle = LEGACY_ORIENTATIONS[Math.floor(Math.random() * 4)];
             drawGabor(canvas, { cpd: stim.frequency, contrast: stim.contrast, angle: currentAngle }, cal);
             return currentAngle;
         },

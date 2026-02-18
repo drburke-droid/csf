@@ -351,11 +351,13 @@ window.calValidate = function() {
 
 // ═══ Tutorial ═══
 const TUT = [
-    { angle: 0,   key: 'up',      arrow: '\u2191', name: 'Vertical' },
-    { angle: 90,  key: 'right',   arrow: '\u2192', name: 'Horizontal' },
-    { angle: 45,  key: 'upright', arrow: '\u2197', name: 'Right Tilt' },
-    { angle: 135, key: 'upleft',  arrow: '\u2196', name: 'Left Tilt' },
-    { angle: -1,  key: 'none',    arrow: 'Ø',       name: 'No Target' } 
+    { angle: 0,   key: '12oclock', arrow: '12', name: '12 o\'clock' },
+    { angle: 30,  key: '1oclock',  arrow: '1',  name: '1 o\'clock' },
+    { angle: 60,  key: '2oclock',  arrow: '2',  name: '2 o\'clock' },
+    { angle: 90,  key: '3oclock',  arrow: '3',  name: '3 o\'clock' },
+    { angle: 120, key: '4oclock',  arrow: '4',  name: '4 o\'clock' },
+    { angle: 150, key: '5oclock',  arrow: '5',  name: '5 o\'clock' },
+    { angle: -1,  key: 'none',     arrow: '\u00D8', name: 'No Target' }
 ];
 let tutStep = 0;
 
@@ -556,8 +558,8 @@ function handleInput(value) {
     if (now - lastInputTime < DEBOUNCE_MS) return;
     lastInputTime = now;
 
-    const correct = mode.checkAnswer(value);
-    try { engine.update(currentStim.stimIndex, correct); } catch (e) { finish(); return; }
+    const angularDistance = mode.checkAnswer(value);
+    try { engine.update(currentStim.stimIndex, angularDistance); } catch (e) { finish(); return; }
     updateProgress(engine.trialCount);
     tx({ type: 'progress', trial: engine.trialCount, maxTrials: MAX_TRIALS });
     if (engine.trialCount >= MAX_TRIALS) { finish(); return; }
@@ -567,12 +569,14 @@ window.handleInput = handleInput;
 
 document.addEventListener('keydown', e => {
     if (testComplete) return;
-    const k = e.key.toLowerCase();
-    if (k === 'arrowup' || k === 'w') handleInput('up');
-    else if (k === 'arrowright' || k === 'd') handleInput('right');
-    else if (k === 'e') handleInput('upright');
-    else if (k === 'q') handleInput('upleft');
-    else if (k === 'x' || k === 'n' || k === ' ') handleInput('none');
+    const k = e.key;
+    if (k === '1') handleInput('12oclock');
+    else if (k === '2') handleInput('1oclock');
+    else if (k === '3') handleInput('2oclock');
+    else if (k === '4') handleInput('3oclock');
+    else if (k === '5') handleInput('4oclock');
+    else if (k === '6') handleInput('5oclock');
+    else if (k === '0' || k === ' ') handleInput('none');
 });
 
 function nextTrial() {
