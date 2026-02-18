@@ -25,7 +25,7 @@ body{background:var(--bg);font-family:var(--f);color:var(--t1);-webkit-font-smoo
 
 /* Welcome screen */
 #scr-welcome,#scr-role,#scr-pair-remote,#scr-pair-display{background:linear-gradient(170deg,#0c0c10 0%,#080810 50%,#0a0a12 100%);z-index:100;overflow-y:auto}
-#scr-welcome::before,#scr-role::before,#scr-pair-remote::before,#scr-pair-display::before{content:'';position:absolute;top:-40%;left:-20%;width:140%;height:100%;background:radial-gradient(ellipse at 50% 0%,rgba(0,255,204,.04) 0%,transparent 60%);pointer-events:none}
+#scr-welcome::before,#scr-role::before,#scr-pair-remote::before,#scr-pair-display::before,#scr-cal::before{content:'';position:absolute;top:-40%;left:-20%;width:140%;height:100%;background:radial-gradient(ellipse at 50% 0%,rgba(0,255,204,.04) 0%,transparent 60%);pointer-events:none}
 
 /* Moiré Gabor background */
 .moire-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
@@ -119,8 +119,8 @@ body{background:var(--bg);font-family:var(--f);color:var(--t1);-webkit-font-smoo
 }
 
 /* ═══ Calibration — full screen ═══ */
-#scr-cal{background:var(--chrome);z-index:50}
-.cal-box{padding:clamp(1.2rem,3vw,2.5rem) clamp(2rem,5vw,5rem);text-align:center;width:100%;height:100%;display:flex;flex-direction:column;background:var(--chrome);border:none;border-radius:0;box-shadow:none;backdrop-filter:none;position:relative;overflow:hidden}
+#scr-cal{background:linear-gradient(170deg,#0c0c10 0%,#080810 50%,#0a0a12 100%);z-index:50}
+.cal-box{padding:clamp(1.2rem,3vw,2.5rem) clamp(2rem,5vw,5rem);text-align:center;width:100%;height:100%;display:flex;flex-direction:column;background:transparent;border:none;border-radius:0;box-shadow:none;backdrop-filter:none;position:relative;z-index:1;overflow:hidden}
 
 /* Calibration step crossfade */
 .cal-step{position:absolute;inset:0;top:40px;bottom:0;display:flex;flex-direction:column;padding:inherit;text-align:center;opacity:0;visibility:hidden;transform:translateY(10px);transition:opacity .35s var(--ez-out),visibility 0s .35s,transform .45s var(--ez);pointer-events:none}
