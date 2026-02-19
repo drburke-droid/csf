@@ -96,7 +96,10 @@ body.mode-demo .demo-banner{display:flex}
 /* ─── Embed mode ─── */
 body.embed{padding:10px 10px 20px;min-height:0;background:#0a0a0c}
 body.embed .page{max-width:100%;gap:clamp(10px,2vh,18px)}
-body.embed .header{display:none}
+body.embed.mode-demo .header{display:none}
+body.embed .header{animation:none;opacity:1;gap:4px}
+body.embed .title{font-size:clamp(1.1rem,3vw,1.6rem)}
+body.embed .subtitle{font-size:clamp(.6rem,1vw,.75rem);max-width:480px}
 body.embed .formula-bar{padding:6px 14px;font-size:.72rem}
 body.embed .demo-banner{padding:10px 16px}
 body.embed .demo-banner-text{font-size:.75rem}
