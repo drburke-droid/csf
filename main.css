@@ -78,7 +78,9 @@ body{background:var(--chrome);font-family:var(--f);color:var(--t1);-webkit-font-
 .pair-context-title{font-size:clamp(1.2rem,3.5vw,2.2rem);font-weight:200;color:var(--t1)}
 .pair-context-desc{font-size:clamp(.6rem,1.1vw,.85rem);color:var(--t2);max-width:420px;line-height:1.5;font-weight:300}
 #scr-pair-display,#scr-pair-remote{justify-content:flex-start}
-#scr-pair-display .landing-stack,#scr-pair-remote .landing-stack{padding-top:clamp(20px,4vh,48px);gap:clamp(10px,2vh,20px)}
+#scr-pair-display .landing-stack{padding-top:clamp(20px,4vh,48px);gap:clamp(10px,2vh,20px);max-width:960px}
+#scr-pair-remote .landing-stack{padding-top:clamp(20px,4vh,48px);gap:clamp(10px,2vh,20px)}
+.pair-columns{display:flex;flex-direction:column;align-items:center;width:100%;gap:0}
 .pair-code-entry{margin-top:clamp(8px,2vh,20px)}
 .pair-section{width:100%;display:flex;flex-direction:column;align-items:center;gap:12px}
 .pair-secondary{opacity:1}
@@ -120,6 +122,16 @@ body{background:var(--chrome);font-family:var(--f);color:var(--t1);-webkit-font-
   .pair-code{font-size:clamp(1.8rem,10vw,3rem);letter-spacing:clamp(6px,1.5vw,10px)}
   .pair-input-lg{font-size:clamp(1.1rem,6vw,1.8rem);letter-spacing:6px}
   .landing-title{font-size:clamp(1.6rem,8vw,3rem)}
+}
+@media(min-width:768px){
+  .pair-columns{flex-direction:row;align-items:stretch;gap:0}
+  .pair-columns .pair-section{flex:1;min-width:0}
+  .pair-columns .pair-code-entry{margin-top:0}
+  .pair-columns .pair-divider{width:auto;max-width:none;flex-direction:column;padding:0 clamp(16px,3vw,32px);margin:0}
+  .pair-columns .pair-divider::before,.pair-columns .pair-divider::after{width:1px;height:100%;flex:1}
+  .pair-columns .pair-code{font-size:clamp(1.8rem,4vw,3rem);letter-spacing:clamp(4px,1vw,10px)}
+  .pair-columns .code-box{width:clamp(44px,7vw,64px);height:clamp(52px,9vw,76px);font-size:clamp(1.4rem,3vw,2.2rem)}
+  .pair-columns .pair-instruction{max-width:320px}
 }
 @media(min-width:1024px){
   #scr-welcome .landing-stack{max-width:900px}
@@ -247,8 +259,10 @@ canvas#stimCanvas{width:560px;height:560px;background:var(--bg);border-radius:12
 .csf-formula-copy{padding:clamp(8px,1.5vw,12px) clamp(20px,3vw,32px);border-radius:100px;border:1px solid var(--b);background:transparent;color:var(--t3);font-family:var(--f);font-size:clamp(.65rem,1vw,.85rem);cursor:pointer;letter-spacing:.5px;transition:all .3s var(--ez),transform .15s var(--ez-spring)}
 .csf-formula-copy:hover{border-color:var(--a);color:var(--a);box-shadow:0 0 20px var(--ag)}
 .csf-formula-copy:active{transform:scale(.96)}
-.csf-formula-cta{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:4px}
-.csf-formula-cta-text{font-size:clamp(.6rem,1vw,.8rem);color:var(--t3);line-height:1.6;max-width:480px}
-.csf-formula-explore{display:inline-block;padding:clamp(10px,2vw,14px) clamp(24px,4vw,40px);border-radius:100px;border:1px solid rgba(0,255,204,.25);background:var(--as);color:var(--a);font-family:var(--f);font-size:clamp(.7rem,1.1vw,.9rem);font-weight:500;text-decoration:none;letter-spacing:.5px;transition:all .3s var(--ez),transform .15s var(--ez-spring)}
-.csf-formula-explore:hover{background:rgba(0,255,204,.12);box-shadow:0 0 24px var(--ag)}
+.explorer-cta-divider{width:60px;height:1px;background:var(--b2);margin:6px 0}
+.explorer-cta-heading{font-family:var(--f);font-size:clamp(1rem,2vw,1.4rem);font-weight:500;color:var(--t1);letter-spacing:-.01em}
+.explorer-cta-body{font-size:clamp(.7rem,1.1vw,.88rem);color:var(--t2);line-height:1.65;max-width:560px;font-weight:300}
+.explorer-cta-note{font-family:var(--m);font-size:clamp(.6rem,.9vw,.75rem);color:var(--a);opacity:.7;letter-spacing:.5px}
+.csf-formula-explore{display:inline-block;padding:clamp(12px,2.2vw,16px) clamp(28px,5vw,48px);border-radius:100px;border:2px solid rgba(0,255,204,.35);background:rgba(0,255,204,.08);color:var(--a);font-family:var(--f);font-size:clamp(.78rem,1.2vw,.95rem);font-weight:600;text-decoration:none;letter-spacing:.5px;transition:all .3s var(--ez),transform .15s var(--ez-spring)}
+.csf-formula-explore:hover{background:rgba(0,255,204,.16);border-color:var(--a);box-shadow:0 0 30px var(--ag)}
 .csf-formula-explore:active{transform:scale(.96)}

@@ -1,79 +1,16 @@
 import { MAX_HUMAN_CUTOFF_CPD } from './qcsf-engine.js';
 
 /**
- * Burke Vision Lab — CSF Plot (v7 — AAA Quality)
+ * Burke Vision Lab — CSF Plot (v8 — Clean)
  *
- * Accurate real-world landmark pairs + predicted Snellen acuity.
- *
- * LANDMARK CALCULATIONS (all long-distance scenarios):
- *
- * 1. Vehicle (whole car) at 400 m — body width ~1.8 m
- *    Angle = atan(1.8/400) = 0.258 deg → cpd = 0.5/0.258 = ~2 cpd
- *    CLEAR DAY: dark car on light road, Michelson ~0.50 → sens ~2
- *    FOG (visibility ~500 m, Koschmieder): contrast × exp(-3×400/500) ≈ 0.05 → sens ~20
- *
- * 2. Pedestrian at 100 m — limb feature ~15 cm
- *    Feature angle = atan(0.15/100) = 0.086 deg → cpd = 0.5/0.086 = ~6 cpd
- *    DAYLIGHT: dark clothing on light pavement, Michelson ~0.50 → sens ~2
- *    DUSK/RAIN: dark on dark road, Michelson ~0.03 → sens ~33
- *    (Sullivan & Flannagan 2002; Tyrrell et al. 2004)
- *
- * 3. Highway Exit Sign — FHWA Series E(Modified) 16" uppercase
- *    Reading at 250 ft (76 m): letter angle = atan(0.406/76) = 0.306 deg
- *    Critical SF for letter ID = 3 cycles/letter / 0.306 = ~10 cpd
- *    (Solomon & Pelli 1994, Nature 369: ~3 cycles/letter for identification)
- *    DAY: White on retroreflective green, Michelson ~0.85 → sens ~2
- *    NIGHT (worn sheeting + rain): contrast ~0.03 → sens ~33
- *    (FHWA-HRT-07-040; Carlson & Hawkins 2003)
- *
- * 4. Golf Ball at 150 yd (137 m) — diam 42.67 mm (USGA minimum)
- *    Grating-equivalent: atan(0.04267/137.16) = 0.0178 deg → 0.5/0.0178 = 28 cpd
- *    BUT detection ≠ resolution. The ball is a broadband target — its Fourier
- *    energy is nearly flat up to ~56 cpd. The visual system detects it through
- *    peak-sensitivity channels, not at the grating-equivalent frequency.
- *    Retinal image (convolved with eye's PSF): σ ≈ 0.011 deg → spectral
- *    energy 1/e at ~15 cpd. Optimal detection channel (max of CSF × target
- *    energy) ≈ 8 cpd — near the CSF peak where sensitivity is highest.
- *    This is why bright isolated objects are visible far beyond the resolution
- *    limit: detection acuity >> resolution acuity.
- *    EFFECTIVE DETECTION FREQ: ~8 cpd
- *    ON GRASS: white on green, Michelson ~0.50 → sens ~2
- *    CLOUDY SKY: white vs overcast grey, Michelson ~0.10 → sens ~10
- *
- * 5. License Plate at 35 m (115 ft, ~7 car lengths) — characters 70 mm tall
- *    Letter angle = atan(0.070/35) = 0.115 deg → cpd = 3/0.115 = ~26 cpd
- *    (AASHTO standard: 70 mm character height)
- *    This IS an identification task (reading characters), so 3 cycles/letter
- *    from Solomon & Pelli applies directly — no detection correction needed.
- *    DAY: dark on white/light plate, Michelson ~0.88 → sens ~2
- *    NIGHT/RAIN: glare + wet + dirty plate, Michelson ~0.04 → sens ~25
+ * Displays the fitted CSF curve, trial markers, and predicted Snellen acuity.
+ * Real-world object analysis is handled separately by CSF Explorer.
  *
  * SNELLEN ACUITY:
  *    20/20 letter = 5 arcmin, stroke = 1 arcmin → critical SF ~30 cpd
  *    Acuity cutoff = frequency where CSF crosses sensitivity = 1
  *    Predicted Snellen = 20 / (20 * 30 / cutoff_cpd)
  */
-
-const LANDMARKS = [
-    { name: 'Car (clear)',           freq: 2,  sens: 2,    pair: 'car'   },
-    { name: 'Car (fog)',             freq: 2,  sens: 20,   pair: 'car'   },
-    { name: 'Pedestrian (day)',      freq: 6,  sens: 2,    pair: 'ped'   },
-    { name: 'Pedestrian (dusk)',     freq: 6,  sens: 33,   pair: 'ped'   },
-    { name: 'Exit sign (day)',       freq: 10, sens: 2,    pair: 'sign'  },
-    { name: 'Exit sign (night)',     freq: 10, sens: 33,   pair: 'sign'  },
-    { name: 'Golf ball on grass',    freq: 8,  sens: 2,    pair: 'golf'  },
-    { name: 'Golf ball, cloudy sky', freq: 8,  sens: 10,   pair: 'golf'  },
-    { name: 'Plate (day)',           freq: 26, sens: 2,    pair: 'plate' },
-    { name: 'Plate (night)',         freq: 26, sens: 25,   pair: 'plate' },
-];
-
-const PAIR_COLORS = {
-    car:   '#A78BFA',
-    ped:   '#FF6B6B',
-    sign:  '#5B9CF5',
-    plate: '#F59E0B',
-    golf:  '#F5A623',
-};
 
 export function drawCSFPlot(canvas, engine, params) {
     const dpr = window.devicePixelRatio || 1;
@@ -131,85 +68,6 @@ export function drawCSFPlot(canvas, engine, params) {
         if (y < pad.top || y > pad.top + pH) return;
         ctx.strokeStyle = 'rgba(255,255,255,0.05)';
         ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left + pW, y); ctx.stroke();
-    });
-
-    // ── Landmark pairs — connecting lines ──
-    const byPair = {};
-    LANDMARKS.forEach(lm => { (byPair[lm.pair] = byPair[lm.pair] || []).push(lm); });
-
-    Object.entries(byPair).forEach(([key, pts]) => {
-        if (pts.length !== 2) return;
-        const x1 = tX(Math.log10(pts[0].freq)), y1 = tY(Math.log10(pts[0].sens));
-        const x2 = tX(Math.log10(pts[1].freq)), y2 = tY(Math.log10(pts[1].sens));
-        ctx.save();
-        ctx.setLineDash([4, 5]);
-        ctx.strokeStyle = PAIR_COLORS[key] || '#888';
-        ctx.globalAlpha = 0.25;
-        ctx.lineWidth = 1.5;
-        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
-        ctx.restore();
-    });
-
-    // ── Landmark markers + labels (with overlap avoidance) ──
-    const labelFont = '500 10px "DM Sans", -apple-system, sans-serif';
-    ctx.font = labelFont;
-    const labelH = 13;
-
-    // Build label rects
-    const labels = [];
-    LANDMARKS.forEach(lm => {
-        const lx = tX(Math.log10(lm.freq));
-        const ly = tY(Math.log10(lm.sens));
-        if (lx < pad.left || lx > pad.left + pW || ly < pad.top || ly > pad.top + pH) return;
-        const tw = ctx.measureText(lm.name).width;
-        labels.push({ lm, mx: lx, my: ly, x: lx + 9, y: ly + 4, w: tw, h: labelH });
-    });
-
-    // Nudge overlapping labels apart vertically
-    for (let pass = 0; pass < 8; pass++) {
-        let moved = false;
-        for (let i = 0; i < labels.length; i++) {
-            for (let j = i + 1; j < labels.length; j++) {
-                const a = labels[i], b = labels[j];
-                if (a.x < b.x + b.w && a.x + a.w > b.x &&
-                    a.y - a.h < b.y && a.y > b.y - b.h) {
-                    const push = (a.h - Math.abs(a.y - b.y)) / 2 + 1;
-                    if (a.y <= b.y) { a.y -= push; b.y += push; }
-                    else { a.y += push; b.y -= push; }
-                    moved = true;
-                }
-            }
-        }
-        if (!moved) break;
-    }
-
-    labels.forEach(l => {
-        const col = PAIR_COLORS[l.lm.pair] || '#888';
-        ctx.save();
-
-        // Diamond marker
-        ctx.fillStyle = col;
-        ctx.globalAlpha = 0.6;
-        ctx.beginPath();
-        ctx.moveTo(l.mx, l.my - 5); ctx.lineTo(l.mx + 5, l.my);
-        ctx.lineTo(l.mx, l.my + 5); ctx.lineTo(l.mx - 5, l.my);
-        ctx.closePath(); ctx.fill();
-
-        // Leader line from marker to nudged label
-        if (Math.abs(l.y - (l.my + 4)) > 2) {
-            ctx.globalAlpha = 0.2;
-            ctx.strokeStyle = col;
-            ctx.lineWidth = 0.75;
-            ctx.beginPath(); ctx.moveTo(l.mx + 6, l.my); ctx.lineTo(l.x - 2, l.y - 3); ctx.stroke();
-        }
-
-        // Label
-        ctx.globalAlpha = 0.55;
-        ctx.fillStyle = col;
-        ctx.font = labelFont;
-        ctx.textAlign = 'left';
-        ctx.fillText(l.lm.name, l.x, l.y);
-        ctx.restore();
     });
 
     // ── CSF Curve rendering ──
@@ -435,22 +293,6 @@ export function drawCSFPlot(canvas, engine, params) {
     ctx.strokeStyle = 'rgba(255,255,255,0.08)';
     ctx.lineWidth = 1;
     ctx.strokeRect(pad.left, pad.top, pW, pH);
-
-    // ── Legend ──
-    const legX = pad.left + 10, legY = pad.top + 12;
-    ctx.font = '500 8px "JetBrains Mono", monospace';
-    ctx.textAlign = 'left';
-    let row = 0;
-    Object.entries(PAIR_COLORS).forEach(([key, col]) => {
-        const labels = { car: 'Vehicle', ped: 'Pedestrian', sign: 'Exit Sign', plate: 'License Plate', golf: 'Golf Ball' };
-        ctx.fillStyle = col;
-        ctx.globalAlpha = 0.5;
-        ctx.fillRect(legX, legY + row * 13, 8, 8);
-        ctx.globalAlpha = 0.4;
-        ctx.fillText(labels[key] || key, legX + 12, legY + row * 13 + 7);
-        ctx.globalAlpha = 1.0;
-        row++;
-    });
 
     return canvas.toDataURL('image/png', 0.92);
 }

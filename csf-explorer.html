@@ -13,7 +13,7 @@ body{background:linear-gradient(170deg,#0c0c10 0%,#080810 50%,#0a0a12 100%);font
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 
 /* ─── Layout ─── */
-.page{max-width:960px;width:100%;display:flex;flex-direction:column;align-items:center;gap:clamp(16px,3vh,28px)}
+.page{max-width:1200px;width:100%;display:flex;flex-direction:column;align-items:center;gap:clamp(16px,3vh,28px)}
 .header{text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px;opacity:0;animation:settleUp var(--settle) var(--ez) .05s forwards}
 .brand{font-family:var(--m);font-size:.7rem;letter-spacing:4px;text-transform:uppercase;color:var(--t3)}
 .title{font-size:clamp(1.6rem,4vw,2.6rem);font-weight:200;line-height:1.15;letter-spacing:-.02em}
@@ -78,12 +78,52 @@ body{background:linear-gradient(170deg,#0c0c10 0%,#080810 50%,#0a0a12 100%);font
 .feat-margin.pos{color:#00ffcc;background:rgba(0,255,204,.08)}
 .feat-margin.neg{color:#ff453a;background:rgba(255,69,58,.08)}
 
+/* ─── Explain card ─── */
+.explain-card{width:100%;border-radius:16px;border:1.5px solid var(--b2);background:rgba(12,12,16,.8);padding:clamp(16px,3vw,28px);opacity:0;animation:settleUp var(--settle) var(--ez) .45s forwards}
+.explain-heading{font-size:.82rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--t3);margin-bottom:10px}
+.explain-body{font-size:.82rem;color:var(--t2);line-height:1.7;font-weight:300}
+.explain-body p{margin-bottom:10px}
+.explain-body p:last-child{margin-bottom:0}
+
+/* ─── Reference section ─── */
+.ref-section{width:100%;border-top:1px solid var(--b2);padding-top:clamp(16px,3vw,24px);opacity:0;animation:settleUp var(--settle) var(--ez) .5s forwards}
+.ref-heading{font-size:.75rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--t3);margin-bottom:10px}
+.ref-body{font-size:.75rem;color:var(--t2);line-height:1.7;font-weight:300}
+.ref-body p{margin-bottom:8px}
+.ref-body p:last-child{margin-bottom:0}
+.ref-body strong{color:var(--t2);font-weight:500}
+
+/* ─── Embed mode ─── */
+body.embed{padding:10px 10px 20px;min-height:0;background:#0a0a0c}
+body.embed .page{max-width:100%;gap:clamp(10px,2vh,18px)}
+body.embed .header,body.embed .input-bar,body.embed .params-row{display:none}
+body.embed .canvas-wrap,body.embed .controls,body.embed .verdict-card,body.embed .explain-card,body.embed .ref-section{animation:none;opacity:1}
+body.embed .verdict-card,body.embed .explain-card{border-radius:12px;padding:clamp(12px,2.5vw,20px)}
+body.embed .ref-section{padding-top:clamp(10px,2vw,16px)}
+
 /* ─── Responsive ─── */
 @media(max-width:640px){
   .controls{flex-direction:column;align-items:stretch}
   .obj-select{min-width:0;width:100%}
   .dist-group{min-width:0}
   .lighting-pills{justify-content:center}
+  body.embed{padding:6px 6px 14px}
+  body.embed .page{gap:10px}
+  body.embed .controls{gap:10px}
+  body.embed .obj-select{font-size:.78rem;padding:7px 12px}
+  body.embed .dist-slider::-webkit-slider-thumb{width:22px;height:22px}
+  body.embed .dist-slider::-moz-range-thumb{width:22px;height:22px}
+  body.embed .light-pill{padding:8px 12px;font-size:.72rem}
+  body.embed .verdict-status{font-size:clamp(.95rem,4vw,1.3rem)}
+  body.embed .verdict-desc{font-size:clamp(.68rem,2.5vw,.82rem)}
+  body.embed .feat-row{font-size:.72rem;gap:6px;flex-wrap:wrap}
+  body.embed .feat-name{min-width:80px;font-size:.68rem}
+  body.embed .feat-freq{font-size:.62rem}
+  body.embed .feat-margin{font-size:.6rem}
+  body.embed .explain-heading{font-size:.72rem}
+  body.embed .explain-body{font-size:.72rem;line-height:1.6}
+  body.embed .ref-heading{font-size:.65rem}
+  body.embed .ref-body{font-size:.65rem}
 }
 </style>
 </head><body>
@@ -120,6 +160,21 @@ body{background:linear-gradient(170deg,#0c0c10 0%,#080810 50%,#0a0a12 100%);font
     <div class="verdict-status" id="verdict-status">--</div>
     <div class="verdict-desc" id="verdict-desc"></div>
     <div class="feat-rows" id="feat-rows"></div>
+  </div>
+
+  <div class="explain-card">
+    <div class="explain-heading">Reading the chart</div>
+    <div class="explain-body" id="explain-body"></div>
+  </div>
+
+  <div class="ref-section">
+    <div class="ref-heading">How this data was derived</div>
+    <div class="ref-body">
+      <p><strong>CSF model</strong> — Log-parabola contrast sensitivity function from Lesmes et al. (2010), "Bayesian adaptive estimation of the contrast sensitivity function: The quick CSF method." The four parameters (gain, peak frequency, bandwidth, truncation) are fitted from the patient's adaptive test results.</p>
+      <p><strong>Object sizes</strong> — Golf ball: USGA Rules of Golf (diameter 42.67 mm, dimple ~3.5 mm). Hi-vis vest: ANSI/ISEA 107-2020 (5 cm retroreflective tape). Highway signs: FHWA MUTCD Series E(Modified) (16-inch uppercase, 20% stroke width). Pedestrian: anthropometric averages (shoulder width ~45 cm, head ~25 cm). Deer: whitetail shoulder height ~1 m; D'Angelo et al. (2023), "Factors affecting driver detection of deer at night."</p>
+      <p><strong>Contrast values</strong> — Michelson contrast computed from published surface reflectance data. Daytime values derived from material albedo against typical backgrounds. Night retroreflective values based on ASTM E810 standard practice and FHWA-HRT-07-040 retroreflectivity report; modern Type III+ sheeting maintains high contrast under headlamp illumination.</p>
+      <p><strong>Fourier demand model</strong> — Broadband features (edges, bodies) modeled as step-edge stimuli whose sensitivity demand rises with spatial frequency: S<sub>req</sub>(f) = sqrt(1 + (pi f theta)^2) / C. Texture features (dimple pattern) use a Gaussian bandpass model centered at the characteristic texture frequency. Theoretical framework follows Campbell &amp; Robson (1968), "Application of Fourier analysis to the visibility of gratings," and Watson &amp; Ahumada (2005), "A standard model for foveal detection of spatial contrast."</p>
+    </div>
   </div>
 </div>
 
@@ -493,7 +548,7 @@ function drawAll() {
     rafId = null;
     const canvas = document.getElementById('csf-canvas');
     const dpr = window.devicePixelRatio || 1;
-    const cssW = 900, cssH = 520;
+    const cssW = 1100, cssH = 520;
     canvas.width = cssW * dpr;
     canvas.height = cssH * dpr;
     canvas.style.width = '100%';
@@ -765,26 +820,26 @@ function drawAll() {
     ctx.strokeRect(pad.left, pad.top, pW, pH);
 
     // ── Legend ──
-    const legX = pad.left + pW - 130, legY = pad.top + 10;
-    ctx.font = '500 8px "DM Sans", sans-serif';
+    const legX = pad.left + pW - 180, legY = pad.top + 10;
+    ctx.font = '500 11px "DM Sans", sans-serif';
     ctx.textAlign = 'left';
     ctx.globalAlpha = 1;
     // CSF legend
     ctx.fillStyle = '#00ffcc';
     ctx.globalAlpha = 0.7;
-    ctx.fillRect(legX, legY, 12, 2);
-    ctx.fillText('Your CSF', legX + 16, legY + 4);
+    ctx.fillRect(legX, legY, 18, 2);
+    ctx.fillText('Your CSF', legX + 24, legY + 5);
     // Feature legends
     obj.features.forEach((feat, fi) => {
-        const y = legY + (fi + 1) * 14;
+        const y = legY + (fi + 1) * 20;
         ctx.fillStyle = featureColors[fi];
         ctx.globalAlpha = 0.5;
-        ctx.setLineDash([3, 3]);
+        ctx.setLineDash([4, 4]);
         ctx.strokeStyle = featureColors[fi];
         ctx.lineWidth = 1.5;
-        ctx.beginPath(); ctx.moveTo(legX, y + 1); ctx.lineTo(legX + 12, y + 1); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(legX, y + 1); ctx.lineTo(legX + 18, y + 1); ctx.stroke();
         ctx.setLineDash([]);
-        ctx.fillText(feat.label, legX + 16, y + 4);
+        ctx.fillText(feat.label, legX + 24, y + 5);
     });
     ctx.globalAlpha = 1;
 
@@ -824,14 +879,84 @@ function updateVerdict(obj, distMeters) {
             <span class="feat-margin ${marginClass}">${marginStr}</span>
         </div>`;
     }).join('');
+
+    updateExplanation(obj, distMeters);
 }
+
+// ── Dynamic explanation ──
+function updateExplanation(obj, distMeters) {
+    const el = document.getElementById('explain-body');
+    if (!el) return;
+    const result = computeVerdict(obj, distMeters, csfParams);
+    const featureColors = ['#5B9CF5', '#F5A623', '#A78BFA'];
+    const lfMin = -0.3, lfMax = 1.75;
+    const fMin = Math.pow(10, lfMin);   // ~0.5 cpd
+    const fMax = Math.pow(10, lfMax);   // ~56 cpd
+
+    const slider = document.getElementById('dist-slider');
+    const distDisplay = slider.value + ' ' + obj.distUnit;
+
+    function cs(label, color) {
+        return '<span style="color:' + color + ';font-weight:500">' + label + '</span>';
+    }
+
+    // Paragraph 1 — always the same structure
+    const p1 = 'The cyan curve is your contrast sensitivity\u200a\u2014\u200ahow faint a pattern your eyes can detect at each level of detail. Coarse patterns are on the left; fine detail is on the right. The three dashed lines show the minimum sensitivity your eyes <em>need</em> to pick up different parts of the ' + obj.name + ': ' + cs(result.feats[0].label, featureColors[0]) + ', ' + cs(result.feats[1].label, featureColors[1]) + ', and ' + cs(result.feats[2].label, featureColors[2]) + '. Wherever your curve sits above a demand line (the green-tinted zone), you can see that feature. Where demand rises above your curve (red zone), that detail is invisible to you. These demand lines curve upward toward the right because finer detail requires progressively more sensitivity\u200a\u2014\u200aand at some point they climb off the top of the chart entirely, meaning your eyes simply cannot access that level of detail at this distance.';
+
+    // Paragraph 2 — per-feature sentences
+    const sentences = result.feats.map((f, i) => {
+        const charF = f.charFreq;
+        const cLabel = cs(f.label, featureColors[i]);
+        const isMarginal = f.margin >= -1 && f.margin <= 3;
+
+        if (f.visible || isMarginal) {
+            if (charF < fMin) {
+                return 'The ' + cLabel + ' is so large at ' + distDisplay + ' that its demand sits off the left edge of the chart\u200a\u2014\u200aeasily within your range.';
+            }
+            if (charF > fMax) {
+                return 'The ' + cLabel + ' requires finer detail than your eyes can access\u200a\u2014\u200aits demand climbs off the right side of the chart.';
+            }
+            if (isMarginal && !f.visible) {
+                return 'The ' + cLabel + ' dot at ' + charF.toFixed(1) + ' cpd sits just barely above your CSF\u200a\u2014\u200aright at the edge of visibility.';
+            }
+            if (isMarginal) {
+                return 'The ' + cLabel + ' dot at ' + charF.toFixed(1) + ' cpd is just barely visible\u200a\u2014\u200ayour sensitivity there only narrowly exceeds what\u2019s needed.';
+            }
+            return 'The ' + cLabel + ' dot sits at ' + charF.toFixed(1) + ' cpd\u200a\u2014\u200ayour sensitivity there is well above what\u2019s needed, so you can see this feature clearly.';
+        } else {
+            if (charF > fMax) {
+                return 'The ' + cLabel + ' requires finer detail than your eyes can access\u200a\u2014\u200aits demand climbs off the right side of the chart.';
+            }
+            if (charF < fMin) {
+                return 'The ' + cLabel + ' sits off the left edge yet still demands more contrast than you have\u200a\u2014\u200athe lighting is too low.';
+            }
+            return 'The ' + cLabel + ' dot at ' + charF.toFixed(1) + ' cpd shows the demand line above your CSF\u200a\u2014\u200ayou don\u2019t have enough sensitivity for that fine detail.';
+        }
+    });
+
+    // Verdict summary sentence
+    const vName = obj.name;
+    let summary;
+    if (result.verdict === 'resolved')
+        summary = 'Overall, you can fully resolve the ' + vName + ' at ' + distDisplay + ' in ' + currentLighting + ' conditions.';
+    else if (result.verdict === 'detected')
+        summary = 'You can detect the ' + vName + ' at ' + distDisplay + ', but some finer details are beyond your reach in ' + currentLighting + ' conditions.';
+    else
+        summary = 'At ' + distDisplay + ' in ' + currentLighting + ' conditions, the ' + vName + ' is effectively invisible to you.';
+
+    el.innerHTML = '<p>' + p1 + '</p><p>' + sentences.join(' ') + ' ' + summary + '</p>';
+}
+
+// ── Embed mode ──
+const isEmbed = new URLSearchParams(location.search).has('embed');
+if (isEmbed) document.body.classList.add('embed');
 
 // ── Init ──
 loadFromURL();
 initControls();
 updateParamsDisplay();
 // Fill input with current URL if params present
-if (location.search) {
+if (location.search && !isEmbed) {
     document.getElementById('link-input').value = location.href;
 }
 scheduleRedraw();

@@ -11,7 +11,7 @@ import { createHost, createTemporaryHost, createHandoffClient,
          shortCode, codeToId, idToCode, formatCode } from './peer-sync.js';
 
 const MAX_TRIALS = 50, DEBOUNCE_MS = 250, NUM_STEPS = 5;
-const CSF_EXPLORER_URL = 'https://burkevisionlab.com/csf-explorer';
+const CSF_EXPLORER_URL = 'https://drburke-droid.github.io/csf/csf-explorer.html';
 const CARD_W_MM = 85.6, CARD_H_MM = 53.98, CARD_ASPECT = CARD_W_MM / CARD_H_MM;
 
 function showScreen(id) {
@@ -621,7 +621,7 @@ function finish() {
     let plotUrl = '';
     try { plotUrl = drawCSFPlot(document.getElementById('csf-plot'), engine, result.params); } catch (e) { console.error('Plot error:', e); }
 
-    // Populate CSF formula card
+    // Populate CSF formula card + Explorer CTA
     if (result.params) {
         const g = result.params.peakGain, fp = result.params.peakFreq;
         const b = result.params.bandwidth, d = result.params.truncation;
@@ -645,72 +645,6 @@ function finish() {
         };
     }
 
-    // Build rich results with per-landmark assessments
-    const lmResults = [];
-    const landmarks = [
-        { name: 'Car (clear)', freq: 2, sens: 2,
-          context: 'Detecting a vehicle at 400 m on a clear day',
-          what: 'Spotting another vehicle on the highway about a quarter mile ahead on a clear day.',
-          science: 'A car body is roughly 1.8 meters wide. At 400 meters it subtends 0.26 degrees of visual angle, corresponding to about 2 cycles per degree — a very coarse visual detail.',
-          perception: 'This is a low-frequency detection task. Your visual system uses its coarse-detail channels, which are tuned for large shapes. Even moderate contrast between the car and road is enough for detection.' },
-        { name: 'Car (fog)', freq: 2, sens: 20,
-          context: 'Detecting a vehicle at 400 m in fog',
-          what: 'Spotting a vehicle a quarter mile ahead in moderate fog with roughly 500 m visibility.',
-          science: 'Fog scatters light and reduces contrast exponentially with distance (Koschmieder\'s law). At 400 m in moderate fog, the original ~50% contrast drops to approximately 5%.',
-          perception: 'The car is the same size, but fog washes out the contrast. Your visual system now needs much higher sensitivity at the same spatial frequency. This is purely a contrast problem, not a size problem.' },
-        { name: 'Pedestrian (day)', freq: 6, sens: 2,
-          context: 'Seeing a person at 100 m in daylight',
-          what: 'Detecting a person standing by the roadside at 100 meters (about 330 feet) in daylight.',
-          science: 'The critical feature for detecting a pedestrian is the limb-width detail, roughly 15 cm. At 100 meters this subtends 0.086 degrees, corresponding to about 6 cycles per degree.',
-          perception: 'At 6 cpd your visual system is near its peak sensitivity. Dark clothing against light pavement creates strong contrast (~45%), making this a comfortable detection task for normal vision.' },
-        { name: 'Pedestrian (dusk)', freq: 6, sens: 33,
-          context: 'Detecting a person at dusk on a dark road',
-          what: 'Spotting a dark-clothed person on a dark road at dusk or in rain, at 100 meters.',
-          science: 'At dusk both the person and road surface are dark, reducing contrast to approximately 3%. This is the well-documented "pedestrian conspicuity crisis" in traffic safety research.',
-          perception: 'The person is the same size but your visual system needs roughly 16 times more contrast sensitivity to see them. This is why retroreflective clothing saves lives — it restores the contrast your eyes need.' },
-        { name: 'Exit sign (day)', freq: 10, sens: 2,
-          context: 'Reading highway signs at 250 ft',
-          what: 'Reading the text on a highway exit sign at 250 feet (76 meters) during the day.',
-          science: 'Standard FHWA freeway signs use 16-inch Series E(Modified) letters. At 250 feet each letter subtends 0.31 degrees. Letter identification requires about 3 spatial frequency cycles per letter (Solomon & Pelli, 1994), giving 10 cycles per degree.',
-          perception: 'This is a letter identification task — your visual system must resolve the shape of each letter, not just detect the sign. White letters on green retroreflective sheeting provide excellent daytime contrast (~85%).' },
-        { name: 'Exit sign (night)', freq: 10, sens: 33,
-          context: 'Reading worn road signs at night in rain',
-          what: 'Reading a worn highway exit sign at night in the rain.',
-          science: 'Retroreflective sheeting degrades over time, losing 70-80% of reflectivity after 10+ years. Rain creates a water film that further reduces contrast to approximately 3%.',
-          perception: 'The letters are the same size, but your visual system needs far more sensitivity. Many drivers report difficulty with road signs at night — this is a contrast sensitivity issue, not an acuity issue. Traditional eye charts miss this entirely.' },
-        { name: 'Golf ball on grass', freq: 8, sens: 2,
-          context: 'Spotting ball on fairway at 150 yd',
-          what: 'Spotting a white golf ball on a green fairway at 150 yards.',
-          science: 'The ball (42.67 mm, USGA standard) subtends just 1.07 arcminutes at 150 yards — near the resolution limit of 20/20 vision. However, detection of a bright isolated object is fundamentally different from resolving a pattern. The ball\'s Fourier energy is broadband, and the visual system detects it through its peak-sensitivity channels around 8 cpd, not at the grating-equivalent frequency of 28 cpd.',
-          perception: 'You don\'t need to see the dimples — you just need to spot a bright dot against the green. Your visual system uses its most sensitive channels near the peak of your contrast sensitivity curve. This is why detection acuity far exceeds resolution acuity: bright, isolated objects are visible at distances well beyond what a standard eye chart would predict.' },
-        { name: 'Golf ball, cloudy sky', freq: 8, sens: 10,
-          context: 'Spotting ball against overcast sky at 150 yd',
-          what: 'Tracking a golf ball in the air against an overcast sky at 150 yards.',
-          science: 'Against clouds, the white ball and bright sky are similar in luminance, dropping Michelson contrast to approximately 10%. The ball is still detected through mid-frequency channels, but 5 times more sensitivity is now required.',
-          perception: 'This is why golfers lose sight of the ball against cloudy skies but not against blue sky or green grass. The issue is not the ball\'s size — it\'s the contrast. Colored golf balls (yellow, orange) help because they create more contrast against gray clouds.' },
-        { name: 'Plate (day)', freq: 26, sens: 2,
-          context: 'Reading a license plate at 35 m in daylight',
-          what: 'Reading a license plate about 7 car lengths ahead (35 meters / 115 feet) in daylight.',
-          science: 'Standard US plate characters are 70 mm tall (AASHTO specification). At 35 meters each character subtends 0.115 degrees. With 3 cycles per letter for identification, this gives 26 cycles per degree — fine spatial detail near the upper limit of comfortable vision.',
-          perception: 'This is a high-frequency identification task. Your visual system must resolve individual characters — the strokes and curves that distinguish a "B" from an "8". Dark characters on a white retroreflective plate provide excellent daytime contrast (~88%).' },
-        { name: 'Plate (night)', freq: 26, sens: 25,
-          context: 'Reading a license plate at 35 m in rain at night',
-          what: 'Reading a license plate 7 car lengths ahead at night in rain.',
-          science: 'At night, plates are illuminated by headlights. At 35 meters, reduced headlight intensity, rain, dirt, and atmospheric scatter reduce effective contrast to approximately 4%.',
-          perception: 'This pushes both the spatial frequency and contrast demands of your vision. Many people find they can read plates easily in daylight but struggle at night — this is a classic contrast sensitivity deficit that a standard eye chart completely misses.' },
-    ];
-    landmarks.forEach(lm => {
-        const yourSens = Math.pow(10, engine.evaluateCSF(lm.freq, result.params));
-        const pass = yourSens >= lm.sens;
-        const margin = yourSens / lm.sens;
-        lmResults.push({
-            name: lm.name, context: lm.context, freq: lm.freq,
-            needed: lm.sens, yours: Math.round(yourSens),
-            pass, margin: margin.toFixed(1),
-            what: lm.what, science: lm.science, perception: lm.perception
-        });
-    });
-
     // Snellen prediction
     let snellenStr = '--';
     const curveData = result.curve || [];
@@ -733,9 +667,6 @@ function finish() {
         snellen: snellenStr,
         peakSens: Math.round(Math.pow(10, result.params.peakGain)),
         peakFreq: result.params.peakFreq.toFixed(1),
-        landmarks: lmResults,
-        passCount: lmResults.filter(l => l.pass).length,
-        totalLandmarks: lmResults.length,
         csfParams: result.params ? { g: result.params.peakGain, f: result.params.peakFreq, b: result.params.bandwidth, d: result.params.truncation } : null,
     });
 

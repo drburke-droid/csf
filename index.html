@@ -82,6 +82,7 @@
 <div class="pair-context-title">Setting Up the Display</div>
 <div class="pair-context-desc">This screen shows the targets you'll view from a distance. Now let's sync it to a phone or tablet you'll hold to input your answers.</div>
 </div>
+<div class="pair-columns">
 <div class="pair-section pair-code-entry">
 <div class="pair-label">Enter code from your phone</div>
 <div class="code-boxes">
@@ -103,6 +104,7 @@
 <div class="pair-instruction">On your phone, go to <span class="pair-url" id="display-pair-url"></span>, tap <strong>Begin Setup</strong> &rarr; <strong>Phone</strong>, and enter this code. Or simply scan the QR code below.</div>
 <div id="display-qrcode"></div>
 <div class="pair-status" id="display-wait-status"><span class="sd sd-wait"></span> Waiting for phone&hellip;</div>
+</div>
 </div>
 </div>
 <button class="qr-skip" onclick="skipPhone()">Use Keyboard Instead</button>
@@ -241,11 +243,12 @@
 <div class="csf-formula-heading">Your Contrast Sensitivity Function</div>
 <div class="csf-formula-math" id="csf-formula-math"></div>
 <div class="csf-formula-peak" id="csf-formula-peak"></div>
-<button class="csf-formula-copy" id="csf-formula-copy-btn">Copy Results Link</button>
-<div class="csf-formula-cta">
-<div class="csf-formula-cta-text">Want to explore what you can and can't see?<br>Copy your results above and visit the link below to analyze your vision with real-world objects.</div>
-<a class="csf-formula-explore" id="csf-formula-explore" href="#" target="_blank" rel="noopener">Explore Your Vision &rarr;</a>
-</div>
+<div class="explorer-cta-divider"></div>
+<div class="explorer-cta-heading">What can you actually see?</div>
+<div class="explorer-cta-body">Your CSF curve and parameters are ready. Open the Real-World Vision Analyzer to see how your contrast sensitivity applies to everyday objects &mdash; golf balls, road signs, pedestrians, and more &mdash; at different distances and lighting conditions.</div>
+<div class="explorer-cta-note">Your curve and results carry over automatically &mdash; no re-entry needed.</div>
+<a class="csf-formula-explore" id="csf-formula-explore" href="#" target="_blank" rel="noopener">Analyze My Vision with Real-World Objects &rarr;</a>
+<button class="csf-formula-copy" id="csf-formula-copy-btn">Copy Link to Share</button>
 </div>
 <div style="display:flex;gap:14px;margin-top:16px;opacity:0;animation:settleUp .5s var(--ez) .95s forwards">
 <button class="restart-btn" onclick="location.reload()">Test Again</button>
