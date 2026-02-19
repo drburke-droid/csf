@@ -70,9 +70,13 @@ body{background:var(--chrome);font-family:var(--f);color:var(--t1);-webkit-font-
 .role-card-desc{font-size:clamp(.55rem,1.1vw,.78rem);color:var(--t2);line-height:1.5}
 .role-card-disabled{display:none;font-size:clamp(.5rem,1vw,.65rem);color:var(--e);margin-top:8px;font-family:var(--m);letter-spacing:.5px}
 .role-card.disabled .role-card-disabled{display:block}
+.role-card-rec{font-family:var(--m);font-size:clamp(.42rem,.85vw,.58rem);color:var(--t3);margin-top:8px;letter-spacing:.5px}
 .role-hint{font-size:clamp(.6rem,1.1vw,.8rem);color:var(--t2);font-weight:300;line-height:1.5;max-width:360px;text-align:center}
 
 /* Pairing screens */
+.pair-context{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;opacity:0;animation:settleUp var(--settle) var(--ez) .1s forwards}
+.pair-context-title{font-size:clamp(1.2rem,3.5vw,2.2rem);font-weight:200;color:var(--t1)}
+.pair-context-desc{font-size:clamp(.6rem,1.1vw,.85rem);color:var(--t2);max-width:420px;line-height:1.5;font-weight:300}
 #scr-pair-display,#scr-pair-remote{justify-content:flex-start}
 #scr-pair-display .landing-stack,#scr-pair-remote .landing-stack{padding-top:clamp(20px,4vh,48px);gap:clamp(10px,2vh,20px)}
 .pair-code-entry{margin-top:clamp(8px,2vh,20px)}
@@ -110,11 +114,7 @@ body{background:var(--chrome);font-family:var(--f);color:var(--t1);-webkit-font-
 .qr-skip:hover{border-color:var(--a);color:var(--a);background:var(--as)}
 .qr-skip:active{transform:scale(.96)}
 
-/* Mobile: disable display card, stack role cards */
-@media(max-width:768px) and (pointer:coarse){
-  #card-display-role{opacity:.3;pointer-events:none}
-  #card-display-role .role-card-disabled{display:block}
-}
+/* Mobile: stack role cards */
 @media(max-width:600px){
   .role-cards{flex-direction:column}
   .pair-code{font-size:clamp(1.8rem,10vw,3rem);letter-spacing:clamp(6px,1.5vw,10px)}

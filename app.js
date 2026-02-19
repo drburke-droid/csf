@@ -109,6 +109,11 @@ window.selectRole = function(role) {
         showScreen('scr-pair-remote');
         startRemotePairing();
     } else if (role === 'display') {
+        if (isMobileDevice()) {
+            const warn = document.getElementById('display-disabled');
+            if (warn) warn.style.display = 'block';
+            return;
+        }
         showScreen('scr-pair-display');
     }
 };
@@ -609,7 +614,7 @@ function finish() {
     if (isMirror) resultContent.classList.add('mirrored');
     else resultContent.classList.remove('mirrored');
 
-    document.getElementById('final-auc').innerText = result.aulcsf.toFixed(2);
+    document.getElementById('final-auc').innerText = result.aulcsf.toFixed(1);
     document.getElementById('final-rank').innerText = result.rank;
     document.getElementById('final-detail').innerText = result.detail;
 
@@ -722,7 +727,7 @@ function finish() {
     // Send results WITHOUT the large plot image first (ensures phone gets data)
     tx({
         type: 'results',
-        score: result.aulcsf.toFixed(2),
+        score: result.aulcsf.toFixed(1),
         rank: result.rank,
         detail: result.detail,
         snellen: snellenStr,

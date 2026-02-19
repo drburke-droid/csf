@@ -34,10 +34,12 @@
 <div class="role-card" onclick="selectRole('remote')">
 <div class="role-card-title">Remote</div>
 <div class="role-card-desc">This phone or tablet stays with you, 20 ft from the display</div>
+<div class="role-card-rec">Recommended: phone</div>
 </div>
 <div class="role-card" id="card-display-role" onclick="selectRole('display')">
 <div class="role-card-title">Display</div>
 <div class="role-card-desc">This screen shows targets you'll view from 20 ft away</div>
+<div class="role-card-rec">Recommended: PC monitor or large tablet</div>
 <div class="role-card-disabled" id="display-disabled">Phone screens are too small for the test display</div>
 </div>
 </div>
@@ -50,6 +52,10 @@
 <div id="scr-pair-remote" class="screen">
 <div class="moire-bg"><div class="moire-layer"></div><div class="moire-layer"></div><div class="moire-vignette"></div></div>
 <div class="landing-stack">
+<div class="pair-context">
+<div class="pair-context-title">Setting Up the Remote</div>
+<div class="pair-context-desc">This device will be your controller. Now let's sync it to the display.</div>
+</div>
 <div class="pair-section">
 <div class="pair-label">Your pairing code</div>
 <div class="pair-code" id="my-code">----</div>
@@ -72,6 +78,10 @@
 <div id="scr-pair-display" class="screen">
 <div class="moire-bg"><div class="moire-layer"></div><div class="moire-layer"></div><div class="moire-vignette"></div></div>
 <div class="landing-stack">
+<div class="pair-context">
+<div class="pair-context-title">Setting Up the Display</div>
+<div class="pair-context-desc">This screen shows the targets you'll view from a distance. Now let's sync it to a phone or tablet you'll hold to input your answers.</div>
+</div>
 <div class="pair-section pair-code-entry">
 <div class="pair-label">Enter code from your phone</div>
 <div class="code-boxes">
