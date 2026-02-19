@@ -19,18 +19,18 @@ body{background:linear-gradient(170deg,#0c0c10 0%,#080810 50%,#0a0a12 100%);font
 .title{font-size:clamp(1.6rem,4vw,2.6rem);font-weight:200;line-height:1.15;letter-spacing:-.02em}
 .subtitle{font-size:clamp(.7rem,1.2vw,.88rem);color:var(--t2);max-width:520px;line-height:1.6;font-weight:300}
 
-/* ─── Input bar ─── */
-.input-bar{display:flex;gap:10px;width:100%;max-width:640px;opacity:0;animation:settleUp var(--settle) var(--ez) .15s forwards}
-.link-input{flex:1;padding:10px 16px;border-radius:12px;border:2px solid var(--b2);background:var(--chrome);color:var(--t1);font-family:var(--m);font-size:.78rem;outline:0;transition:border-color .3s,box-shadow .3s}
-.link-input:focus{border-color:var(--a);box-shadow:0 0 20px rgba(0,255,204,.08)}
-.link-input::placeholder{color:var(--t3)}
-.load-btn{padding:10px 24px;border-radius:12px;border:2px solid var(--a);background:var(--as);color:var(--a);font-family:var(--f);font-size:.82rem;font-weight:500;cursor:pointer;transition:background .2s,transform .1s;-webkit-tap-highlight-color:transparent}
-.load-btn:hover{background:rgba(0,255,204,.12)}
-.load-btn:active{transform:scale(.96)}
+/* ─── Formula bar (patient mode) ─── */
+.formula-bar{display:none;align-items:center;justify-content:center;gap:24px;font-family:var(--m);font-size:.78rem;color:var(--t2);padding:10px 20px;border-radius:10px;border:1px solid var(--b2);background:var(--s1);opacity:0;animation:settleUp var(--settle) var(--ez) .15s forwards}
+body.mode-patient .formula-bar{display:flex}
+.formula-text{color:var(--a)}
+.formula-peak{color:var(--t2)}
 
-/* ─── Params display ─── */
-.params-row{font-family:var(--m);font-size:.72rem;color:var(--t3);letter-spacing:1px;opacity:0;animation:settleUp var(--settle) var(--ez) .2s forwards}
-.params-row span{color:var(--t2)}
+/* ─── Demo banner ─── */
+.demo-banner{display:none;flex-direction:column;align-items:center;gap:8px;padding:16px 24px;border-radius:12px;border:1.5px solid rgba(0,255,204,.15);background:rgba(0,255,204,.04);text-align:center;opacity:0;animation:settleUp var(--settle) var(--ez) .15s forwards}
+body.mode-demo .demo-banner{display:flex}
+.demo-banner-text{font-size:.82rem;color:var(--t2);line-height:1.5;font-weight:300}
+.demo-banner-link{font-size:.82rem;color:var(--a);text-decoration:none;font-weight:500;transition:text-decoration .2s}
+.demo-banner-link:hover{text-decoration:underline}
 
 /* ─── Canvas ─── */
 .canvas-wrap{width:100%;opacity:0;animation:settleUp var(--settle) var(--ez) .25s forwards}
@@ -96,8 +96,12 @@ body{background:linear-gradient(170deg,#0c0c10 0%,#080810 50%,#0a0a12 100%);font
 /* ─── Embed mode ─── */
 body.embed{padding:10px 10px 20px;min-height:0;background:#0a0a0c}
 body.embed .page{max-width:100%;gap:clamp(10px,2vh,18px)}
-body.embed .header,body.embed .input-bar,body.embed .params-row{display:none}
-body.embed .canvas-wrap,body.embed .controls,body.embed .verdict-card,body.embed .explain-card,body.embed .ref-section{animation:none;opacity:1}
+body.embed .header{display:none}
+body.embed .formula-bar{padding:6px 14px;font-size:.72rem}
+body.embed .demo-banner{padding:10px 16px}
+body.embed .demo-banner-text{font-size:.75rem}
+body.embed .demo-banner-link{font-size:.75rem}
+body.embed .formula-bar,body.embed .demo-banner,body.embed .canvas-wrap,body.embed .controls,body.embed .verdict-card,body.embed .explain-card,body.embed .ref-section{animation:none;opacity:1}
 body.embed .verdict-card,body.embed .explain-card{border-radius:12px;padding:clamp(12px,2.5vw,20px)}
 body.embed .ref-section{padding-top:clamp(10px,2vw,16px)}
 
@@ -124,6 +128,10 @@ body.embed .ref-section{padding-top:clamp(10px,2vw,16px)}
   body.embed .explain-body{font-size:.72rem;line-height:1.6}
   body.embed .ref-heading{font-size:.65rem}
   body.embed .ref-body{font-size:.65rem}
+  .formula-bar{flex-direction:column;gap:8px;padding:8px 14px;font-size:.72rem}
+  .demo-banner{padding:12px 16px}
+  .demo-banner-text{font-size:.75rem}
+  .demo-banner-link{font-size:.75rem}
 }
 </style>
 </head><body>
@@ -134,13 +142,14 @@ body.embed .ref-section{padding-top:clamp(10px,2vw,16px)}
     <div class="subtitle">See how your contrast sensitivity maps onto real-world objects at different distances and lighting conditions.</div>
   </div>
 
-  <div class="input-bar">
-    <input class="link-input" id="link-input" type="text" placeholder="Paste results link or enter params (g, f, b, d)...">
-    <button class="load-btn" id="load-btn" onclick="loadFromInput()">Load</button>
+  <div class="formula-bar" id="formula-bar">
+    <span class="formula-text" id="formula-text"></span>
+    <span class="formula-peak" id="formula-peak"></span>
   </div>
 
-  <div class="params-row" id="params-row">
-    g: <span id="p-g">2.10</span> &nbsp; f: <span id="p-f">4.5</span> &nbsp; b: <span id="p-b">1.10</span> &nbsp; d: <span id="p-d">0.80</span>
+  <div class="demo-banner" id="demo-banner">
+    <div class="demo-banner-text">You're viewing sample data. To see your own CSF curve here, take the test first.</div>
+    <a class="demo-banner-link" href="./">Take the Contrast Sensitivity Test →</a>
   </div>
 
   <div class="canvas-wrap">
@@ -424,25 +433,6 @@ function computeVerdict(obj, distMeters, params) {
 }
 
 // ── URL params ──
-function parseParams(url) {
-    try {
-        const u = new URL(url.includes('://') ? url : 'https://x.com?' + url);
-        const sp = u.searchParams;
-        const g = parseFloat(sp.get('g'));
-        const f = parseFloat(sp.get('f'));
-        const b = parseFloat(sp.get('b'));
-        const d = parseFloat(sp.get('d'));
-        if ([g, f, b, d].every(v => isFinite(v))) return { g, f, b, d };
-    } catch (e) {}
-    // Try raw "g=... f=... b=... d=..."
-    const m = url.match(/g[=:]?\s*([\d.]+).*?f[=:]?\s*([\d.]+).*?b[=:]?\s*([\d.]+).*?d[=:]?\s*([\d.]+)/i);
-    if (m) {
-        const vals = m.slice(1).map(Number);
-        if (vals.every(isFinite)) return { g: vals[0], f: vals[1], b: vals[2], d: vals[3] };
-    }
-    return null;
-}
-
 function loadFromURL() {
     const sp = new URLSearchParams(location.search);
     const g = parseFloat(sp.get('g'));
@@ -451,33 +441,7 @@ function loadFromURL() {
     const d = parseFloat(sp.get('d'));
     if ([g, f, b, d].every(v => isFinite(v))) {
         csfParams = { g, f, b, d };
-        updateParamsDisplay();
     }
-}
-
-function loadFromInput() {
-    const val = document.getElementById('link-input').value.trim();
-    if (!val) return;
-    const p = parseParams(val);
-    if (p) {
-        csfParams = p;
-        updateParamsDisplay();
-        // Update URL without reload
-        const url = new URL(location.href);
-        url.searchParams.set('g', p.g.toFixed(2));
-        url.searchParams.set('f', p.f.toFixed(1));
-        url.searchParams.set('b', p.b.toFixed(2));
-        url.searchParams.set('d', p.d.toFixed(2));
-        history.replaceState(null, '', url);
-        scheduleRedraw();
-    }
-}
-
-function updateParamsDisplay() {
-    document.getElementById('p-g').textContent = csfParams.g.toFixed(2);
-    document.getElementById('p-f').textContent = csfParams.f.toFixed(1);
-    document.getElementById('p-b').textContent = csfParams.b.toFixed(2);
-    document.getElementById('p-d').textContent = csfParams.d.toFixed(2);
 }
 
 // ── Controls setup ──
@@ -506,10 +470,6 @@ function initControls() {
         pills.appendChild(btn);
     });
 
-    // Enter key on input
-    document.getElementById('link-input').addEventListener('keydown', e => {
-        if (e.key === 'Enter') loadFromInput();
-    });
 }
 
 function updateSlider() {
@@ -947,20 +907,31 @@ function updateExplanation(obj, distMeters) {
     el.innerHTML = '<p>' + p1 + '</p><p>' + sentences.join(' ') + ' ' + summary + '</p>';
 }
 
-// ── Embed mode ──
-const isEmbed = new URLSearchParams(location.search).has('embed');
+// ── Mode detection ──
+const sp = new URLSearchParams(location.search);
+const isEmbed = sp.has('embed');
+const hasPatientData = ['g','f','b','d'].every(k => sp.has(k) && isFinite(parseFloat(sp.get(k))));
 if (isEmbed) document.body.classList.add('embed');
+document.body.classList.add(hasPatientData ? 'mode-patient' : 'mode-demo');
 
 // ── Init ──
 loadFromURL();
 initControls();
-updateParamsDisplay();
-// Fill input with current URL if params present
-if (location.search && !isEmbed) {
-    document.getElementById('link-input').value = location.href;
+
+if (hasPatientData) {
+    document.querySelector('.title').textContent = 'Your Vision Analysis';
+    document.querySelector('.subtitle').textContent =
+        'This is your contrast sensitivity curve from the test you just completed. Explore how it applies to real-world objects at different distances and lighting.';
+    document.getElementById('formula-text').textContent =
+        'log\u2081\u2080(S) = ' + csfParams.g.toFixed(2) + ' \u2212 ' + csfParams.b.toFixed(2) + '\u00b7\u0394\u00b2 \u2212 ' + csfParams.d.toFixed(2) + '\u00b7\u0394\u2074';
+    document.getElementById('formula-peak').textContent =
+        'Peak: ' + csfParams.f.toFixed(1) + ' cpd';
+} else {
+    document.querySelector('.subtitle').textContent =
+        'See how contrast sensitivity maps onto real-world objects. The curve below uses sample data.';
 }
+
 scheduleRedraw();
-// Redraw on resize
 window.addEventListener('resize', scheduleRedraw);
 </script>
 </body></html>
