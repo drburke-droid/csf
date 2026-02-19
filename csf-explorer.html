@@ -148,7 +148,7 @@ body.embed .ref-section{padding-top:clamp(10px,2vw,16px)}
   </div>
 
   <div class="demo-banner" id="demo-banner">
-    <div class="demo-banner-text">You're viewing sample data. To see your own CSF curve here, take the test first.</div>
+    <div class="demo-banner-text">You're viewing a generic patient with 20/20 vision. Test your own vision to create your personal CSF curve.</div>
     <a class="demo-banner-link" href="./">Take the Contrast Sensitivity Test →</a>
   </div>
 
@@ -928,7 +928,7 @@ if (hasPatientData) {
         'Peak: ' + csfParams.f.toFixed(1) + ' cpd';
 } else {
     document.querySelector('.subtitle').textContent =
-        'See how contrast sensitivity maps onto real-world objects. The curve below uses sample data.';
+        'See how contrast sensitivity maps onto real-world objects. The curve below represents a generic patient with 20/20 vision.';
 }
 
 scheduleRedraw();
