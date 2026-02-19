@@ -61,8 +61,17 @@ body{background:linear-gradient(170deg,#0c0c10 0%,#080810 50%,#0a0a12 100%);font
 .feat-rows{display:flex;flex-direction:column;gap:8px}
 .feat-row{display:flex;align-items:center;gap:10px;font-size:.8rem}
 .feat-icon{font-size:.9rem;width:20px;text-align:center}
-.feat-icon.pass{color:#00ffcc}
-.feat-icon.fail{color:#ff453a}
+.feat-icon.clear{color:#00ffcc}
+.feat-icon.likely{color:#8fdc6a}
+.feat-icon.marginal{color:#F5A623}
+.feat-icon.unlikely{color:#e87040}
+.feat-icon.invisible{color:#ff453a}
+.feat-label{font-family:var(--m);font-size:.68rem;padding:2px 8px;border-radius:4px;min-width:64px;text-align:center}
+.feat-label.clear{color:#00ffcc;background:rgba(0,255,204,.10)}
+.feat-label.likely{color:#8fdc6a;background:rgba(143,220,106,.10)}
+.feat-label.marginal{color:#F5A623;background:rgba(245,166,35,.10)}
+.feat-label.unlikely{color:#e87040;background:rgba(232,112,64,.10)}
+.feat-label.invisible{color:#ff453a;background:rgba(255,69,58,.10)}
 .feat-name{color:var(--t2);min-width:100px}
 .feat-freq{font-family:var(--m);font-size:.7rem;color:var(--t3)}
 .feat-margin{font-family:var(--m);font-size:.68rem;padding:2px 8px;border-radius:4px;margin-left:auto}
@@ -782,6 +791,14 @@ function drawAll() {
     updateVerdict(obj, distMeters);
 }
 
+function marginGrade(marginDb) {
+    if (marginDb > 10)  return { grade: 'clear',     icon: '\u2713', label: 'Clear' };
+    if (marginDb > 3)   return { grade: 'likely',    icon: '\u2713', label: 'Likely' };
+    if (marginDb > -1)  return { grade: 'marginal',  icon: '\u25CB', label: 'Marginal' };
+    if (marginDb > -6)  return { grade: 'unlikely',  icon: '\u25CB', label: 'Unlikely' };
+    return                       { grade: 'invisible', icon: '\u2717', label: 'Invisible' };
+}
+
 function updateVerdict(obj, distMeters) {
     const result = computeVerdict(obj, distMeters, csfParams);
     const statusEl = document.getElementById('verdict-status');
@@ -793,15 +810,14 @@ function updateVerdict(obj, distMeters) {
     const rowsEl = document.getElementById('feat-rows');
     const featureLabels = ['Detection', 'Shape', 'Detail'];
     rowsEl.innerHTML = result.feats.map((f, i) => {
-        const pass = f.visible;
-        const icon = pass ? '\u2713' : '\u2717';
-        const iconClass = pass ? 'pass' : 'fail';
+        const mg = marginGrade(f.margin);
         const charF = f.charFreq;
         const freqStr = charF >= 0.5 && charF <= 100 ? charF.toFixed(1) + ' cpd' : '';
         const marginStr = isFinite(f.margin) ? (f.margin >= 0 ? '+' : '') + f.margin.toFixed(0) + ' dB' : '';
         const marginClass = f.margin >= 0 ? 'pos' : 'neg';
         return `<div class="feat-row">
-            <span class="feat-icon ${iconClass}">${icon}</span>
+            <span class="feat-icon ${mg.grade}">${mg.icon}</span>
+            <span class="feat-label ${mg.grade}">${mg.label}</span>
             <span class="feat-name">${featureLabels[i]}: ${f.label}</span>
             <span class="feat-freq">${freqStr}</span>
             <span class="feat-margin ${marginClass}">${marginStr}</span>
