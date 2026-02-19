@@ -154,13 +154,13 @@ const OBJECTS = [
         name: 'Golf Ball (fairway)',
         distRange: [10, 300], distDefault: 137, distStep: 5, distUnit: 'yd', distScale: 0.9144,
         features: [
-            { label: 'Ball body',    size: 0.04267, contrast: { bright: 0.50, cloudy: 0.35, overcast: 0.20, night: 0.03 }, type: 'broadband' },
-            { label: 'Ball edge',    size: 0.010,   contrast: { bright: 0.40, cloudy: 0.25, overcast: 0.12, night: 0.02 }, type: 'broadband' },
+            { label: 'Ball body',    size: 0.04267, contrast: { bright: 0.70, cloudy: 0.50, overcast: 0.25, night: 0.03 }, type: 'broadband' },
+            { label: 'Ball edge',    size: 0.010,   contrast: { bright: 0.70, cloudy: 0.50, overcast: 0.25, night: 0.03 }, type: 'broadband' },
             { label: 'Dimple texture', size: 0.0035, contrast: { bright: 0.15, cloudy: 0.08, overcast: 0.04, night: 0.005 }, type: 'texture' },
         ],
         descriptions: {
             resolved: 'You can make out the dimple pattern on the ball at this distance.',
-            detected: 'You can see the ball but can\'t resolve its surface details.',
+            detected: 'You can see the ball but can\'t resolve its shape or surface details.',
             invisible: 'The ball is essentially invisible at this distance and lighting.',
         },
     },
@@ -168,8 +168,8 @@ const OBJECTS = [
         name: 'Golf Ball (sky)',
         distRange: [10, 300], distDefault: 137, distStep: 5, distUnit: 'yd', distScale: 0.9144,
         features: [
-            { label: 'Ball body',    size: 0.04267, contrast: { bright: 0.10, cloudy: 0.06, overcast: 0.03, night: 0.01 }, type: 'broadband' },
-            { label: 'Ball edge',    size: 0.010,   contrast: { bright: 0.08, cloudy: 0.04, overcast: 0.02, night: 0.005 }, type: 'broadband' },
+            { label: 'Ball body',    size: 0.04267, contrast: { bright: 0.40, cloudy: 0.25, overcast: 0.10, night: 0.01 }, type: 'broadband' },
+            { label: 'Ball edge',    size: 0.010,   contrast: { bright: 0.40, cloudy: 0.25, overcast: 0.10, night: 0.01 }, type: 'broadband' },
             { label: 'Dimple texture', size: 0.0035, contrast: { bright: 0.04, cloudy: 0.02, overcast: 0.01, night: 0.002 }, type: 'texture' },
         ],
         descriptions: {
@@ -303,17 +303,30 @@ function featureCharFreq(feat, distMeters) {
 function featureVisible(feat, distMeters, params) {
     const C = feat.contrast[currentLighting];
     if (C <= 0) return { visible: false, margin: -Infinity };
-    // Check if CSF exceeds demand at ANY frequency in 0.5–50 cpd
-    // This correctly handles texture features whose peak demand is far outside the range
-    let bestMarginDb = -Infinity;
-    for (let i = 0; i < 300; i++) {
-        const f = 0.5 * Math.pow(100, i / 299);
-        const csfSens = Math.pow(10, logParabolaCSF(f, params.g, params.f, params.b, params.d));
-        const demSens = featureDemand(f, feat, distMeters);
+
+    if (feat.type === 'texture') {
+        // Texture: scan across all frequencies — the Gaussian band naturally limits
+        // where detection is possible, so "any frequency" check is correct
+        let bestMarginDb = -Infinity;
+        for (let i = 0; i < 300; i++) {
+            const f = 0.5 * Math.pow(100, i / 299);
+            const csfSens = Math.pow(10, logParabolaCSF(f, params.g, params.f, params.b, params.d));
+            const demSens = featureDemand(f, feat, distMeters);
+            const marginDb = 20 * Math.log10(csfSens / demSens);
+            if (marginDb > bestMarginDb) bestMarginDb = marginDb;
+        }
+        return { visible: bestMarginDb >= 0, margin: bestMarginDb };
+    } else {
+        // Broadband: check at the characteristic frequency where shape/detail
+        // information lives. Low-freq energy only gives "something is there"
+        // detection — to resolve the feature you need CSF at its spatial scale.
+        const charF = featureCharFreq(feat, distMeters);
+        const testF = Math.max(0.5, Math.min(50, charF));
+        const csfSens = Math.pow(10, logParabolaCSF(testF, params.g, params.f, params.b, params.d));
+        const demSens = featureDemand(testF, feat, distMeters);
         const marginDb = 20 * Math.log10(csfSens / demSens);
-        if (marginDb > bestMarginDb) bestMarginDb = marginDb;
+        return { visible: marginDb >= 0, margin: marginDb };
     }
-    return { visible: bestMarginDb >= 0, margin: bestMarginDb };
 }
 
 function computeVerdict(obj, distMeters, params) {
