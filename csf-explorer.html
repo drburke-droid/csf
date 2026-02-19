@@ -342,12 +342,13 @@ function featureVisible(feat, distMeters, params) {
         return { visible: bestMarginDb >= 0, margin: bestMarginDb };
     } else {
         // Broadband: check at the characteristic frequency where shape/detail
-        // information lives. Low-freq energy only gives "something is there"
-        // detection — to resolve the feature you need CSF at its spatial scale.
+        // information lives. Demand at charF is always sqrt(2)/C.
+        // When charF < CSF peak, the feature is "trivially large" — clamp to
+        // peak freq so that closer objects never appear harder to see.
         const charF = featureCharFreq(feat, distMeters);
-        const testF = Math.max(0.5, Math.min(50, charF));
+        const testF = Math.max(params.f, Math.min(50, charF));
         const csfSens = Math.pow(10, logParabolaCSF(testF, params.g, params.f, params.b, params.d));
-        const demSens = featureDemand(testF, feat, distMeters);
+        const demSens = Math.SQRT2 / C;
         const marginDb = 20 * Math.log10(csfSens / demSens);
         return { visible: marginDb >= 0, margin: marginDb };
     }
