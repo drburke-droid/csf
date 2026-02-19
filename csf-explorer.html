@@ -288,6 +288,7 @@ const OBJECTS = [
             detected: 'You can spot the hi-vis vest but can\'t make out the face.',
             invisible: 'Even a hi-vis vest can\'t be detected at this range and lighting.',
         },
+        retroNote: 'The reflective strips on a hi-vis vest are retroreflective \u2014 they bounce headlight beams back toward the driver, so those strips actually become easier to see at night than in dim daylight.',
     },
     {
         name: 'Car on highway',
@@ -322,6 +323,7 @@ const OBJECTS = [
             detected: 'You can see the green sign but can\'t read the lettering.',
             invisible: 'The sign is not visible at this range and lighting.',
         },
+        retroNote: 'Highway signs use retroreflective sheeting that bounces headlight beams back toward the driver, so contrast actually improves at night compared to overcast daylight.',
     },
     {
         name: 'License plate',
@@ -338,6 +340,7 @@ const OBJECTS = [
             detected: 'You can see the plate but can\'t read the characters.',
             invisible: 'The plate is not detectable at this range.',
         },
+        retroNote: 'License plates use a retroreflective background that lights up under headlights, so contrast actually improves at night compared to overcast daylight.',
     },
     {
         name: 'Deer at roadside',
@@ -826,7 +829,12 @@ function updateVerdict(obj, distMeters) {
     statusEl.textContent = result.verdict.toUpperCase();
     statusEl.className = 'verdict-status ' + result.verdict;
 
-    document.getElementById('verdict-desc').textContent = result.description;
+    const descEl = document.getElementById('verdict-desc');
+    if (currentLighting === 'night' && obj.retroNote) {
+        descEl.textContent = result.description + ' ' + obj.retroNote;
+    } else {
+        descEl.textContent = result.description;
+    }
 
     const rowsEl = document.getElementById('feat-rows');
     const featureLabels = ['Detection', 'Shape', 'Detail'];
