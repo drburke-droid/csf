@@ -11,7 +11,7 @@ import { createHost, createTemporaryHost, createHandoffClient,
          shortCode, codeToId, idToCode, formatCode } from './peer-sync.js';
 
 const MAX_TRIALS = 50, DEBOUNCE_MS = 250, NUM_STEPS = 5;
-const CSF_EXPLORER_URL = 'https://drburke-droid.github.io/csf/csf-explorer.html';
+const CSF_EXPLORER_URL = 'https://calgaryvisioncentre.com/blog/seeing-beyond-2020';
 const CARD_W_MM = 85.6, CARD_H_MM = 53.98, CARD_ASPECT = CARD_W_MM / CARD_H_MM;
 
 function showScreen(id) {
