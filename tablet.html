@@ -119,10 +119,10 @@ body{background:var(--c);color:var(--t1);font-family:var(--f);-webkit-font-smoot
 .ori-pad{display:flex;flex-direction:column;gap:clamp(8px,2.5vw,14px);width:min(94vw,420px)}
 .ori-row{display:flex;gap:clamp(8px,2.5vw,14px)}
 .ori-btn{flex:1;padding:clamp(16px,5vw,26px) clamp(10px,3vw,18px);border-radius:20px;border:2px solid var(--b);background:rgba(255,255,255,.03);font-size:clamp(1.4rem,5vw,2rem);color:var(--t1);cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;text-align:center;display:flex;flex-direction:column;align-items:center;gap:clamp(4px,1.5vw,8px);will-change:transform;transition:transform .12s var(--ez-spring),background .15s,border-color .15s,color .15s,box-shadow .15s}
-.ori-btn:active{transform:scale(.88) translateY(2px);background:var(--as);border-color:var(--a);color:var(--a);box-shadow:inset 0 2px 6px rgba(0,0,0,.3),0 0 12px var(--ag)}
+.ori-btn:active,.ori-btn.flash{transform:scale(.88) translateY(2px);background:var(--as);border-color:var(--a);color:var(--a);box-shadow:inset 0 2px 6px rgba(0,0,0,.3),0 0 12px var(--ag)}
 .ori-lbl{font-family:var(--m);font-size:clamp(.5rem,1.8vw,.65rem);letter-spacing:1px;text-transform:uppercase;color:var(--t2);transition:color .15s}
 .no-btn{padding:20px;border-radius:20px;border:2px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02);font-size:1.1rem;color:var(--t2);cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;text-align:center;will-change:transform;transition:transform .12s var(--ez-spring),background .15s,border-color .15s,color .15s,box-shadow .15s}
-.no-btn:active{transform:scale(.93) translateY(2px);background:rgba(255,69,58,.08);border-color:rgba(255,69,58,.3);color:var(--e);box-shadow:inset 0 2px 4px rgba(0,0,0,.2)}
+.no-btn:active,.no-btn.flash{transform:scale(.93) translateY(2px);background:rgba(255,69,58,.08);border-color:rgba(255,69,58,.3);color:var(--e);box-shadow:inset 0 2px 4px rgba(0,0,0,.2)}
 
 /* ─── Results — staggered reveal ─── */
 .res{padding:16px 20px;flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;overflow-y:auto}
@@ -210,16 +210,16 @@ body{background:var(--c);color:var(--t1);font-family:var(--f);-webkit-font-smoot
 <div class="test-resp">
 <div class="ori-pad">
 <div class="ori-row">
-<button class="ori-btn" onclick="send('12oclock')"><span style="display:inline-block;width:28px;height:28px;border-left:3px solid currentColor;transform:rotate(0deg)"></span><span class="ori-lbl">12</span></button>
-<button class="ori-btn" onclick="send('1oclock')"><span style="display:inline-block;width:28px;height:28px;border-left:3px solid currentColor;transform:rotate(30deg)"></span><span class="ori-lbl">1</span></button>
-<button class="ori-btn" onclick="send('2oclock')"><span style="display:inline-block;width:28px;height:28px;border-left:3px solid currentColor;transform:rotate(60deg)"></span><span class="ori-lbl">2</span></button>
+<button class="ori-btn" onclick="send('12oclock',event)"><span style="display:inline-block;width:28px;height:28px;border-left:3px solid currentColor;transform:rotate(0deg)"></span><span class="ori-lbl">12</span></button>
+<button class="ori-btn" onclick="send('1oclock',event)"><span style="display:inline-block;width:28px;height:28px;border-left:3px solid currentColor;transform:rotate(30deg)"></span><span class="ori-lbl">1</span></button>
+<button class="ori-btn" onclick="send('2oclock',event)"><span style="display:inline-block;width:28px;height:28px;border-left:3px solid currentColor;transform:rotate(60deg)"></span><span class="ori-lbl">2</span></button>
 </div>
 <div class="ori-row">
-<button class="ori-btn" onclick="send('3oclock')"><span style="display:inline-block;width:28px;height:28px;border-left:3px solid currentColor;transform:rotate(90deg)"></span><span class="ori-lbl">3</span></button>
-<button class="ori-btn" onclick="send('4oclock')"><span style="display:inline-block;width:28px;height:28px;border-left:3px solid currentColor;transform:rotate(120deg)"></span><span class="ori-lbl">4</span></button>
-<button class="ori-btn" onclick="send('5oclock')"><span style="display:inline-block;width:28px;height:28px;border-left:3px solid currentColor;transform:rotate(150deg)"></span><span class="ori-lbl">5</span></button>
+<button class="ori-btn" onclick="send('3oclock',event)"><span style="display:inline-block;width:28px;height:28px;border-left:3px solid currentColor;transform:rotate(90deg)"></span><span class="ori-lbl">3</span></button>
+<button class="ori-btn" onclick="send('4oclock',event)"><span style="display:inline-block;width:28px;height:28px;border-left:3px solid currentColor;transform:rotate(120deg)"></span><span class="ori-lbl">4</span></button>
+<button class="ori-btn" onclick="send('5oclock',event)"><span style="display:inline-block;width:28px;height:28px;border-left:3px solid currentColor;transform:rotate(150deg)"></span><span class="ori-lbl">5</span></button>
 </div>
-<button class="no-btn" onclick="send('none')">No Target Visible</button>
+<button class="no-btn" onclick="send('none',event)">No Target Visible</button>
 </div></div>
 </div></div>
 
@@ -471,7 +471,7 @@ function ptSubmit(){if(!ptEye||!ptCorr)return;
     tx({type:'preTestAnswer',eye:ptEye,correction:ptCorr})}
 
 // ═══ Test ═══
-function send(v){if(!isConn)return;tx({type:'input',value:v});if(navigator.vibrate)navigator.vibrate([8,30,4])}
+function send(v,e){if(!isConn)return;tx({type:'input',value:v});if(navigator.vibrate)navigator.vibrate([8,30,4]);var btn=e&&e.currentTarget;if(btn){btn.classList.add('flash');setTimeout(function(){btn.classList.remove('flash')},180)}}
 function updateRing(t,mx){
     var circ=2*Math.PI*21;
     document.getElementById('rfg').style.strokeDashoffset=circ*(1-t/mx);
