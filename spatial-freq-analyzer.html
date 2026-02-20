@@ -143,6 +143,7 @@ const LIGHTING = {
   night:    { label: 'Night',      contrast: 0.03 }
 };
 let lastHistBins = null; // cache for redraw on lighting change
+let cachedAllBins = null; // cache raw FFT bins (pixel-space) for re-binning on distance change
 
 function logParabolaCSF(freq, g, f, b, d) {
     const safeFreq = Math.max(0.05, freq);
@@ -215,7 +216,19 @@ function processImage(img){
 }
 function sceneDeg(){readScene();return 2*Math.atan(sceneWidthM/(2*viewDistM))*(180/Math.PI);}
 function pxToCpd(f){return f/sceneDeg();}
-function updateCpd(){$('cpdReadout').textContent=`Scene ≈ ${sceneDeg().toFixed(1)}° of your vision`;drawEyeDiagram();}
+function rebinHistogram(){
+  if(!cachedAllBins) return;
+  const cpdBins={};
+  for(let i=0;i<cachedAllBins.length;i++){
+    const cpd=pxToCpd(cachedAllBins[i].k);
+    const bucket=Math.max(1,Math.round(cpd));
+    if(!cpdBins[bucket]) cpdBins[bucket]=0;
+    cpdBins[bucket]+=cachedAllBins[i].mag;
+  }
+  const histData=Object.keys(cpdBins).map(k=>({cpd:parseInt(k),energy:cpdBins[k]})).sort((a,b)=>a.cpd-b.cpd);
+  drawHistogram(histData);
+}
+function updateCpd(){$('cpdReadout').textContent=`Scene ≈ ${sceneDeg().toFixed(1)}° of your vision`;drawEyeDiagram();rebinHistogram();}
 function drawLine(){
   const c=$('mainCanvas').getContext('2d');c.putImageData(imgData,0,0);
   c.strokeStyle='#00d4aa';c.lineWidth=1.5;c.setLineDash([6,4]);
@@ -420,6 +433,7 @@ function runDecomposition(){
     if(mag>1e-10)allBins.push({k,mag});
   }
   allBins.sort((a,b)=>b.mag-a.mag);
+  cachedAllBins = allBins; // cache for live re-binning on distance change
   const total=allBins.length;
   if(!total)return;
 
